@@ -59,4 +59,10 @@ const calendarApp = createCalendar({
   <div>
       <Button>Click me</Button>
   </div>
+  <div style="margin-top: 1rem;">
+    <router-link to="/resources">
+      <Button>Go to Resources</Button>
+    </router-link>
+  </div>
+  <router-view />
 </template>
