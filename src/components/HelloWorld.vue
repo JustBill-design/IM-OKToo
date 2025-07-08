@@ -1,43 +1,58 @@
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import '@schedule-x/theme-shadcn/dist/index.css'
+import { ScheduleXCalendar } from '@schedule-x/vue'
+import { createCurrentTimePlugin } from '@schedule-x/current-time'
+import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
+import { Button } from "@/components/ui/button"
+import {
+  createCalendar,
+  createViewDay,
+  createViewMonthAgenda,
+  createViewMonthGrid,
+  createViewWeek,
+  createViewList
+} from '@schedule-x/calendar'
+import '@schedule-x/theme-default/dist/index.css'
 
-defineProps({
-  msg: String,
+const scrollController = createScrollControllerPlugin({
+  initialScroll: '07:50'
 })
 
-const count = ref(0)
+const calendarApp = createCalendar({
+  views: [
+    createViewDay(),
+    createViewWeek(),
+    createViewList(),
+    createViewMonthGrid(),
+    createViewMonthAgenda(),
+  ],
+  events: [
+    {
+      id: 1,
+      title: 'Event 1',
+      start: '2023-12-19',
+      end: '2023-12-19',
+    },
+    {
+      id: 2,
+      title: 'Event 2',
+      start: '2023-12-20 12:00',
+      end: '2023-12-20 13:00',
+    },
+  ],
+  theme: 'shadcn'
+}, [createCurrentTimePlugin(), scrollController])
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <ScheduleXCalendar :calendar-app="calendarApp">
+    <template #timeGridEvent="{ calendarEvent }">
+      <div class="event">
+        {{ calendarEvent.title }}
+      </div>
+    </template>
+  </ScheduleXCalendar>
+  <div>
+      <Button>Click me</Button>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
-
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>
