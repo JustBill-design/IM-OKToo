@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
   DateFormatter,
-  type DateValue,
   getLocalTimeZone,
+  today
 } from '@internationalized/date'
 import { ref, computed } from 'vue'
 import { cn } from '@/utils'
@@ -30,11 +30,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from "@/components/ui/button"
 import { CalendarIcon } from 'lucide-vue-next'
-import { date } from 'zod'
 
 const df = new DateFormatter('en-US', {
   dateStyle: 'long',
 })
+
+const getToday = () => {
+  const today = new Date();
+  return today;
+};
 
 const startPopoverOpen = ref(false)
 const endPopoverOpen = ref(false)
@@ -76,10 +80,15 @@ const timeOptions = computed(() => {
                     </Button>
                     </PopoverTrigger>
                     <PopoverContent class="w-auto p-0">
-                    <Calendar :modelValue="componentField.modelValue" @update:modelValue="date => {componentField.onChange(date); startPopoverOpen=false}" initial-focus />
+                    <Calendar 
+                        :modelValue="componentField.modelValue" 
+                        :min-value="today(getLocalTimeZone())"
+                        initial-focus 
+                        @update:modelValue="date => {componentField.onChange(date); startPopoverOpen=false}"/>
                     </PopoverContent>
                 </Popover>
             </FormControl>
+            <FormMessage />
             </FormItem>
             </FormField>
         </div>
@@ -133,10 +142,15 @@ const timeOptions = computed(() => {
                     </Button>
                     </PopoverTrigger>
                     <PopoverContent class="w-auto p-0">
-                    <Calendar :modelValue="componentField.modelValue" @update:modelValue="date => {componentField.onChange(date); endPopoverOpen=false}" initial-focus />
+                    <Calendar 
+                        :modelValue="componentField.modelValue" 
+                        :min-value="today(getLocalTimeZone())"
+                        initial-focus
+                        @update:modelValue="date => {componentField.onChange(date); endPopoverOpen=false}"/>
                     </PopoverContent>
                 </Popover>
             </FormControl>
+            <FormMessage />
             </FormItem>
             </FormField>
         </div>

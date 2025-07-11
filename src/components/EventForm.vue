@@ -11,25 +11,40 @@ import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 
-const d = new Date()
-let year = d.getFullYear();
-let month = d.getMonth();
+
+const getToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to midnight
+  return today;
+};
 
 const formSchema = toTypedSchema(z.object({
   title: z.string().min(1, 'Title is required'),
   startDate: z.object({
     era: z.literal("AD"),
-    year: z.coerce.number().int().min(year),
+    year: z.coerce.number().int(),
     month: z.coerce.number().int(),
     day: z.coerce.number().int(),
-  }).transform(({ year, month, day }) => new Date(year, month-1, day)),
+  }).refine(
+    ({ year, month, day }) => {
+      const inputDate = new Date(year, month - 1, day);
+      return inputDate >= getToday();
+    },
+    { message: "Start date cannot be in the past" }
+  ),
   startTime: z.string(),
   endDate: z.object({
     era: z.literal("AD"),
-    year: z.coerce.number().int().min(year),
+    year: z.coerce.number().int(),
     month: z.coerce.number().int(),
     day: z.coerce.number().int(),
-  }).transform(({ year, month, day }) => new Date(year, month-1, day)),
+  }).refine(
+    ({ year, month, day }) => {
+      const inputDate = new Date(year, month - 1, day);
+      return inputDate >= getToday();
+    },
+    { message: "End date cannot be in the past" }
+  ),
   endTime: z.string(),
   guests: z.string().optional(),
   location: z.string().optional(),
