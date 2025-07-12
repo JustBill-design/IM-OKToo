@@ -17,7 +17,7 @@
     </div>
     <div class="resource-card contact-card" key="contact">
       <h2>Contact Us</h2>
-      <p>Facebook: <a href="https://www.facebook.com/lionsbefrienders/"></a></p>
+      <p>Facebook: <a href="https://www.facebook.com/lionsbefrienders/">Facebook</a></p>
       <p>Phone: <a href="+6512345678">+65 12345678</a></p>
       <p>Or use our <a href="https://www.lionsbefrienders.org.sg/enquiry/" target="_blank" rel="noopener">contact form</a>.</p>
     </div>
