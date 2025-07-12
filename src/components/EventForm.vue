@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import EventTitle from '@/components/EventTitle.vue'
 import EventDateTimeRange from '@/components/EventDateTimeRange.vue'
-import EventGuest from '@/components/EventGuest.vue'
+import EventElderly from './EventElderly.vue'
+import EventCaretaker from './EventCaretaker.vue'
 import EventLocation from '@/components/EventLocation.vue'
 import EventDescription from '@/components/EventDescription.vue'
 import EventRecurrence from '@/components/EventRecurrence.vue'
@@ -20,33 +21,10 @@ const getToday = () => {
 
 const formSchema = toTypedSchema(z.object({
   title: z.string().min(1, 'Title is required'),
-  startDate: z.object({
-    era: z.literal("AD"),
-    year: z.coerce.number().int(),
-    month: z.coerce.number().int(),
-    day: z.coerce.number().int(),
-  }).refine(
-    ({ year, month, day }) => {
-      const inputDate = new Date(year, month - 1, day);
-      return inputDate >= getToday();
-    },
-    { message: "Start date cannot be in the past" }
-  ),
   startTime: z.string(),
-  endDate: z.object({
-    era: z.literal("AD"),
-    year: z.coerce.number().int(),
-    month: z.coerce.number().int(),
-    day: z.coerce.number().int(),
-  }).refine(
-    ({ year, month, day }) => {
-      const inputDate = new Date(year, month - 1, day);
-      return inputDate >= getToday();
-    },
-    { message: "End date cannot be in the past" }
-  ),
   endTime: z.string(),
-  guests: z.string().optional(),
+  elderly: z.string(),
+  caretaker: z.string(),
   location: z.string().optional(),
   description: z.string().optional(),
   recurrence: z.string().optional(),
@@ -67,12 +45,13 @@ const onSubmit = form.handleSubmit((values) => {
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Create Event</h2>
         <form @submit.prevent="onSubmit" class="space-y-6">
         <EventTitle/>
-        <pre>{{ form.values }}</pre>
         <EventDateTimeRange/>
-        <EventGuest/>
+        <EventElderly/>
+        <EventCaretaker/>
         <EventLocation/>
         <EventDescription/>
         <EventRecurrence/>
+        <pre>{{ form.values }}</pre>
 
         <Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
             Create Event
