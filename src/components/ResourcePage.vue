@@ -120,20 +120,20 @@ onMounted(() => {
   box-shadow: 0 8px 24px rgba(0,0,0,0.13);
 }
 .contact-card {
-  background: #d4f1ff;
+  background: #ffffff;
   border: 1.5px solid #91d5ff;
 }
 .back-btn {
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   border: none;
-  background: #dfc6c6;
+  background: #cffff5;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
 }
 .back-btn:hover {
-  background: #e6f7ff;
+  background: #0fb3ff;
 }
 @media (max-width: 900px) {
   .resource-header {
