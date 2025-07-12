@@ -29,14 +29,14 @@ export const posts: Post[] = [
   {
     id: 'post-2',
     category: 'Anxiety',
-    title: 'ur mother',
-    content: 'text text text text text text text text text text text text',
-    user: users[1],
+    title: 'ur mom',
+    content: 'i just got this yee yee haw haircut',
+    user: users[2],
     createdAt: '2025-07-12T10:00:00Z',
     views: 250,
     likes: 30,
     comments: [
-        { id: 'comment-3', text: 'hungry', user: users[0], createdAt: '2025-07-12T10:00:00Z' },
+        { id: 'comment-3', text: 'wow!', user: users[4], createdAt: '2025-07-12T10:00:00Z' },
     ],
   },
   {

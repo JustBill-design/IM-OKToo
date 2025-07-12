@@ -2,6 +2,7 @@
 import { defineProps, ref } from 'vue';
 import type { Post } from '@/types/forum';
 import { Eye, MessageSquare, ThumbsUp } from 'lucide-vue-next';
+import CommentItem from './CommentItem.vue';
 
 const props = defineProps<{
   post: Post;
@@ -45,6 +46,10 @@ const toggleExpand = () => {
       </div>
       <div class="mt-4">
         <h4 class="font-bold">Comments</h4>
+        <div v-if="post.comments.length > 0">
+          <CommentItem v-for="comment in post.comments" :key="comment.id" :comment="comment" />
+        </div>
+        <p v-else class="text-sm text-gray-500">No comments yet.</p>
       </div>
     </div>
   </div>
