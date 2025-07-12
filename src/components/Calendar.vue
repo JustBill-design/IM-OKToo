@@ -52,7 +52,4 @@ const calendarApp = createCalendar({
       </div>
     </template>
   </ScheduleXCalendar>
-  <div>
-      <Button>Click me</Button>
-  </div>
 </template>
