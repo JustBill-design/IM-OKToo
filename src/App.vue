@@ -1,68 +1,25 @@
 <script setup lang="ts">
-import '@schedule-x/theme-shadcn/dist/index.css'
-import { ScheduleXCalendar } from '@schedule-x/vue'
-import { createCurrentTimePlugin } from '@schedule-x/current-time'
-import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
-import { Button } from "@/components/ui/button"
-import {
-  createCalendar,
-  createViewDay,
-  createViewMonthAgenda,
-  createViewMonthGrid,
-  createViewWeek,
-  createViewList
-} from '@schedule-x/calendar'
-import '@schedule-x/theme-default/dist/index.css'
- 
-
-const scrollController = createScrollControllerPlugin({
-  initialScroll: '07:50'
-})
-
-// Do not use a ref here, as the calendar instance is not reactive, and doing so might cause issues
-// For updating events, use the events service plugin
-const calendarApp = createCalendar({
-  views: [
-    createViewDay(),
-    createViewWeek(),
-    createViewList(),
-    createViewMonthGrid(),
-    createViewMonthAgenda(),
-  ],
-  events: [
-    {
-      id: 1,
-      title: 'Event 1',
-      start: '2023-12-19',
-      end: '2023-12-19',
-    },
-    {
-      id: 2,
-      title: 'Event 2',
-      start: '2023-12-20 12:00',
-      end: '2023-12-20 13:00',
-    },
-  ],
-  theme: 'shadcn'
-}, [createCurrentTimePlugin(), scrollController])
-
 </script>
- 
+
 <template>
-  <ScheduleXCalendar :calendar-app="calendarApp">
-    <template #timeGridEvent="{ calendarEvent }">
-      <div class="event">
-        {{ calendarEvent.title }}
+  <div class="flex flex-col min-h-screen">
+    <header class="sticky top-0 z-40 w-full border-b bg-background">
+      <div class="container flex items-center h-16 space-x-4 sm:justify-between sm:space-x-0">
+        <div class="flex gap-6 md:gap-10">
+          <a href="/" class="flex items-center space-x-2">
+            <span class="inline-block font-bold">IM-OKToo</span>
+          </a>
+          <nav class="flex gap-6">
+            <router-link to="/" class="text-sm font-medium transition-colors hover:text-primary">Home</router-link>
+            <router-link to="/calendar" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Calendar</router-link>
+            <router-link to="/forum" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Forum</router-link>
+            <router-link to="/resources" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Resources</router-link>
+          </nav>
+        </div>
       </div>
-    </template>
-  </ScheduleXCalendar>
-  <div>
-      <Button>Click me</Button>
+    </header>
+    <main class="flex-1">
+      <router-view />
+    </main>
   </div>
-  <div style="margin-top: 1rem;">
-    <router-link to="/resources">
-      <Button>Go to Resources</Button>
-    </router-link>
-  </div>
-  <router-view />
 </template>

@@ -24,7 +24,7 @@
   </div>
   <div style="margin-top: 2rem; text-align: center;">
     <router-link to="/">
-      <button class="back-btn">Back to Calendar</button>
+      <button class="back-btn">Back to home</button>
     </router-link>
   </div>
 </template>
