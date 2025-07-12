@@ -58,9 +58,9 @@ const components = {
 type ResourceComponentName = keyof typeof components;
 
 const resources: { name: string, component: ResourceComponentName, color: string }[] = [
-  { name: 'Resource 1', component: 'Resource1', color: '#85F1FF' },
-  { name: 'Resource 2', component: 'Resource2', color: '#30FF94' },
-  { name: 'Community Care Services', component: 'Resource3', color: '#f0fdf4' },
+  { name: 'Resource 1', component: 'Resource1', color: '#F0F9FF' },
+  { name: 'Resource 2', component: 'Resource2', color: '#D9FFD9' },
+  { name: 'Community Care Services', component: 'Resource3', color: '#FFE8EE' },
   { name: 'Personal Wellness', component: 'Resource4', color: '#FFCD70' },
   { name: 'News and Events', component: 'Resource5', color: '#F0D9FF' },
   { name: 'Contact Us', component: 'Resource6', color: '#BAC6FF' },
