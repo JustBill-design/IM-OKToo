@@ -3,7 +3,6 @@ import '@schedule-x/theme-shadcn/dist/index.css'
 import { ScheduleXCalendar } from '@schedule-x/vue'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
-import { Button } from "@/components/ui/button"
 import {
   createCalendar,
   createViewDay,
@@ -14,10 +13,13 @@ import {
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
 
+
 const scrollController = createScrollControllerPlugin({
   initialScroll: '07:50'
 })
 
+// Do not use a ref here, as the calendar instance is not reactive, and doing so might cause issues
+// For updating events, use the events service plugin
 const calendarApp = createCalendar({
   views: [
     createViewDay(),
@@ -42,17 +44,17 @@ const calendarApp = createCalendar({
   ],
   theme: 'shadcn'
 }, [createCurrentTimePlugin(), scrollController])
+
 </script>
 
 <template>
-  <ScheduleXCalendar :calendar-app="calendarApp">
-    <template #timeGridEvent="{ calendarEvent }">
-      <div class="event">
-        {{ calendarEvent.title }}
-      </div>
-    </template>
-  </ScheduleXCalendar>
-  <div>
-      <Button>Click me</Button>
+  <div class="h-full">
+    <ScheduleXCalendar :calendar-app="calendarApp">
+      <template #timeGridEvent="{ calendarEvent }">
+        <div class="event">
+          {{ calendarEvent.title }}
+        </div>
+      </template>
+    </ScheduleXCalendar>
   </div>
 </template>
