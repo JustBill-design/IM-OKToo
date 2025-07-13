@@ -10,7 +10,7 @@ const navItems = [
 ];
 
 const route = useRoute();
-const showLayout = computed(() => route.path !== '/resources');
+const showLayout = computed(() => route.path);
 </script>
 
 <template>

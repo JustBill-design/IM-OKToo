@@ -1,118 +1,172 @@
 <template>
-  <div class="flex h-screen overflow-hidden" :style="{ backgroundColor: activeColor, transition: 'background-color 0.7s ease' }">
-    <!-- Exit Button -->
-    <router-link to="/" class="fixed top-6 right-6 z-20 bg-white/50 p-2 rounded-full shadow-lg backdrop-blur-sm hover:bg-white/70 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </router-link>
-
-    <aside class="absolute top-0 left-0 z-10 flex items-center h-full p-6 w-72">
-      <nav class="space-y-4">
-        <button
-          v-for="resource in resources"
-          :key="resource.name"
-          @click="selectResource(resource.component)"
-          class="w-full text-left transition-all duration-500 ease-in-out group"
-          :class="{ 
-            'text-gray-900 font-bold': activeComponent === resource.component, 
-            'text-gray-500/60 hover:text-gray-900/80': activeComponent !== resource.component 
-          }"
-        >
-          <span class="text-lg">{{ resource.name }}</span>
-        </button>
-      </nav>
-    </aside>
-    <main class="flex-1 relative" @wheel.prevent="handleWheel">
-      <div class="relative h-full ml-72">
-        <transition-group name="fade-dramatic">
-          <section
-            v-for="resource in resources"
-            v-show="activeComponent === resource.component"
-            :key="resource.component"
-            class="absolute inset-0 p-12 flex items-center justify-center"
-          >
-            <div class="w-full max-w-4xl">
-                <component :is="components[resource.component]" />
-            </div>
-          </section>
-        </transition-group>
-      </div>
-    </main>
+  <div class="resource-header">
+    <img src="@/assets/resource_lion.png" alt="Resource Lion Mascot" class="lion-mascot" />
+    <div class="header-text">
+      <h1>Resources & Support</h1>
+      <p>Find the latest help, news, and ways to contact us!</p>
+    </div>
+  </div>
+  <div class="card-list">
+    <div class="resource-card" v-for="(link, i) in links" :key="'link-' + i">
+      <h2>{{ link.title }}</h2>
+      <a :href="link.url" target="_blank">Visit</a>
+    </div>
+    <div class="resource-card" v-for="(news, i) in newsList" :key="'news-' + i">
+      <h2>News & Updates</h2>
+      <p>{{ news }}</p>
+    </div>
+    <div class="resource-card contact-card" key="contact">
+      <h2>Contact Us</h2>
+      <p>Facebook: <a href="https://www.facebook.com/lionsbefrienders/">Facebook</a></p>
+      <p>Phone: <a href="+6512345678">+65 12345678</a></p>
+      <p>Or use our <a href="https://www.lionsbefrienders.org.sg/enquiry/" target="_blank" rel="noopener">contact form</a>.</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { RouterLink } from 'vue-router';
-import Resource1 from './resources/Resource1.vue';
-import Resource2 from './resources/Resource2.vue';
-import Resource3 from './resources/Resource3.vue';
-import Resource4 from './resources/Resource4.vue';
-import Resource5 from './resources/Resource5.vue';
-import Resource6 from './resources/Resource6.vue';
-import FindUs from './resources/FindUs.vue';
+import { ref, onMounted } from 'vue'
 
-const components = {
-  Resource1,
-  Resource2,
-  Resource3,
-  Resource4,
-  Resource5,
-  Resource6,
-  FindUs,
-};
+const links = ref([
+  { title: 'Government Resources', url: 'https://www.moh.gov.sg/managing-expenses/keeping-healthcare-affordable/help-for-caregiver' },
+  { title: 'Latest Events @ Lions Befrienders', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/' },
+  { title: 'Mental Health Resources', url: 'https://www.lionsbefrienders.org.sg/community-well-being-and-support-services/' },
+  { title: 'CNA news on caregivers', url: 'https://www.channelnewsasia.com/topic/caregiver' },
+])
 
-type ResourceComponentName = keyof typeof components;
+const newsList = ref([
+  'Community event: IM-OKTOO GATHERING',
+])
 
-const resources: { name: string, component: ResourceComponentName, color: string }[] = [
-  { name: 'Resource 1', component: 'Resource1', color: '#85F1FF' },
-  { name: 'Resource 2', component: 'Resource2', color: '#30FF94' },
-  { name: 'Community Services', component: 'Resource3', color: '#f0fdf4' },
-  { name: 'Personal Wellness', component: 'Resource4', color: '#FFCD70' },
-  { name: 'News and Events', component: 'Resource5', color: '#F0D9FF' },
-  { name: 'Contact Us', component: 'Resource6', color: '#BAC6FF' },
-  { name: 'Find Us', component: 'FindUs', color: '#F4FFF0' },
-];
-
-const activeComponent = ref<ResourceComponentName>('Resource1');
-let isWheeling = false;
-
-const activeColor = computed(() => {
-  const activeResource = resources.find(r => r.component === activeComponent.value);
-  return activeResource ? activeResource.color : '#ffffff';
-});
-
-const selectResource = (componentName: ResourceComponentName) => {
-  activeComponent.value = componentName;
-};
-
-const handleWheel = (event: WheelEvent) => {
-  if (isWheeling) return;
-  isWheeling = true;
-  setTimeout(() => { isWheeling = false; }, 800);
-  const currentIndex = resources.findIndex(r => r.component === activeComponent.value);
-  if (event.deltaY > 0) {
-    if (currentIndex < resources.length - 1) {
-      activeComponent.value = resources[currentIndex + 1].component;
-    }
-  } else {
-    if (currentIndex > 0) {
-      activeComponent.value = resources[currentIndex - 1].component;
-    }
+onMounted(() => {
+  const mascot = document.querySelector('.lion-mascot')
+  if (mascot) {
+    mascot.classList.add('bounce-in')
   }
-};
+})
 </script>
 
 <style scoped>
-.fade-dramatic-enter-active {
-  transition: opacity 0.8s ease-in-out 0.4s;
+.resource-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  animation: fadeInDown 1s;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.fade-dramatic-leave-active {
-  transition: opacity 0.4s ease-in-out;
+.lion-mascot {
+  width: 120px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  background: #fffbe6;
+  animation: mascotWiggle 2s infinite alternate;
 }
-.fade-dramatic-enter-from,
-.fade-dramatic-leave-to {
-  opacity: 0;
+.header-text h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.2rem;
 }
-</style>
+.header-text p {
+  color: #666;
+  font-size: 1.1rem;
+}
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.resource-card {
+  background: #ffffffce;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.5rem 2rem;
+  min-width: 220px;
+  max-width: 280px;
+  flex: 1 1 240px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  animation: fadeInUp 0.8s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.resource-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.resource-card a {
+  color: #006aff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+.resource-card a:hover {
+  text-decoration: underline;
+}
+.resource-card:hover {
+  transform: translateY(-8px) scale(1.03) rotate(-1deg);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  background:rgb(145, 203, 234)
+}
+.contact-card {
+  background: #ffffff;
+  border: 1.5px solid #91d5ff;
+}
+.back-btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  background: #cffff5;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #0fb3ff;
+}
+@media (max-width: 900px) {
+  .resource-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  .lion-mascot {
+    margin-bottom: 1rem;
+  }
+  .card-list {
+    gap: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .card-list {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .resource-card {
+    min-width: 0;
+    width: 90vw;
+    max-width: 98vw;
+    padding: 1rem;
+  }
+}
+/* Animations */
+@keyframes mascotWiggle {
+  0% { transform: rotate(-3deg) scale(1); }
+  100% { transform: rotate(3deg) scale(1.05); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style> 
