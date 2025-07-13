@@ -1,5 +1,12 @@
 <template>
   <div class="flex h-screen overflow-hidden" :style="{ backgroundColor: activeColor, transition: 'background-color 0.7s ease' }">
+    <!-- Exit Button -->
+    <router-link to="/" class="fixed top-6 right-6 z-20 bg-white/50 p-2 rounded-full shadow-lg backdrop-blur-sm hover:bg-white/70 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </router-link>
+
     <aside class="absolute top-0 left-0 z-10 flex items-center h-full p-6 w-72">
       <nav class="space-y-4">
         <button
@@ -37,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { RouterLink } from 'vue-router';
 import Resource1 from './resources/Resource1.vue';
 import Resource2 from './resources/Resource2.vue';
 import Resource3 from './resources/Resource3.vue';
@@ -60,7 +68,7 @@ type ResourceComponentName = keyof typeof components;
 const resources: { name: string, component: ResourceComponentName, color: string }[] = [
   { name: 'Resource 1', component: 'Resource1', color: '#85F1FF' },
   { name: 'Resource 2', component: 'Resource2', color: '#30FF94' },
-  { name: 'Community Care Services', component: 'Resource3', color: '#f0fdf4' },
+  { name: 'Community Services', component: 'Resource3', color: '#f0fdf4' },
   { name: 'Personal Wellness', component: 'Resource4', color: '#FFCD70' },
   { name: 'News and Events', component: 'Resource5', color: '#F0D9FF' },
   { name: 'Contact Us', component: 'Resource6', color: '#BAC6FF' },
@@ -95,6 +103,7 @@ const handleWheel = (event: WheelEvent) => {
   }
 };
 </script>
+
 <style scoped>
 .fade-dramatic-enter-active {
   transition: opacity 0.8s ease-in-out 0.4s;
