@@ -6,6 +6,7 @@ import EventCaretaker from './EventCaretaker.vue'
 import EventLocation from '@/components/EventLocation.vue'
 import EventDescription from '@/components/EventDescription.vue'
 import EventRecurrence from '@/components/EventRecurrence.vue'
+import EventCategory from './EventCategory.vue'
 
 import { Button } from "@/components/ui/button"
 import { useForm } from 'vee-validate'
@@ -45,6 +46,7 @@ const onSubmit = form.handleSubmit((values) => {
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Create Event</h2>
         <form @submit.prevent="onSubmit" class="space-y-6">
         <EventTitle/>
+        <EventCategory/>
         <EventDateTimeRange/>
         <EventElderly/>
         <EventCaretaker/>

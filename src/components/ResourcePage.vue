@@ -29,7 +29,7 @@ import { ref, onMounted } from 'vue'
 
 const links = ref([
   { title: 'Government Resources', url: 'https://www.moh.gov.sg/managing-expenses/keeping-healthcare-affordable/help-for-caregiver' },
-  { title: 'Latest Events @ Lions Befrienders', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/' },
+  { title: 'Latest Events', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/' },
   { title: 'Mental Health Resources', url: 'https://www.lionsbefrienders.org.sg/community-well-being-and-support-services/' },
   { title: 'CNA news on caregivers', url: 'https://www.channelnewsasia.com/topic/caregiver' },
 ])
