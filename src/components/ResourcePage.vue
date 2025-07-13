@@ -33,7 +33,7 @@
 import { ref, onMounted } from 'vue'
 
 const links = ref([
-  { title: 'Government Resources', url: 'https://www.support.gov' },
+  { title: 'Government Resources', url: 'https://www.moh.gov.sg/managing-expenses/keeping-healthcare-affordable/help-for-caregiver' },
   { title: 'Latest Events', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/' },
   { title: 'Mental Health Resources', url: 'https://www.lionsbefrienders.org.sg/community-well-being-and-support-services/' },
 ])
