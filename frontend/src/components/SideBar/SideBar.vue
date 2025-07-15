@@ -87,6 +87,14 @@
                         </div>
                     </div>
 
+                    <!-- Calendar -->
+                    <div class="nav-item" :class="{ active: activeItem === 'calendar' }">
+                        <div class="nav-link" @click="setActiveItem('calendar')">
+                            <i class="icon">📅</i>
+                            <span v-if="!isCollapsed">Calendar</span>
+                        </div>
+                    </div>
+
                     <!-- Explore -->
                     <div class="nav-item" :class="{ active: activeItem === 'forum' }">
                         <div class="nav-link" @click="setActiveItem('forum')">
@@ -201,6 +209,8 @@ export default {
                 this.$router.push('/resources');
             } else if (item === "forum") {
                 this.$router.push('/forum');
+            } else if (item == "calendar") {
+                this.$router.push('/calendar');
             }
 
             this.activeItem = item;

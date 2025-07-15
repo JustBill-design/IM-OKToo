@@ -3,7 +3,7 @@
         <!-- Left side with image -->
         <div class="image-section">
             <div class="image-wrapper">
-                <img src="/src/lib/Imgs/login.png" alt="Happy couple" class="profile-image" />
+                <img src="../lib/Imgs/login.png" alt="Happy couple" class="profile-image" />
                 <div class="background-circle circle-1"></div>
                 <div class="background-circle circle-2"></div>
             </div>
