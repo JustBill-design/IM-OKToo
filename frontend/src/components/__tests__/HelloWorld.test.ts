@@ -56,7 +56,7 @@ describe('PostItem.vue', () => {
     
     expect(wrapper.text()).toContain('yuchuan')
   })
-  it('handles mental health content appropriately', () => {
+  it('ehhh', () => {
     const sensitivePost = {
       ...mockPost,
       content: 'Today I managed to get out of bed and go school, but I still feel terrible'
