@@ -1,24 +1,31 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PostItem from '../PostItem.vue'
+import type { Post } from '../../types/forum'
 
-// we try local mock data first 
-const mockPost = {
-  post_id: 1,
+const mockPost: Post = {
+  id: '1',
   title: 'Feeling cute today might delete later',
-  content: 'i am sad',
+  content: 'Today I managed to get out of bed and go to school, but I still feel terrible',
   category: 'General',
   views: 999,
-  likes_count: 99,
-  comments_count: 2,
-  created_at: '2025-07-19T03:22:47.000Z',
-  user: { username: 'yuchuan' },
+  likes: 99,
+  createdAt: '2025-07-19T03:22:47.000Z',
+  user: { 
+    id: '1',
+    name: 'yuchuan',
+    avatar: 'avatar.jpg'
+  },
   comments: [
     {
-      comment_id: 1,
-      content: 'cool!',
-      user: { username: 'bill' },
-      created_at: '2025-07-19T03:22:47.000Z'
+      id: '1',
+      text: 'cool!',
+      user: { 
+        id: '2',
+        name: 'bill',
+        avatar: 'avatar2.jpg'
+      },
+      createdAt: '2025-07-19T03:22:47.000Z'
     }
   ]
 }
@@ -27,8 +34,7 @@ describe('PostItem.vue', () => {
   it('renders post title correctly', () => {
     const wrapper = mount(PostItem, {
       props: { 
-        post: mockPost,
-        isLoggedIn: false 
+        post: mockPost
       }
     })
     
@@ -38,35 +44,39 @@ describe('PostItem.vue', () => {
   it('displays correct view count from database', () => {
     const wrapper = mount(PostItem, {
       props: { 
-        post: mockPost,
-        isLoggedIn: false 
+        post: mockPost
       }
     })
     
     expect(wrapper.text()).toContain('999')
   })
 
-  it('shows username from database', () => {
+  it('shows username from database when expanded', async () => {
     const wrapper = mount(PostItem, {
       props: { 
-        post: mockPost,
-        isLoggedIn: false 
+        post: mockPost
       }
     })
     
+    // Click to expand the post
+    await wrapper.find('[data-testid="post-header"]').trigger('click')
+    
     expect(wrapper.text()).toContain('yuchuan')
   })
-  it('ehhh', () => {
+
+  it('displays sensitive mental health content when expanded', async () => {
     const sensitivePost = {
       ...mockPost,
-      content: 'Today I managed to get out of bed and go school, but I still feel terrible'
+      content: 'Today I managed to get out of bed and go to school, but I still feel terrible'
     }
     const wrapper = mount(PostItem, {
       props: { 
-        post: sensitivePost,
-        isLoggedIn: false 
+        post: sensitivePost
       }
     })
+    
+    await wrapper.find('[data-testid="post-header"]').trigger('click')
+    
     expect(wrapper.text()).toContain('feel terrible')
   })
 })

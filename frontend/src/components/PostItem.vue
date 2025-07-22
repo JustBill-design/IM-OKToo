@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
-import type { Post } from '@/types/forum';
+import { ref } from 'vue';
+import type { Post } from '../types/forum';
 import { Eye, MessageSquare, ThumbsUp } from 'lucide-vue-next';
 import CommentItem from './CommentItem.vue';
 
@@ -17,7 +17,7 @@ const toggleExpand = () => {
 
 <template>
   <div class="p-4 my-2 border rounded-lg">
-    <div @click="toggleExpand" class="cursor-pointer">
+    <div @click="toggleExpand" class="cursor-pointer" data-testid="post-header">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <span class="px-2 py-1 text-xs font-semibold text-white bg-blue-500 rounded-full">{{ post.category }}</span>
