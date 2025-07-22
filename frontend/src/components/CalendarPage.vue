@@ -2,6 +2,7 @@
 import '@schedule-x/theme-shadcn/dist/index.css'
 import CalendarCard from '@/components/CalendarCard.vue'
 import EventForm from '@/components/EventForm.vue'
+import UpcomingAppointments from './UpcomingAppointments.vue'
 
 </script>
  
@@ -12,8 +13,9 @@ import EventForm from '@/components/EventForm.vue'
       <div class="min-h-screen py-12 px-4 flex flex-col items-center">
         <!-- Calendar Card -->
         <CalendarCard/>
+        <!-- Upcoming Appointments -->
+        <UpcomingAppointments/>
         <!-- Form Card -->
-        <Toaster/>
         <EventForm/>
       </div>
     </main>
