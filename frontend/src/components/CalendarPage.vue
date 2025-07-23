@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '@schedule-x/theme-shadcn/dist/index.css'
-import CalendarCard from '@/components/CalendarCard.vue'
-import EventForm from '@/components/EventForm.vue'
+import CalendarCard from './CalendarCard.vue'
+import EventForm from './EventForm.vue'
 import UpcomingAppointments from './UpcomingAppointments.vue'
 
 </script>

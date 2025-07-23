@@ -1,6 +1,7 @@
 import express from 'express'
 import { connectWithConnector } from '../src/db';
 import { format } from 'date-fns'
+import {google} from 'googleapis'
 
 const router = express.Router();
 
@@ -50,4 +51,80 @@ router.post('/add', async (req, res) => {
     res.send('Event created!');
 })
 
-export default router
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.SECRET_ID,
+  process.env.REDIRECT
+);
+
+// Route to initiate Google OAuth2 flow
+router.get('/authgooglecalendar', (req, res) => {
+  // Generate the Google authentication URL
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline', // Request offline access to receive a refresh token
+    scope: 'https://www.googleapis.com/auth/calendar.readonly' // Scope for read-only access to the calendar
+  });
+  // Redirect the user to Google's OAuth 2.0 server
+  res.redirect(url);
+});
+
+// Route to handle the OAuth2 callback
+router.get('/redirect', async (req, res) => {
+  try {
+    if (!req.query.code) {
+      res.status(400).send("Missing code");
+      return;
+    }
+
+    const code = req.query.code as string;
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    res.send('Successfully logged in');
+  } catch (err) {
+    console.error("OAuth redirect error:", err);
+    res.status(500).send("Authentication failed");
+  }
+});
+
+// Route to list all calendars
+router.get('/calendars', async (req, res) => {
+  try {
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+    const response = await calendar.calendarList.list();
+    const calendars = response.data.items ?? [];
+    res.json(calendars);
+  } catch (err) {
+    console.error("Error fetching calendars:", err);
+    res.status(500).send("Error fetching calendars");
+  }
+});
+
+
+// Route to list events from a specified calendar
+router.get('/events', (req, res) => {
+  // Get the calendar ID from the query string, default to 'primary'
+  const calendarId = (req.query.calendar as string) || 'primary';
+  // Create a Google Calendar API client
+  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+  // List events from the specified calendar
+  calendar.events.list({
+    calendarId,
+    timeMin: (new Date()).toISOString(),
+    maxResults: 15,
+    singleEvents: true,
+    orderBy: 'startTime'
+  }, (err, response) => {
+    if (err) {
+      // Handle error if the API request fails
+      console.error('Can\'t fetch events');
+      res.send('Error');
+      return;
+    }
+    // Send the list of events as JSON
+    const events = response?.data?.items || [];
+    res.json(events);
+  });
+});
+
+export default router;
