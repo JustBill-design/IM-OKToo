@@ -242,6 +242,8 @@ export default {
                 };
 
                 // Redirect to login page
+                localStorage.clear();
+                localStorage.setItem('isAuthenticated', 'false');
                 this.$router.replace('/');
 
                 // Optional: Show logout message
