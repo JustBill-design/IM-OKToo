@@ -5,7 +5,7 @@ import {
   today
 } from '@internationalized/date'
 import { ref, computed } from 'vue'
-import { cn } from '@/utils'
+import { cn } from '../utils'
 
 import {
   FormControl,

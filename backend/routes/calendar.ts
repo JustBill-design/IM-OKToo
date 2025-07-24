@@ -1,7 +1,7 @@
 import express from 'express'
 import { connectWithConnector } from '../src/db';
 import { format } from 'date-fns'
-import {google} from 'googleapis'
+import {google,calendar_v3} from 'googleapis'
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
@@ -25,6 +25,7 @@ router.get('/all', async (req, res) => {
 })
 
 router.post('/add', async (req, res) => {
+    console.log("it work")
     const data = req.body;
     let columns = ['title', 'category', 'start', 'end', 'caretaker'];
 
@@ -108,7 +109,7 @@ router.get('/calendars', async (req, res) => {
 
 // Route to list events from a specified calendar
 router.get('/events', async (req, res) => {
-    try {
+  try {
     if (!req.query.code) {
       res.status(400).send("Missing code");
       return;
@@ -118,34 +119,73 @@ router.get('/events', async (req, res) => {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
-  } catch (err) {
-    console.error("OAuth redirect error:", err);
-    res.status(500).send("Authentication failed");
-  }
+    const calendarId = (req.query.calendar as string) || 'primary';
 
-  // Get the calendar ID from the query string, default to 'primary'
-  const calendarId = (req.query.calendar as string) || 'primary';
-  // Create a Google Calendar API client
-  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-  // List events from the specified calendar
-  calendar.events.list({
-    calendarId,
-    timeMin: (new Date()).toISOString(),
-    maxResults: 15,
-    singleEvents: true,
-    orderBy: 'startTime'
-  }, (err, response) => {
-    if (err) {
-      // Handle error if the API request fails
-      console.error('Can\'t fetch events');
-      res.send('Error');
-      return;
-    }
-    // Send the list of events as JSON
-    const events = response?.data?.items || [];
-    res.send(events)
-    res.redirect('http://localhost:3001/calendars/testing')
-  });
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    const response = await calendar.events.list({
+      calendarId,
+      timeMin: (new Date()).toISOString(),
+      maxResults: 15,
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+
+    const events = response.data.items || [];
+
+    // Save fetched events to DB
+    await saveEventsToDB(events);
+
+    // Optional: send back a response
+    res.redirect('http://localhost:5173/calendar/testing');
+  } catch (err) {
+    console.error("OAuth or Calendar error:", err);
+    res.status(500).send("Error fetching or saving events");
+  }
 });
+
+
+type GoogleCalendarEvent = calendar_v3.Schema$Event;
+
+const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
+  const pool = await connectWithConnector({});
+  for (const event of events) {
+    const title = event.summary ?? '';
+    const start = event.start?.dateTime ?? null;
+    const end = event.end?.dateTime ?? null;
+    const description = event.description ?? null;
+    const guests = event.attendees
+      ? event.attendees.map((a) => a.email).join(', ')
+      : null;
+    const location = event.location ?? null;
+
+    // Default/fallback values
+    const category = 'Google Sync';
+    const caretaker = 'System';
+    const recurrence = event.recurrence?.join(', ') ?? 'Does not repeat';
+
+    if (!start || !end) continue; // Skip events without start/end
+
+    await pool.query(
+      `
+      INSERT INTO Events (title, category, start, end, caretaker, guests, location, description, recurrence)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        title,
+        category,
+        new Date(start),
+        new Date(end),
+        caretaker,
+        guests,
+        location,
+        description,
+        recurrence
+      ]
+    );
+  }
+};
+
+
 
 export default router;

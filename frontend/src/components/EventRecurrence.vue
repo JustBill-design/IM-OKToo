@@ -4,7 +4,6 @@ import {
   getLocalTimeZone,
 } from '@internationalized/date'
 import { ref, computed } from 'vue'
-import { cn } from '@/utils'
 
 import {
   FormControl,
@@ -13,7 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from './ui/form'
 
 import {
   Select,
@@ -23,7 +22,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from './ui/select'
 </script>
 
 
