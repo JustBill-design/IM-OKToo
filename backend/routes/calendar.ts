@@ -83,6 +83,7 @@ router.post('/add', async (req, res) => {
         await pool.end();
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.send('Event created!');
+      }
 })
 
 // Route to initiate Google OAuth2 flow
