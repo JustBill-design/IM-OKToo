@@ -7,16 +7,18 @@ import calendarRoute from '../routes/calendar'
 dotenv.config()
 
 const app = express()
+
 app.use(cors(
     {
         origin: 'http://localhost:5173',
         credentials: true
     }
 ))
+
 app.use(express.json())
 
 app.use('/posts', postsRoute)
-app.use('/calendar', calendarRoute)
+app.use('/calendars', calendarRoute)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {

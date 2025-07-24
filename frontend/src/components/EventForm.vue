@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import EventTitle from '@/components/EventTitle.vue'
-import EventDateTimeRange from '@/components/EventDateTimeRange.vue'
+import EventTitle from './EventTitle.vue'
+import EventDateTimeRange from './EventDateTimeRange.vue'
 import EventElderly from './EventElderly.vue'
 import EventCaretaker from './EventCaretaker.vue'
-import EventLocation from '@/components/EventLocation.vue'
-import EventDescription from '@/components/EventDescription.vue'
-import EventRecurrence from '@/components/EventRecurrence.vue'
+import EventLocation from './EventLocation.vue'
+import EventDescription from './EventDescription.vue'
+import EventRecurrence from './EventRecurrence.vue'
 import EventCategory from './EventCategory.vue'
 
-import { Button } from "@/components/ui/button"
+import { Button } from "./ui/button"
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'

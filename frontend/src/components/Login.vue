@@ -175,7 +175,7 @@ export default {
                     })
                     console.log('Google Auth initialized')
                     isGoogleReady.value = true
-                    
+                    //todo:
                     // Wait for DOM to update, then render button
                     await nextTick()
                     renderGoogleButton()

@@ -60,6 +60,19 @@ CREATE TABLE CommentLikes (
     FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE Events (
+    event_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    calendar VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    start DATETIME NOT NULL,
+    end DATETIME NOT NULL,
+    eldery VARCHAR(255) NOT NULL,
+    caretaker VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    description VARCHAR(512)
+);
+
 INSERT INTO
     Users (
         username,

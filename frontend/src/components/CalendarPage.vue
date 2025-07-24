@@ -3,6 +3,7 @@ import '@schedule-x/theme-shadcn/dist/index.css'
 import CalendarCard from './CalendarCard.vue'
 import EventForm from './EventForm.vue'
 import UpcomingAppointments from './UpcomingAppointments.vue'
+import GoogleCalendar from './GoogleCalendar.vue'
 
 </script>
  
@@ -17,6 +18,7 @@ import UpcomingAppointments from './UpcomingAppointments.vue'
         <UpcomingAppointments/>
         <!-- Form Card -->
         <EventForm/>
+        <GoogleCalendar/>
       </div>
     </main>
   </div>
