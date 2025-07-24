@@ -31,7 +31,7 @@ router.get('/testing',(req,res) => {
 
 router.post('/add', async (req, res) => {
     const data = req.body;
-    let columns = ['title', 'category', 'start', 'end', 'elderly', 'caretaker'];
+    let columns = ['title', 'category', 'start', 'end', 'caretaker'];
 
     const startTimes = data.startTime.split(":");
     const endTimes = data.endTime.split(":");
@@ -42,23 +42,47 @@ router.post('/add', async (req, res) => {
     const end = new Date(data.endDate.year, data.endDate.month, data.endDate.day, parseInt(endTimes[0]), parseInt(endTimes[1]), 0);
     const formattedEnd = format(end, 'yyyy-MM-dd HH:mm:ss');
 
-    let values = [data.title, data.category, formattedStart, formattedEnd, data.elderly, data.caretaker];
+    let values = [data.elderly + ": " + data.title, data.category, formattedStart, formattedEnd, data.caretaker];
 
-    // Still need to perform validation that end is > start
-    if (data.location && data.location.length > 0) {
-        columns.push('location');
-        values.push(data.location);
-    }
+    if (end < start) {
+        res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+        res.send('Creation of event failed as end date and time is earlier than start date and time');
+    } 
+    else {
+        if (data.guests && data.guests.length > 0) {
+            columns.push('guests');
+            values.push(data.guests);
+        }
 
-    if (data.description && data.location.length > 0) {
-        columns.push('description');
-        values.push(data.description);    
-    }
+        if (data.location && data.location.length > 0) {
+            columns.push('location');
+            values.push(data.location);
+        }
 
-    const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${values.join(',')} );`;
-    console.log(query);
-    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.send('Event created!');
+        if (data.description && data.description.length > 0) {
+            columns.push('description');
+            values.push(data.description);    
+        }
+
+        columns.push('recurrence');
+        if (data.recurrence && data.recurrence.length > 0) {
+            values.push(data.recurrence);
+        }
+        else
+        {
+            values.push("Does not repeat")
+        }
+
+        const quotedValues = values.map(v => `'${v}'`);
+
+        const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${quotedValues.join(',')} );`;
+        const pool = await connectWithConnector({});
+        // Run a lightweight test query
+        const [rs] = await pool.query(query);
+        console.log('Connection successful! Test result:', rs);
+        await pool.end();
+        res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+        res.send('Event created!');
 })
 
 // Route to initiate Google OAuth2 flow

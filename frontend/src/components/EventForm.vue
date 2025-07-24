@@ -7,6 +7,7 @@ import EventLocation from './EventLocation.vue'
 import EventDescription from './EventDescription.vue'
 import EventRecurrence from './EventRecurrence.vue'
 import EventCategory from './EventCategory.vue'
+import EventGuest from './EventGuest.vue'
 
 import { Button } from "./ui/button"
 import { useForm } from 'vee-validate'
@@ -54,6 +55,7 @@ const formSchema = toTypedSchema(z.object({
     { message: "Start date cannot be in the past" }
   ),
   endTime: z.string(),
+  guests: z.string().optional(),
   location: z.string().optional(),
   description: z.string().optional(),
   recurrence: z.string().optional(),
@@ -62,6 +64,7 @@ const formSchema = toTypedSchema(z.object({
   const end = new Date(data.endDate.year, data.endDate.month - 1, data.endDate.day)
   const startTime = data.startTime
   const endTime = data.endTime
+  const guests = data.guests
 
   if (!data.startDate || !data.endDate) return
 
@@ -87,6 +90,22 @@ const formSchema = toTypedSchema(z.object({
       message: 'End time must not be before start time',
     })
   }
+
+  console.log(guests)
+  // 3. Check that the emails in guests are valid if provided
+  if (guests && guests.trim().length > 0) {
+    const emails = guests.split(',').map(e => e.trim());
+    const invalids = emails.filter(email => !z.string().email().safeParse(email).success);
+
+    if (invalids.length > 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["guests"],
+        message: 'Emails provided are invalid',
+      })
+    }
+  }
+
 }))
 
 const form = useForm({
@@ -116,6 +135,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         <EventElderly/>
         <EventCaretaker/>
         <EventDateTimeRange/>
+        <EventGuest/>
         <EventLocation/>
         <EventDescription/>
         <EventRecurrence/>
