@@ -11,22 +11,17 @@ const oauth2Client = new google.auth.OAuth2(
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-    try {
-        const pool = await connectWithConnector({});
-        // Run a lightweight test query
-        const [rs] = await pool.query('SELECT 1 AS test');
-        console.log('Connection successful! Test result:', rs);
-        // Optional: If this is a one-time script, close the pool
-        await pool.end();
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ error: 'Database Error' })
-    }
-})
-
 router.get('/testing',(req,res) => {
   console.log("working");
+})
+
+router.get('/all', async (req, res) => {
+    const pool = await connectWithConnector({});
+    const [rs] = await pool.query('SELECT * FROM Events');
+    await pool.end();
+
+    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.send(JSON.stringify(rs));
 })
 
 router.post('/add', async (req, res) => {
@@ -83,7 +78,7 @@ router.post('/add', async (req, res) => {
         await pool.end();
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.send('Event created!');
-      }
+    }
 })
 
 // Route to initiate Google OAuth2 flow

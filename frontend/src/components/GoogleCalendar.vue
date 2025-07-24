@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
     const fetchCalendarData = async () => {
-    window.location.href = "http://localhost:3001/calendars/authgooglecalendar";
+    window.location.href = "http://localhost:3001/calendar/authgooglecalendar";
     }
 </script>

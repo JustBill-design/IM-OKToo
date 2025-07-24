@@ -11,6 +11,9 @@ import {
   createViewList
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
+import { format } from 'date-fns'
+import { onMounted, ref } from 'vue'
+import type { CalendarApp } from '@schedule-x/calendar'
 
 const getToday = () => {
   const today = new Date();
@@ -21,60 +24,133 @@ const scrollController = createScrollControllerPlugin({
   initialScroll: '07:00'
 })
 
-// Do not use a ref here, as the calendar instance is not reactive, and doing so might cause issues
-// For updating events, use the events service plugin
-const calendarApp = createCalendar({
-  views: [
-    createViewDay(),
-    createViewWeek(),
-    createViewList(),
-    createViewMonthGrid(),
-    createViewMonthAgenda(),
-  ],
-  events: [
-  // Monday, July 14, 2025
-  { id: 1, title: 'Prepare Breakfast', start: '2025-07-14 07:00', end: '2025-07-14 07:30' },
-  { id: 2, title: 'Serve Breakfast', start: '2025-07-14 07:30', end: '2025-07-14 08:00' },
-  { id: 4, title: 'Laundry', start: '2025-07-14 10:00', end: '2025-07-14 11:00' },
-  { id: 5, title: 'Grocery Shopping', start: '2025-07-14 11:30', end: '2025-07-14 12:30' },
-  { id: 6, title: 'Clean Living Area', start: '2025-07-14 14:00', end: '2025-07-14 15:00' },
-  { id: 7, title: 'Cook Dinner', start: '2025-07-14 16:00', end: '2025-07-14 17:00' },
-  { id: 8, title: 'Wash Dishes', start: '2025-07-14 18:00', end: '2025-07-14 18:30' },
+const isCalendarReady = ref(false)
+let calendarApp: CalendarApp | null = null;
 
-  // Tuesday, July 15, 2025
-  { id: 9, title: 'Prepare Breakfast', start: '2025-07-15 07:00', end: '2025-07-15 07:30' },
-  { id: 10, title: 'Serve Breakfast', start: '2025-07-15 07:30', end: '2025-07-15 08:00' },
-  { id: 12, title: 'Laundry', start: '2025-07-15 10:00', end: '2025-07-15 11:00' },
-  { id: 13, title: 'Clean Living Area', start: '2025-07-15 14:00', end: '2025-07-15 15:00' },
-  { id: 14, title: 'Cook Dinner', start: '2025-07-15 16:00', end: '2025-07-15 17:00' },
-  { id: 15, title: 'Wash Dishes', start: '2025-07-15 18:00', end: '2025-07-15 18:30' },
+async function retrieveEvents() {
 
-  // Wednesday, July 16, 2025
-  { id: 16, title: 'Prepare Breakfast', start: '2025-07-16 07:00', end: '2025-07-16 07:30' },
-  { id: 17, title: 'Serve Breakfast', start: '2025-07-16 07:30', end: '2025-07-16 08:00' },
-  { id: 19, title: 'Grocery Shopping', start: '2025-07-16 11:30', end: '2025-07-16 12:30' },
-  { id: 20, title: 'Clean Living Area', start: '2025-07-16 14:00', end: '2025-07-16 15:00' },
-  { id: 21, title: 'Cook Dinner', start: '2025-07-16 16:00', end: '2025-07-16 17:00' },
-  { id: 22, title: 'Wash Dishes', start: '2025-07-16 18:00', end: '2025-07-16 18:30' },
+  const events =[];
 
-  // Thursday, July 17, 2025
-  { id: 23, title: 'Prepare Breakfast', start: '2025-07-17 07:00', end: '2025-07-17 07:30', },
-  { id: 24, title: 'Serve Breakfast', start: '2025-07-17 07:30', end: '2025-07-17 08:00', },
-  { id: 26, title: 'Laundry', start: '2025-07-17 10:00', end: '2025-07-17 11:00' },
-  { id: 27, title: 'Clean Living Area', start: '2025-07-17 14:00', end: '2025-07-17 15:00', },
-  { id: 28, title: 'Cook Dinner', start: '2025-07-17 16:00', end: '2025-07-17 17:00', },
-  { id: 29, title: 'Wash Dishes', start: '2025-07-17 18:00', end: '2025-07-17 18:30', },
+  const response = await fetch(`http://localhost:3001/calendar/all`,
+  {
+      method: 'GET',
+      headers: {
+          'Content-type': 'application/json'
+      }              
+  });
 
-  // Friday, July 18, 2025
-  { id: 30, title: 'Prepare Breakfast', start: '2025-07-18 07:00', end: '2025-07-18 07:30', },
-  { id: 31, title: 'Serve Breakfast', start: '2025-07-18 07:30', end: '2025-07-18 08:00', },
-  { id: 33, title: 'Laundry', start: '2025-07-18 10:00', end: '2025-07-18 11:30', },
-  { id: 34, title: 'Grocery Shopping', start: '2025-07-18 11:30', end: '2025-07-18 12:30' },
-  { id: 35, title: 'Clean Living Area', start: '2025-07-18 14:00', end: '2025-07-18 15:00' },
-  { id: 36, title: 'Cook Dinner', start: '2025-07-18 16:00', end: '2025-07-18 17:00' },
-  { id: 37, title: 'Wash Dishes', start: '2025-07-18 18:00', end: '2025-07-18 18:30' },
-  ],
-}, [createCurrentTimePlugin(), scrollController])
+  var json = await response.json();
+
+  for (let i = 0; i < json.length; i++) {
+    
+    const dept = json[i];
+    const e = {} as any;
+
+    const start = new Date(dept.start);
+    const end = new Date(dept.end);
+
+    e.id = parseInt(dept.event_id);
+    e.title = dept.title;
+    e.start = format(start, 'yyyy-MM-dd HH:mm');
+    e.end = format(end, 'yyyy-MM-dd HH:mm');
+    e.people = [dept.caretaker];
+
+    if (e.description) {
+      e.description = dept.description;
+    }
+
+    if (e.location) {
+      e.location = dept.location;
+    }
+
+    if (e.guests) {
+      e.guests = dept.guests;
+    }
+    
+    if (dept.category === "primary") {
+      e.calendarId = "primary"
+    }
+    else if (dept.category === "Appointments") {
+      e.calendarId = "appointments"
+    }
+    else if (dept.category === "Chores & Household Tasks") {
+      e.calendarId = "chores"
+    }
+    else if (dept.category === "Medication & Health Management") {
+      e.calendarId = "health"
+    }
+    else {
+      e.calendarId = "wellness"
+    }
+
+    events.push(e);
+  }
+
+  return events;
+}
+
+onMounted(async () => {
+  const events = await retrieveEvents();
+
+  // Do not use a ref here, as the calendar instance is not reactive, and doing so might cause issues
+  // For updating events, use the events service plugin
+  calendarApp = createCalendar({
+    views: [
+      createViewDay(),
+      createViewWeek(),
+      createViewList(),
+      createViewMonthGrid(),
+      createViewMonthAgenda(),
+    ],
+    calendars: {
+      primary: {
+        colorName: 'primary',
+        lightColors: {
+          main: '#4A6B8A',
+          container: '#A1B7CC',
+          onContainer: '#000000',
+        },
+      },
+      appointments: {
+        colorName: 'appointments',
+        lightColors: {
+          main: '#FF6B47',
+          container: '#FF9A7B',
+          onContainer: '#000000',
+        },
+      },
+      chores: {
+        colorName: 'chores',
+        lightColors: {
+          main: '#87CEEB',
+          container: '#BFE7F8',
+          onContainer: '#000000',
+        },
+      },
+      health: {
+        colorName: 'health',
+        lightColors: {
+          main: '#80DAFF',
+          container: '#E0F6FF',
+          onContainer: '#000000',
+        },
+      },
+      wellness: {
+        colorName: 'wellness',
+        lightColors: {
+          main: '#2C3E50',
+          container: '#788A9C',
+          onContainer: '#000000',
+        },
+      },
+    },
+    weekOptions: {
+      gridHeight: 3500,
+    },
+    events: events,
+  }, [createCurrentTimePlugin(), scrollController])
+  isCalendarReady.value = true
+})
 
 </script>
 
@@ -82,8 +158,14 @@ const calendarApp = createCalendar({
     <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Daily Routine</h2>
         <div class="w-full overflow-x-auto">
-        <ScheduleXCalendar :calendar-app="calendarApp">
-        </ScheduleXCalendar>
+          <div class="flex justify-center items-center sx-vue-calendar-wrapper" v-if="!isCalendarReady">
+            <!-- Loading spinner or message -->
+            <img src="../assets/loading.gif">
+          </div>
+          <ScheduleXCalendar
+            v-else
+            :calendar-app="calendarApp"
+          />
         </div>
     </div>
 </template>
