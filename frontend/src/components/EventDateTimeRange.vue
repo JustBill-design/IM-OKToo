@@ -14,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from './ui/form'
 
 import {
   Select,
@@ -24,11 +24,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from './ui/select'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Calendar } from './ui/calendar'
+import { Button } from "./ui/button"
 import { CalendarIcon } from 'lucide-vue-next'
 
 const df = new DateFormatter('en-US', {
@@ -88,7 +88,7 @@ const timeOptions = computed(() => {
                     </PopoverContent>
                 </Popover>
             </FormControl>
-            <FormMessage />
+            <FormMessage class="text-red-500 text-xs mt-1"/>
             </FormItem>
             </FormField>
         </div>
@@ -150,7 +150,7 @@ const timeOptions = computed(() => {
                     </PopoverContent>
                 </Popover>
             </FormControl>
-            <FormMessage />
+            <FormMessage class="text-red-500 text-xs mt-1"/>
             </FormItem>
             </FormField>
         </div>
