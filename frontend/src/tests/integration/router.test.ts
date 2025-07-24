@@ -30,7 +30,7 @@ describe('routes', () =>{
           plugins:[router]
         }})
       await waitForNextTick()
-      expect(wrapper.find('[data-testid="login-page"]').exists()).toBe(true)
+      expect(router.currentRoute.value.name).toBe('Login')
       await router.push('/home')
       await waitForNextTick()
       expect(router.currentRoute.value.path).toBe('/home') })

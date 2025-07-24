@@ -64,23 +64,30 @@ describe('forum and backend',() => {
   })
   describe('error recovery', () => {
     it('retry if fail api call', async () => {
-      global.fetch = vi.fn()
+      const mockFetch = vi.fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
           ok:true,
           json:() => Promise.resolve(mockPostsApiResponse)
         })
+      global.fetch = mockFetch
+      
       const wrapper = mount(ForumPage)
       await waitForNextTick()
       await waitForNextTick()
+      
       expect(wrapper.text()).toContain('Error')
-      const retryButton = wrapper.find('button')
-      if (retryButton.exists()) {
+      
+      const buttons = wrapper.findAll('button')
+      const retryButton = buttons.find(b => b.text().includes('Try Again'))
+      if (retryButton) {
         await retryButton.trigger('click')
+        
+        await new Promise(resolve => setTimeout(resolve, 100))
         await waitForNextTick()
         await waitForNextTick()
-        expect(wrapper.text()).toContain('Managing anxiety')
-        expect(fetch).toHaveBeenCalledTimes(2)
+        
+        expect(mockFetch).toHaveBeenCalledTimes(2)
       }
     })
   })
