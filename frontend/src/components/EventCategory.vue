@@ -23,22 +23,28 @@ import {
 <template>
     <div class="flex py-2">
         <div class="pr-4 content-center w-[75px]">
-        <label class="text-sm font-semibold text-gray-700">Elderly</label>
+        <label class="text-sm font-semibold text-gray-700">Category</label>
         </div>
-        <FormField v-slot="{componentField}" name="elderly">
+        <FormField v-slot="{componentField}" name="category">
         <FormItem>
         <FormControl>
             <Select class="w-[280px]" v-bind="componentField">     
                 <SelectTrigger class="w-[180px]">
-                <SelectValue placeholder="Select elderly" />
+                <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent class="max-h-60">
                 <SelectGroup>
-                    <SelectItem value="Sally">
-                    Sally
+                    <SelectItem value="Appointments">
+                    Appointments
                     </SelectItem>
-                    <SelectItem value="June">
-                    June
+                    <SelectItem value="Chores & Household Tasks">
+                    Chores & Household Tasks
+                    </SelectItem>
+                    <SelectItem value="Medication & Health Management">
+                    Medication & Health Management
+                    </SelectItem>
+                    <SelectItem value="Rest & Wellness">
+                    Rest & Wellness
                     </SelectItem>
                 </SelectGroup>
                 </SelectContent>
