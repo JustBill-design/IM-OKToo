@@ -15,8 +15,10 @@
     "test:frontend:ui": "cd frontend && vitest --ui",
     "test:backend": "jest",
     "test:backend:watch": "jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:coverage": "npm run test:frontend -- --coverage && npm run test:backend -- --coverage",
-    "test:all": "npm run test"
+    "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@internationalized/date": "^3.8.2",
@@ -46,6 +48,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.1",
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^4.17.23",
