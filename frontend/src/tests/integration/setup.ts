@@ -21,6 +21,7 @@ export const mockPostsApiResponse = [
     comments_count: 3,
     created_at: '2025-07-19T10:30:00.000Z',
     username: 'testUser1',
+    post_author: 'testUser1',
     name: 'Mental Health'
   },
   {
@@ -32,6 +33,7 @@ export const mockPostsApiResponse = [
     comments_count: 1,
     created_at: '2025-07-18T14:20:00.000Z',
     username: 'testUser2',
+    post_author: 'testUser2',
     name:'Support Groups'
   }
 ]

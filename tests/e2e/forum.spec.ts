@@ -8,6 +8,7 @@ test.describe('forum', ()=> {
     await page.click('button[type="submit"]');
     await page.waitForURL('/home');
   });
+  
   test('can access forum page', async({ page }) => {
     await page.goto('/forum');
     await page.waitForLoadState('networkidle');
@@ -17,3 +18,4 @@ test.describe('forum', ()=> {
     console.log('can load forum page');
   });
 });
+ 
