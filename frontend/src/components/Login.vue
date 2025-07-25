@@ -42,7 +42,7 @@
                     </div>
 
                     <!-- Login Button -->
-                    <button type="submit" class="login-button" :disabled="isLoading">
+                    <button type="submit" class="login-button" :disabled="isLoading" @click="basicValidation()">
                         {{ isLoading ? 'Logging in...' : 'Log in' }}
                     </button>
 
@@ -52,9 +52,10 @@
 
                     <!-- Google Sign-In Button Container -->
                     <div v-if="isGoogleReady" id="google-signin-button" class="google-signin-container"></div>
-                    
+
                     <!-- Fallback Google Button -->
-                    <button v-else type="button" @click="signInWithGoogle" class="google-button" :disabled="!isGoogleReady">
+                    <button v-else type="button" @click="signInWithGoogle" class="google-button"
+                        :disabled="!isGoogleReady">
                         {{ isGoogleReady ? 'Continue with Google' : 'Google Sign-In Unavailable' }}
                     </button>
 
@@ -89,6 +90,8 @@ export default {
             rememberMe: false
         })
 
+        localStorage.setItem('isAuthenticated', 'false');
+
         // Form validation errors
         const errors = ref({})
 
@@ -116,6 +119,8 @@ export default {
 
         // Handle form submission
         const handleLogin = async () => {
+            errors.value = {};
+
             if (!validateForm()) {
                 return
             }
@@ -123,26 +128,41 @@ export default {
             isLoading.value = true
 
             try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1000))
+                // use the new API that i just created
+                console.log("validating the user")
 
-                console.log('Login data:', loginForm)
+                const response = await fetch('http://localhost:3001/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: loginForm.username,
+                        password: loginForm.password
+                    })
+                })
 
-                // Store some basic auth info (you can replace this with real auth logic)
-                localStorage.setItem('isAuthenticated', 'true')
-                localStorage.setItem('username', loginForm.username)
+                const data = await response.json();
 
-                alert('Login successful!')
+                if (data.success) {
+                    console.log("user exists and has logged in!");
+                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('isAuthenticated', 'true');
 
-                // Redirect to home page after successful login
-                await router.replace('/home')
-
-            } catch (error) {
-                console.error('Login error:', error)
-                alert('Login failed. Please try again.')
-            } finally {
-                isLoading.value = false
+                    await router.replace('/home')
+                } else {
+                    isLoading.value = false
+                    errors.value.password = data.message || "Invalid username or password";
+                    localStorage.setItem('isAuthenticated', 'false');
+                }
             }
+            catch (error) {
+                isLoading.value = false
+                console.error('Login error:', error);
+                localStorage.setItem('isAuthenticated', 'false');
+                errors.value.password = "Please ensure that your Password and Username is correct!.";
+
+
+            }
+
         }
 
         const loadGoogleScript = () => {
@@ -175,11 +195,11 @@ export default {
                     })
                     console.log('Google Auth initialized')
                     isGoogleReady.value = true
-                    
+
                     // Wait for DOM to update, then render button
                     await nextTick()
                     renderGoogleButton()
-                    
+
                 } catch (error) {
                     console.error('Failed to initialize Google Auth:', error)
                 }
@@ -285,7 +305,8 @@ export default {
 .login-container {
     display: flex;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
+    background-image: url(../lib/Imgs/hdb.jpg);
 }
 
 /* Left side - Image section */
@@ -341,12 +362,16 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background: white;
+    /* background: white; */
+    background-image: url(../lib/Imgs/hdb.jpg);
 }
 
 .form-wrapper {
     width: 100%;
     max-width: 400px;
+    background: white;
+    padding: 50px;
+    border-radius: 5%;
 }
 
 .title {
@@ -540,7 +565,7 @@ export default {
 }
 
 /* Override Google button styles */
-.google-signin-container > div {
+.google-signin-container>div {
     width: 100% !important;
 }
 </style>
