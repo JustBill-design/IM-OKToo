@@ -32,7 +32,6 @@ describe('login flow', () => {
     router = createTestRouter()
     localStorageMock.setItem.mockClear()
     
-    // Mock successful authentication response with proper format
     const mockAuthResponse = { 
       success: true, 
       message: 'Login successful',
@@ -59,7 +58,6 @@ describe('login flow', () => {
 
 
     it('check before submit', async () => {
-      // Mock failed auth for empty form
       const mockAuthFailResponse = { success: false, message: 'Username required' }
       global.fetch = createMockFetch(mockAuthFailResponse)
       
