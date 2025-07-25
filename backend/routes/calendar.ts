@@ -1,7 +1,7 @@
 import express from 'express'
 import { connectWithConnector } from '../src/db';
 import { format } from 'date-fns'
-import {google,calendar_v3} from 'googleapis'
+import { google , calendar_v3 } from 'googleapis'
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,

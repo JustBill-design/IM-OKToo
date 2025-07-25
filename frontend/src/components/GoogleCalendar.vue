@@ -10,7 +10,10 @@
 </template>
 
 <script setup lang="ts">
-    const fetchCalendarData = async () => {
-    window.location.href = "http://localhost:3001/calendar/authgooglecalendar";
-    }
+import { Button } from './ui/button';
+
+const fetchCalendarData = async () => {
+window.location.href = "http://localhost:3001/calendar/authgooglecalendar";
+}
+
 </script>

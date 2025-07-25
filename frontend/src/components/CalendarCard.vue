@@ -14,18 +14,36 @@ import '@schedule-x/theme-default/dist/index.css'
 import { format } from 'date-fns'
 import { onMounted, ref } from 'vue'
 import type { CalendarApp } from '@schedule-x/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { X, Pencil, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
+import { Button } from './ui/button'
 
 const getToday = () => {
   const today = new Date();
   return today;
 };
 
+const getTime = () => {
+  const hours = String(getToday().getHours()-2).padStart(2, "0");
+  const minutes = String(getToday().getMinutes()).padStart(2, "0");
+  const now = hours + ':' + minutes;
+  return now;
+}
+
 const scrollController = createScrollControllerPlugin({
-  initialScroll: '07:00'
+  initialScroll: getTime() 
 })
 
 const isCalendarReady = ref(false)
+const showPopover = ref(false)
+const popoverEvent = ref(null);
+const popoverPosition = ref({x:0, y:0})
+
 let calendarApp: CalendarApp | null = null;
+
+function modifyEvent() {
+  console.log('Pencil button clicked!');
+}
 
 async function retrieveEvents() {
 
@@ -55,19 +73,23 @@ async function retrieveEvents() {
     e.end = format(end, 'yyyy-MM-dd HH:mm');
     e.people = [dept.caretaker];
 
+    // Checks to determine if description is present
     if (e.description) {
       e.description = dept.description;
     }
 
+    // Checks to determine if location is present
     if (e.location) {
       e.location = dept.location;
     }
 
+    // Checks to determine if guests is/are present
     if (e.guests) {
       e.guests = dept.guests;
     }
     
-    if (dept.category === "primary") {
+    // Determine the calendarId to use based on the category from db
+    if (dept.category === "Google Sync") {
       e.calendarId = "primary"
     }
     else if (dept.category === "Appointments") {
@@ -81,6 +103,22 @@ async function retrieveEvents() {
     }
     else {
       e.calendarId = "wellness"
+    }
+
+    const startampm = start.getHours() >= 12 ? 'PM' : 'AM';
+    const starthour12 = start.getHours() % 12 || 12;
+
+    const endampm = end.getHours() >= 12 ? 'PM' : 'AM';
+    const endhour12 = end.getHours() % 12 || 12
+
+    // Create the formatted date for the popover
+    if (start.toDateString() === end.toDateString()) {
+      const formatted_string = start.toDateString() + " " + parseInt(starthour12) + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + parseInt(endhour12) + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
+      e.formattedDate = formatted_string;
+    }
+    else {
+      const formatted_string = start.toDateString() + " " + parseInt(starthour12) + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + end.toDateString() + parseInt(endhour12) + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
+      e.formattedDate = formatted_string;
     }
 
     events.push(e);
@@ -148,6 +186,18 @@ onMounted(async () => {
       gridHeight: 3500,
     },
     events: events,
+    callbacks: {
+      onEventClick(calendarEvent, e: UIEvent) {
+
+        popoverEvent.value = calendarEvent;
+        showPopover.value = true;
+
+        popoverPosition.value = {
+          x: e.pageX,
+          y: e.pageY,
+        };
+      },
+    }
   }, [createCurrentTimePlugin(), scrollController])
   isCalendarReady.value = true
 })
@@ -157,7 +207,7 @@ onMounted(async () => {
 <template>
     <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Daily Routine</h2>
-        <div class="w-full overflow-x-auto">
+        <div class="w-full">
           <div class="flex justify-center items-center sx-vue-calendar-wrapper" v-if="!isCalendarReady">
             <!-- Loading spinner or message -->
             <img src="../assets/loading.gif">
@@ -166,6 +216,39 @@ onMounted(async () => {
             v-else
             :calendar-app="calendarApp"
           />
+          <Teleport to="body">
+            <div v-if="showPopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 9999 }" class="bg-white rounded-md shadow-lg p-4">
+              <div class="flex justify-end space-x-2 my-2">
+                <Button class="px-2" variant="outline" size="icon" @click="modifyEvent">
+                  <Pencil />
+                </Button>
+                <Button class="px-2" variant="outline" size="icon">
+                  <Trash2 />
+                </Button>
+                <Button @click="showPopover = false" variant="outline" size="icon">
+                  <X/>
+                </Button>
+              </div>
+              <div class="font-semibold my-2">{{ popoverEvent.title }}</div>
+              <div class="flex gap-x-4 my-2">
+                <Clock9 />
+                <div>{{ popoverEvent.formattedDate }}</div>
+              </div>
+              <div class="flex gap-x-4" v-if="popoverEvent.location">
+                <MapPin />
+                <div>{{ popoverEvent.location }}</div>
+              </div>
+              <div class="flex gap-x-4">
+                <HandHelping />
+                <div>{{ popoverEvent.people }}</div>
+              </div>
+              <div class="flex gap-x-4" v-if="popoverEvent.guests">
+                <User />
+                <div>{{ popoverEvent.guests }}</div>
+              </div>
+              <!-- add more fields as needed -->
+            </div>
+          </Teleport>
         </div>
     </div>
 </template>

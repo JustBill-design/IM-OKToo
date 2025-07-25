@@ -91,7 +91,6 @@ const formSchema = toTypedSchema(z.object({
     })
   }
 
-  console.log(guests)
   // 3. Check that the emails in guests are valid if provided
   if (guests && guests.trim().length > 0) {
     const emails = guests.split(',').map(e => e.trim());
@@ -139,7 +138,8 @@ const onSubmit = form.handleSubmit(async (values) => {
         <EventLocation/>
         <EventDescription/>
         <EventRecurrence/>
-<Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
+
+        <Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
             Create Event
         </Button>
         </form>

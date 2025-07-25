@@ -9,7 +9,6 @@ import GoogleCalendar from './GoogleCalendar.vue'
  
 <template>
   <div class="flex min-h-screen bg-gray-50">
-    <Sidebar/>
     <main class="flex-1 p-8">
       <div class="min-h-screen py-12 px-4 flex flex-col items-center">
         <!-- Calendar Card -->
