@@ -6,7 +6,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form'
+} from '../ui/form'
 
 import {
   Select,
@@ -16,7 +16,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from './ui/select'
+} from '../ui/select'
 
 </script>
 

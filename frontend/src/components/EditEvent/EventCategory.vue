@@ -6,7 +6,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form'
+} from '../ui/form'
 
 import {
   Select,
@@ -16,29 +16,35 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from './ui/select'
+} from '../ui/select'
 
 </script>
 
 <template>
     <div class="flex py-2">
         <div class="pr-4 content-center w-[75px]">
-        <label class="text-sm font-semibold text-gray-700">Caretaker</label>
+        <label class="text-sm font-semibold text-gray-700">Category</label>
         </div>
-        <FormField v-slot="{componentField}" name="caretaker">
+        <FormField v-slot="{componentField}" name="category">
         <FormItem>
         <FormControl>
-            <Select v-bind="componentField">
+            <Select class="w-[280px]" v-bind="componentField">     
                 <SelectTrigger class="w-[180px]">
-                <SelectValue placeholder="Select caretaker" />
+                <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent class="max-h-60">
                 <SelectGroup>
-                    <SelectItem value="Bob">
-                    Bob
+                    <SelectItem value="Appointments">
+                    Appointments
                     </SelectItem>
-                    <SelectItem value="Ah Min">
-                    Ah Min
+                    <SelectItem value="Chores & Household Tasks">
+                    Chores & Household Tasks
+                    </SelectItem>
+                    <SelectItem value="Medication & Health Management">
+                    Medication & Health Management
+                    </SelectItem>
+                    <SelectItem value="Rest & Wellness">
+                    Rest & Wellness
                     </SelectItem>
                 </SelectGroup>
                 </SelectContent>

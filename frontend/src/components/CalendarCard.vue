@@ -2,7 +2,6 @@
 import { ScheduleXCalendar } from '@schedule-x/vue'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
-import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence";
 import {
   createCalendar,
   createViewDay,
@@ -14,10 +13,13 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { format } from 'date-fns'
 import { onMounted, ref } from 'vue'
-import type { CalendarApp } from '@schedule-x/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { X, Pencil, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
 import { Button } from './ui/button'
+import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence";
+
+import type { CalendarApp } from '@schedule-x/calendar'
+import EditEvent from './EditEvent.vue'
 
 const getToday = () => {
   const today = new Date();
@@ -25,7 +27,15 @@ const getToday = () => {
 };
 
 const getTime = () => {
-  const hours = String(getToday().getHours()-2).padStart(2, "0");
+  let hours;
+
+  if (getToday().getHours() < 2) {
+    hours = "00";
+  }
+  else
+  {
+    hours = String(getToday().getHours()-2).padStart(2, "0");
+  }
   const minutes = String(getToday().getMinutes()).padStart(2, "0");
   const now = hours + ':' + minutes;
   return now;
@@ -37,13 +47,15 @@ const scrollController = createScrollControllerPlugin({
 
 const isCalendarReady = ref(false)
 const showPopover = ref(false)
-const popoverEvent = ref(null);
+const showEditPopover = ref(false)
+const popoverEvent = ref(null)
 const popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
 
 function modifyEvent() {
-  console.log('Pencil button clicked!');
+  showEditPopover.value = true;
+  showPopover.value = false;
 }
 
 async function retrieveEvents() {
@@ -73,6 +85,7 @@ async function retrieveEvents() {
     e.start = format(start, 'yyyy-MM-dd HH:mm');
     e.end = format(end, 'yyyy-MM-dd HH:mm');
     e.people = [dept.caretaker];
+    e.category = dept.category
     e.rrule = dept.recurrence;
 
     // Checks to determine if description is present
@@ -125,6 +138,7 @@ async function retrieveEvents() {
 
     events.push(e);
   }
+
   return events;
 }
 
@@ -189,9 +203,9 @@ onMounted(async () => {
     events: events,
     callbacks: {
       onEventClick(calendarEvent, e: UIEvent) {
-
         popoverEvent.value = calendarEvent;
         showPopover.value = true;
+        showEditPopover.value = false;
 
         popoverPosition.value = {
           x: e.pageX,
@@ -199,7 +213,7 @@ onMounted(async () => {
         };
       },
     }
-  }, [createEventRecurrencePlugin(),createCurrentTimePlugin(), scrollController])
+  }, [createEventRecurrencePlugin(), createCurrentTimePlugin(), scrollController])
   isCalendarReady.value = true
 })
 
@@ -248,6 +262,11 @@ onMounted(async () => {
                 <div>{{ popoverEvent.guests }}</div>
               </div>
               <!-- add more fields as needed -->
+            </div>
+          </Teleport>
+          <Teleport to="body">
+            <div v-if="showEditPopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 25 }" class="bg-white rounded-md shadow-lg p-4">
+              <EditEvent :event="popoverEvent"/>
             </div>
           </Teleport>
         </div>

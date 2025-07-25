@@ -1,18 +1,38 @@
 <script setup lang="ts">
-import EventTitle from './CreateEvent/EventTitle.vue'
-import EventDateTimeRange from './CreateEvent/EventDateTimeRange.vue'
-import EventElderly from './CreateEvent/EventElderly.vue'
-import EventCaretaker from './CreateEvent/EventCaretaker.vue'
-import EventLocation from './CreateEvent/EventLocation.vue'
-import EventDescription from './CreateEvent/EventDescription.vue'
-import EventRecurrence from './CreateEvent/EventRecurrence.vue'
-import EventCategory from './CreateEvent/EventCategory.vue'
-import EventGuest from './CreateEvent/EventGuest.vue'
+import EventTitle from './EditEvent/EventTitle.vue'
+import EventDateTimeRange from './EditEvent/EventDateTimeRange.vue'
+import EventElderly from './EditEvent/EventElderly.vue'
+import EventCaretaker from './EditEvent/EventCaretaker.vue'
+import EventLocation from './EditEvent/EventLocation.vue'
+import EventDescription from './EditEvent/EventDescription.vue'
+import EventRecurrence from './EditEvent/EventRecurrence.vue'
+import EventCategory from './EditEvent/EventCategory.vue'
+import EventGuest from './EditEvent/EventGuest.vue'
 
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
+import { X, Pencil, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
+
+import { parseDate } from '@internationalized/date'
+
+type calendarEvent = {
+    id: number;
+    title: string;
+    start: string;
+    end: string;
+    people: string[];
+    location?: string;
+    description?: string;
+    guests?: string;
+    calendarId: string;
+}
+
+// For prefilling values
+const { event } = defineProps<{ event: calendarEvent }>()
+const startDate = new Date(event.start);
+const endDate = new Date(event.end);
 
 
 const d = new Date()
@@ -52,7 +72,7 @@ const formSchema = toTypedSchema(z.object({
       const inputDate = new Date(year, month - 1, day);
       return inputDate >= getToday();
     },
-    { message: "Start date cannot be in the past" }
+    { message: "End date cannot be in the past" }
   ),
   endTime: z.string(),
   guests: z.string().optional(),
@@ -108,10 +128,24 @@ const formSchema = toTypedSchema(z.object({
 }))
 
 const form = useForm({
-  validationSchema: formSchema,
+    initialValues: {
+        title: event.title.split(":")[1],
+        category: event.category,
+        elderly: event.title.split(":")[0],
+        caretaker: event.people[0],
+        startDate: parseDate(event.start.split(" ")[0]),
+        endDate: parseDate(event.end.split(" ")[0]),
+        startTime: event.start.split(" ")[1],
+        endTime: event.end.split(" ")[1],
+        guests: event.guests,
+        location: event.location,
+        description: event.description,
+    },
+    validationSchema: formSchema,
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
+  
   const response = await fetch("http://localhost:3001/calendar/add",
   {
       method: 'POST',
@@ -125,22 +159,33 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
-    <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Create Event</h2>
-        <form @submit.prevent="onSubmit" class="space-y-6">
-        <EventTitle/>
-        <EventCategory/>
-        <EventElderly/>
-        <EventCaretaker/>
-        <EventDateTimeRange/>
-        <EventGuest/>
-        <EventLocation/>
-        <EventDescription/>
-        <EventRecurrence/>
-
-        <Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
-            Create Event
-        </Button>
-        </form>
+    <div>
+        <div class="flex justify-end space-x-2 my-2">
+            <Button class="px-2" variant="outline" size="icon">
+            <Pencil />
+            </Button>
+            <Button class="px-2" variant="outline" size="icon">
+            <Trash2 />
+            </Button>
+            <Button @click="showPopover = false" variant="outline" size="icon">
+            <X/>
+            </Button>
+        </div>
+        <div class="h-96 overflow-y-auto p-4 bg-white rounded shadow">
+            <form @submit.prevent="onSubmit" class="space-y-2">
+            <EventTitle/>
+            <EventCategory/>
+            <EventElderly/>
+            <EventCaretaker/>
+            <EventDateTimeRange/>
+            <EventGuest/>
+            <EventLocation/>
+            <EventDescription/>
+            <EventRecurrence/>
+            <Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
+                Create Event
+            </Button>
+            </form>
+        </div>
     </div>
 </template>

@@ -5,7 +5,7 @@ import {
   today
 } from '@internationalized/date'
 import { ref, computed } from 'vue'
-import { cn } from '../utils'
+import { cn } from '@/utils'
 
 import {
   FormControl,
@@ -14,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form'
+} from '../ui/form'
 
 import {
   Select,
@@ -24,11 +24,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from './ui/select'
+} from '../ui/select'
 
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Calendar } from './ui/calendar'
-import { Button } from "./ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Calendar } from '../ui/calendar'
+import { Button } from "../ui/button"
 import { CalendarIcon } from 'lucide-vue-next'
 
 const df = new DateFormatter('en-US', {
