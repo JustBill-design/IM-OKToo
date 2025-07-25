@@ -10,9 +10,10 @@ import EventCategory from './EventCategory.vue'
 import EventGuest from './EventGuest.vue'
 
 import { Button } from "./ui/button"
-import { useForm, FormProvider, Form } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
+
 
 const d = new Date()
 let year = d.getFullYear();
@@ -112,14 +113,22 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
-  console.log(values)
-}) 
+  
+  const response = await fetch("http://localhost:3001/calendar/add",
+  {
+      method: 'POST',
+      body: JSON.stringify(values),
+      headers: {
+          'Content-type': 'application/json'
+      }              
+  });
+})
+
 </script>
 
 <template>
     <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-8">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Create Event</h2>
-        <Form :form="form">
         <form @submit.prevent="onSubmit" class="space-y-6">
         <EventTitle/>
         <EventCategory/>
@@ -130,11 +139,9 @@ const onSubmit = form.handleSubmit(async (values) => {
         <EventLocation/>
         <EventDescription/>
         <EventRecurrence/>
-
-        <Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
+<Button type="submit" class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 transition">
             Create Event
         </Button>
         </form>
-        </Form>
     </div>
 </template>

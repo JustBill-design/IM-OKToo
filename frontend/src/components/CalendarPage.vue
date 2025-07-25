@@ -14,11 +14,12 @@ import GoogleCalendar from './GoogleCalendar.vue'
       <div class="min-h-screen py-12 px-4 flex flex-col items-center">
         <!-- Calendar Card -->
         <CalendarCard/>
+        <!-- Google Calendar Card -->
+        <GoogleCalendar/>
         <!-- Upcoming Appointments -->
         <UpcomingAppointments/>
         <!-- Form Card -->
         <EventForm/>
-        <GoogleCalendar/>
       </div>
     </main>
   </div>

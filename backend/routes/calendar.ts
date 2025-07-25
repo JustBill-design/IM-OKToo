@@ -32,10 +32,10 @@ router.post('/add', async (req, res) => {
     const startTimes = data.startTime.split(":");
     const endTimes = data.endTime.split(":");
 
-    const start = new Date(data.startDate.year, data.startDate.month, data.startDate.day, parseInt(startTimes[0]), parseInt(startTimes[1]), 0);
+    const start = new Date(data.startDate.year, data.startDate.month-1, data.startDate.day, parseInt(startTimes[0]), parseInt(startTimes[1]), 0);
     const formattedStart = format(start, 'yyyy-MM-dd HH:mm:ss');
 
-    const end = new Date(data.endDate.year, data.endDate.month, data.endDate.day, parseInt(endTimes[0]), parseInt(endTimes[1]), 0);
+    const end = new Date(data.endDate.year, data.endDate.month-1, data.endDate.day, parseInt(endTimes[0]), parseInt(endTimes[1]), 0);
     const formattedEnd = format(end, 'yyyy-MM-dd HH:mm:ss');
 
     let values = [data.elderly + ": " + data.title, data.category, formattedStart, formattedEnd, data.caretaker];
@@ -137,7 +137,7 @@ router.get('/events', async (req, res) => {
     await saveEventsToDB(events);
 
     // Optional: send back a response
-    res.redirect('http://localhost:5173/calendar/testing');
+    res.redirect('http://localhost:5173/calendar');
   } catch (err) {
     console.error("OAuth or Calendar error:", err);
     res.status(500).send("Error fetching or saving events");
@@ -148,7 +148,15 @@ router.get('/events', async (req, res) => {
 type GoogleCalendarEvent = calendar_v3.Schema$Event;
 
 const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
+  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
   const pool = await connectWithConnector({});
+  console.log('its saving events')
+    await pool.query(
+      `
+      DELETE FROM Events WHERE category = 'Google Sync'
+      `
+    )
   for (const event of events) {
     const title = event.summary ?? '';
     const start = event.start?.dateTime ?? null;
