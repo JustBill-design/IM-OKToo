@@ -125,7 +125,6 @@ async function retrieveEvents() {
 
     events.push(e);
   }
-  console.log(events)
   return events;
 }
 
