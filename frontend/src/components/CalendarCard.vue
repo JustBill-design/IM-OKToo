@@ -2,6 +2,7 @@
 import { ScheduleXCalendar } from '@schedule-x/vue'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
+import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence";
 import {
   createCalendar,
   createViewDay,
@@ -72,6 +73,7 @@ async function retrieveEvents() {
     e.start = format(start, 'yyyy-MM-dd HH:mm');
     e.end = format(end, 'yyyy-MM-dd HH:mm');
     e.people = [dept.caretaker];
+    e.rrule = dept.recurrence;
 
     // Checks to determine if description is present
     if (e.description) {
@@ -123,7 +125,7 @@ async function retrieveEvents() {
 
     events.push(e);
   }
-
+  console.log(events)
   return events;
 }
 
@@ -198,7 +200,7 @@ onMounted(async () => {
         };
       },
     }
-  }, [createCurrentTimePlugin(), scrollController])
+  }, [createEventRecurrencePlugin(),createCurrentTimePlugin(), scrollController])
   isCalendarReady.value = true
 })
 

@@ -112,7 +112,7 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
-  
+  console.log(values)
   const response = await fetch("http://localhost:3001/calendar/add",
   {
       method: 'POST',
@@ -121,6 +121,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           'Content-type': 'application/json'
       }              
   });
+  
 })
 
 </script>
