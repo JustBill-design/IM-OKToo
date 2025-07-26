@@ -25,7 +25,7 @@ router.get('/all', async (req, res) => {
 })
 
 router.post('/add', async (req, res) => {
-    console.log("it work")
+
     const data = req.body;
     let columns = ['title', 'category', 'start', 'end', 'caretaker'];
 
@@ -73,14 +73,25 @@ router.post('/add', async (req, res) => {
 
         const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${quotedValues.join(',')} );`;
         const pool = await connectWithConnector({});
-        // Run a lightweight test query
         const [rs] = await pool.query(query);
         console.log('Connection successful! Test result:', rs);
         await pool.end();
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.send('Event created!');
     }
-})
+});
+
+router.post('/delete', async (req, res) => {
+
+  const data = req.body;
+  const pool = await connectWithConnector({});
+  const [rs] = await pool.query('DELETE FROM Events WHERE event_id = ?', [data.id]);
+  console.log('Connection successful! Test result:', rs);
+  await pool.end();
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.send('Event deleted!');
+
+});
 
 // Route to initiate Google OAuth2 flow
 router.get('/authgooglecalendar', (req, res) => {

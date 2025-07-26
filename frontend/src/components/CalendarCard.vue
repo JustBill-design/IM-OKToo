@@ -16,7 +16,8 @@ import { format } from 'date-fns'
 import { onMounted, ref } from 'vue'
 import { X, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
 import { Button } from './ui/button'
-import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence";
+import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence"
+import { createEventsServicePlugin } from '@schedule-x/events-service'
 
 import type { CalendarApp } from '@schedule-x/calendar'
 
@@ -59,11 +60,32 @@ const scrollController = createScrollControllerPlugin({
 })
 
 let isCalendarReady = ref(false)
+let deletePopover = ref(false)
 let showPopover = ref(false)
 let popoverEvent = ref<CalendarEventExternal | null>(null)
 let popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
+const eventsServicePlugin = createEventsServicePlugin();
+
+async function deleteEvent() {
+  const eventId = {id: popoverEvent.value?.id};
+
+  const response = await fetch("http://localhost:3001/calendar/delete",
+  {
+      method: 'POST',
+      body: JSON.stringify(eventId),
+      headers: {
+          'Content-type': 'application/json'
+      }              
+  });
+
+  if (popoverEvent.value?.id != undefined) {
+    eventsServicePlugin.remove(popoverEvent.value?.id);
+  }
+  
+  deletePopover.value = false;
+}
 
 async function retrieveEvents() {
 
@@ -210,6 +232,7 @@ onMounted(async () => {
     events: events,
     callbacks: {
       onEventClick(calendarEvent, e: UIEvent) {
+        console.log(calendarEvent);
         const mouseEvent = e as MouseEvent;
         popoverEvent.value = calendarEvent;
         showPopover.value = true;
@@ -220,7 +243,7 @@ onMounted(async () => {
         };
       },
     }
-  }, [createEventRecurrencePlugin(), createCurrentTimePlugin(), scrollController])
+  }, [createEventRecurrencePlugin(), createCurrentTimePlugin(), scrollController, eventsServicePlugin])
   isCalendarReady.value = true
 })
 
@@ -242,7 +265,7 @@ onMounted(async () => {
           <Teleport to="body">
             <div v-if="showPopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 9999 }" class="bg-white rounded-md shadow-lg p-4">
               <div class="flex justify-end space-x-2 my-2">
-                <Button class="px-2" variant="outline" size="icon">
+                <Button @click="deletePopover = true; showPopover = false" class="px-2" variant="outline" size="icon">
                   <Trash2 />
                 </Button>
                 <Button @click="showPopover = false" variant="outline" size="icon">
@@ -267,6 +290,21 @@ onMounted(async () => {
                 <div>{{ popoverEvent?.guests }}</div>
               </div>
               <!-- add more fields as needed -->
+            </div>
+          </Teleport>
+          <Teleport to="body">
+            <div v-if="deletePopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 9999 }" class="bg-white rounded-md shadow-lg p-4">
+              <div class="mr-20">
+                Are you sure you want to delete this event?
+              </div>
+              <div class="flex gap-2 mt-6 justify-end">
+                <Button variant="outline" class="rounded-full border-2 border-purple-500 text-purple-700 px-6 font-semibold hover:bg-purple-50 hover:border-purple-600" @click="deletePopover = false">
+                  Cancel
+                </Button>
+                <Button variant="destructive" class="rounded-full px-8 font-bold" @click="deleteEvent">
+                  Delete
+                </Button>
+              </div>
             </div>
           </Teleport>
         </div>
