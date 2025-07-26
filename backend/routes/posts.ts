@@ -57,7 +57,7 @@ router.post("/addposts", async (req, res) => {
     const title = req.body.title;
     const content = req.body.content;
 
-
+    console.log(username)
     try {
         const db = await getConnection()
 
@@ -68,8 +68,8 @@ router.post("/addposts", async (req, res) => {
         }
 
         const cat_id = categoryquery[0].CATEGORY_ID;
-        
-        const [insertResult] = await db.execute('INSERT INTO POSTS (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])  // ← Use cat_id
+
+        const [insertResult] = await db.execute('INSERT INTO POSTS (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
 
         const [newPost] = await db.execute('SELECT * FROM POSTS WHERE post_id = ?', [insertResult.insertId]);
         res.json(newPost[0]);
@@ -79,5 +79,9 @@ router.post("/addposts", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
+//     post_id INT NOT NULL, // most likely have to call first then put in
+//     username VARCHAR(50) NOT NULL, this is from localhost
+//     content TEXT NOT NULL, // this will be from user input
+router.post("/addcomments")
 
 export default router

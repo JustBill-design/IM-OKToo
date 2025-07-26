@@ -5,6 +5,7 @@ const Home = () => import('../components/HomePage.vue')
 const Calendar = () => import('../components/CalendarPage.vue')
 const Forum = () => import('../components/ForumPage.vue')
 const Login = () => import('../components/Login.vue')
+const Register = () => import('../components/Register.vue')
 const ResourcePage = () => import('../components/ResourcePage.vue')
 const ForumPage = () => import('../components/ForumPage.vue')
 
@@ -13,6 +14,12 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/register',
+    name: 'Registration',
+    component: Register,
+    meta: { requiresAuth: false }
   },
   {
     path: '/home',

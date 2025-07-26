@@ -303,7 +303,7 @@ export default {
 
       try {
         const postData = {
-          username: username,
+          username: localStorage.getItem('username'),
           category: newPost.value.category,
           title: newPost.value.title,
           content: newPost.value.content
@@ -322,9 +322,12 @@ export default {
         }
 
         const result = await response.json();
-
+        
         posts.value.unshift(result);
         openStates.value.unshift(false);
+
+        await fetchPosts();
+
 
         closeModal();
         alert('Post created successfully!');
