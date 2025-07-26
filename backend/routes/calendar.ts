@@ -66,7 +66,7 @@ router.post('/add', async (req, res) => {
         }
         else
         {
-            values.push("Does not repeat")
+            values.push("FREQ=DAILY;COUNT=1")
         }
 
         const quotedValues = values.map(v => `'${v}'`);
@@ -91,7 +91,7 @@ router.post('/delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.send('Event deleted!');
 
-});
+})
 
 // Route to initiate Google OAuth2 flow
 router.get('/authgooglecalendar', (req, res) => {
@@ -181,7 +181,7 @@ const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
     // Default/fallback values
     const category = 'Google Sync';
     const caretaker = 'System';
-    const recurrence = event.recurrence?.join(', ') ?? 'Does not repeat';
+    const recurrence = event.recurrence?.join(', ') ?? 'FREQ=DAILY;COUNT=1';
 
     if (!start || !end) continue; // Skip events without start/end
 
