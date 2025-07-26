@@ -61,7 +61,7 @@ router.post("/addposts", async (req, res) => {
     try {
         const db = await getConnection()
 
-        const [categoryquery] = await db.execute('SELECT CATEGORY_ID FROM CATEGORIES WHERE NAME = ?', [categoryName])
+        const [categoryquery] = await db.execute('SELECT CATEGORY_ID FROM CATEGORIES WHERE NAME = ?', [categoryName]) as [any[], any]
 
         if (categoryquery.length === 0) {
             return res.status(400).json({ error: "Invalid category" });
@@ -70,8 +70,8 @@ router.post("/addposts", async (req, res) => {
         const cat_id = categoryquery[0].CATEGORY_ID;
 
         const [insertResult] = await db.execute('INSERT INTO POSTS (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
-
-        const [newPost] = await db.execute('SELECT * FROM POSTS WHERE post_id = ?', [insertResult.insertId]);
+        
+        const [newPost] = await db.execute('SELECT * FROM POSTS WHERE post_id = ?', [insertResult.insertId]) as [any[], any];
         res.json(newPost[0]);
 
     } catch (error) {
