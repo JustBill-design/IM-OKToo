@@ -1,4 +1,3 @@
--- Drop existing tables and recreate with username as foreign key
 DROP TABLE IF EXISTS CommentLikes;
 DROP TABLE IF EXISTS PostLikes;
 DROP TABLE IF EXISTS Comments;
@@ -6,7 +5,6 @@ DROP TABLE IF EXISTS Posts;
 DROP TABLE IF EXISTS Categories;
 DROP TABLE IF EXISTS Users;
 
--- Recreate tables with username as primary/foreign key
 CREATE TABLE Users (
     username VARCHAR(50) PRIMARY KEY,
     first_name VARCHAR(50) UNIQUE NOT NULL,
@@ -214,4 +212,7 @@ JOIN CATEGORIES CAT ON POST.category_id = CAT.category_id
 ORDER BY POST.created_at DESC;
 
 
-select * from posts
+-- select * from categories where name = "Physical Therapy"
+SELECT * FROM users
+
+

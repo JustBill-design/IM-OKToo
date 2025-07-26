@@ -144,7 +144,7 @@ export default {
 
                 if (data.success) {
                     console.log("user exists and has logged in!");
-                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('username', loginForm.username);
                     localStorage.setItem('isAuthenticated', 'true');
 
                     await router.replace('/home')
