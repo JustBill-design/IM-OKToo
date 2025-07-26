@@ -24,7 +24,7 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
   <div class="app-layout">
     <!-- Sidebar - only show when NOT on login page -->
     <SideBar 
-      v-if="route.name !== 'Login' && route.name !== 'Register'"
+      v-if="route.name !== 'Login' && route.name !== 'Registration'"
       @menu-item-selected="handleMenuSelection" 
       @sidebar-state-changed="handleSidebarStateChange" 
     />
