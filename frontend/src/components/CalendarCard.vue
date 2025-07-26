@@ -16,8 +16,11 @@ import { format } from 'date-fns'
 import { onMounted, ref } from 'vue'
 import { X, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
 import { Button } from './ui/button'
+
 import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence"
 import { createEventsServicePlugin } from '@schedule-x/events-service'
+import { createResizePlugin } from '@schedule-x/resize'
+import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
 
 import type { CalendarApp } from '@schedule-x/calendar'
 
@@ -80,8 +83,12 @@ async function deleteEvent() {
       }              
   });
 
-  if (popoverEvent.value?.id != undefined) {
-    eventsServicePlugin.remove(popoverEvent.value?.id);
+  if (response.ok) {
+
+    if (popoverEvent.value?.id != undefined) {
+      eventsServicePlugin.remove(popoverEvent.value?.id);
+    }
+    // Need to create an error state popover
   }
   
   deletePopover.value = false;
@@ -232,7 +239,6 @@ onMounted(async () => {
     events: events,
     callbacks: {
       onEventClick(calendarEvent, e: UIEvent) {
-        console.log(calendarEvent);
         const mouseEvent = e as MouseEvent;
         popoverEvent.value = calendarEvent;
         showPopover.value = true;
@@ -242,8 +248,34 @@ onMounted(async () => {
           y: mouseEvent.pageY,
         };
       },
+      async onEventUpdate(updatedEvent) {
+        console.log('Updated successfully!');
+      },
+      async onBeforeEventUpdateAsync(oldEvent, newEvent, $app) {
+        const newStart = new Date(newEvent.start);
+        const newEnd = new Date(newEvent.end);
+
+        const eventData = {id: newEvent.id, start: format(newStart, 'yyyy-MM-dd HH:mm:ss'), end: format(newEnd, 'yyyy-MM-dd HH:mm:ss')};
+
+        const response = await fetch("http://localhost:3001/calendar/modify",
+        {
+            method: 'POST',
+            body: JSON.stringify(eventData),
+            headers: {
+                'Content-type': 'application/json'
+            }              
+        });
+
+        if (response.ok) {
+          return true;
+        }
+        else {
+          return false;
+        }
+
+      }
     }
-  }, [createEventRecurrencePlugin(), createCurrentTimePlugin(), scrollController, eventsServicePlugin])
+  }, [createEventRecurrencePlugin(), createCurrentTimePlugin(), scrollController, eventsServicePlugin, createResizePlugin(), createDragAndDropPlugin()])
   isCalendarReady.value = true
 })
 

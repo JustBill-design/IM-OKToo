@@ -91,6 +91,24 @@ router.post('/delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.send('Event deleted!');
 
+});
+
+router.post('/modify', async (req, res) => {
+
+  const data = req.body;
+  const pool = await connectWithConnector({});
+  const [rs] = await pool.query(
+    `
+    UPDATE Events
+    SET start = ?, end = ?
+    WHERE event_id = ?;
+    `,
+  [data.start, data.end, data.id]);
+  console.log('Connection successful! Test result:', rs);
+  await pool.end();
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.send('Event modified!');
+
 })
 
 // Route to initiate Google OAuth2 flow
