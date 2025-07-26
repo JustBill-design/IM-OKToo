@@ -18,7 +18,7 @@ export default {
     }
 
     const todayEvents = computed(() =>
-    events.value.filter(event => isToday(new Date(event.start)))
+    events.value.filter(event => (isToday(new Date(event.start)) && (event.category == "Appointments")))
     )
 
     async function retrieveEvents() {
@@ -43,6 +43,7 @@ export default {
         e.formattedDate = start.toLocaleString() + ' - ' + end.toLocaleString()
         e.location = dept.location
         e.description = dept.description
+        e.category = dept.category
 
         formattedEvents.push(e)
       }
