@@ -66,6 +66,7 @@ let isCalendarReady = ref(false)
 let deletePopover = ref(false)
 let showPopover = ref(false)
 let popoverEvent = ref<CalendarEventExternal | null>(null)
+let revertEvent = ref<CalendarEventExternal | null>(null)
 let popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
@@ -249,13 +250,10 @@ onMounted(async () => {
         };
       },
       async onEventUpdate(updatedEvent) {
-        console.log('Updated successfully!');
-      },
-      async onBeforeEventUpdateAsync(oldEvent, newEvent, $app) {
-        const newStart = new Date(newEvent.start);
-        const newEnd = new Date(newEvent.end);
+        const newStart = new Date(updatedEvent.start);
+        const newEnd = new Date(updatedEvent.end);
 
-        const eventData = {id: newEvent.id, start: format(newStart, 'yyyy-MM-dd HH:mm:ss'), end: format(newEnd, 'yyyy-MM-dd HH:mm:ss')};
+        const eventData = {id: updatedEvent.id, start: format(newStart, 'yyyy-MM-dd HH:mm:ss'), end: format(newEnd, 'yyyy-MM-dd HH:mm:ss')};
 
         const response = await fetch("http://localhost:3001/calendar/modify",
         {
@@ -267,11 +265,28 @@ onMounted(async () => {
         });
 
         if (response.ok) {
-          return true;
+          // Do nothing
         }
         else {
+
+          if (revertEvent.value){
+            eventsServicePlugin.update(revertEvent.value);
+          }
+          
+          alert("The event update has failed. The event will revert back to its original start and end");
+
+        }
+
+        console.log('Updated successfully!');
+      },
+      onBeforeEventUpdate(oldEvent, newEvent, $app) {
+
+        if (oldEvent.start === newEvent.start && oldEvent.end === newEvent.end) {
           return false;
         }
+
+        revertEvent.value = oldEvent;
+        return true;
 
       }
     }
