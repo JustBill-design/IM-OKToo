@@ -8,18 +8,31 @@ import {
   createViewMonthAgenda,
   createViewMonthGrid,
   createViewWeek,
-  createViewList
+  createViewList,
+  CalendarEventExternal
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
 import { format } from 'date-fns'
 import { onMounted, ref } from 'vue'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { X, Pencil, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
+import { X, Clock9, HandHelping, User, Trash2, MapPin } from 'lucide-vue-next'
 import { Button } from './ui/button'
 import { createEventRecurrencePlugin} from "@schedule-x/event-recurrence";
 
 import type { CalendarApp } from '@schedule-x/calendar'
-import EditEvent from './EditEvent.vue'
+
+type CalendarEvent = {
+    id: number;
+    title: string;
+    category: string;
+    start: string;
+    end: string;
+    people: string[];
+    location?: string;
+    description?: string;
+    guests?: string;
+    calendarId: string;
+    rrule: string;
+}
 
 const getToday = () => {
   const today = new Date();
@@ -45,22 +58,16 @@ const scrollController = createScrollControllerPlugin({
   initialScroll: getTime() 
 })
 
-const isCalendarReady = ref(false)
-const showPopover = ref(false)
-const showEditPopover = ref(false)
-const popoverEvent = ref(null)
-const popoverPosition = ref({x:0, y:0})
+let isCalendarReady = ref(false)
+let showPopover = ref(false)
+let popoverEvent = ref<CalendarEventExternal | null>(null)
+let popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
 
-function modifyEvent() {
-  showEditPopover.value = true;
-  showPopover.value = false;
-}
-
 async function retrieveEvents() {
 
-  const events =[];
+  const events: CalendarEvent[] = [];
 
   const response = await fetch(`http://localhost:3001/calendar/all`,
   {
@@ -128,11 +135,11 @@ async function retrieveEvents() {
 
     // Create the formatted date for the popover
     if (start.toDateString() === end.toDateString()) {
-      const formatted_string = start.toDateString() + " " + parseInt(starthour12) + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + parseInt(endhour12) + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
+      const formatted_string = start.toDateString() + " " + starthour12 + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + endhour12 + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
       e.formattedDate = formatted_string;
     }
     else {
-      const formatted_string = start.toDateString() + " " + parseInt(starthour12) + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + end.toDateString() + parseInt(endhour12) + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
+      const formatted_string = start.toDateString() + " " + starthour12 + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + end.toDateString() + endhour12 + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
       e.formattedDate = formatted_string;
     }
 
@@ -203,13 +210,13 @@ onMounted(async () => {
     events: events,
     callbacks: {
       onEventClick(calendarEvent, e: UIEvent) {
+        const mouseEvent = e as MouseEvent;
         popoverEvent.value = calendarEvent;
         showPopover.value = true;
-        showEditPopover.value = false;
 
         popoverPosition.value = {
-          x: e.pageX,
-          y: e.pageY,
+          x: mouseEvent.pageX,
+          y: mouseEvent.pageY,
         };
       },
     }
@@ -229,14 +236,12 @@ onMounted(async () => {
           </div>
           <ScheduleXCalendar
             v-else
+            v-if="calendarApp"
             :calendar-app="calendarApp"
           />
           <Teleport to="body">
             <div v-if="showPopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 9999 }" class="bg-white rounded-md shadow-lg p-4">
               <div class="flex justify-end space-x-2 my-2">
-                <Button class="px-2" variant="outline" size="icon" @click="modifyEvent">
-                  <Pencil />
-                </Button>
                 <Button class="px-2" variant="outline" size="icon">
                   <Trash2 />
                 </Button>
@@ -244,29 +249,24 @@ onMounted(async () => {
                   <X/>
                 </Button>
               </div>
-              <div class="font-semibold my-2">{{ popoverEvent.title }}</div>
+              <div class="font-semibold my-2">{{ popoverEvent?.title }}</div>
               <div class="flex gap-x-4 my-2">
                 <Clock9 />
-                <div>{{ popoverEvent.formattedDate }}</div>
+                <div>{{ popoverEvent?.formattedDate }}</div>
               </div>
-              <div class="flex gap-x-4" v-if="popoverEvent.location">
+              <div class="flex gap-x-4" v-if="popoverEvent?.location">
                 <MapPin />
-                <div>{{ popoverEvent.location }}</div>
+                <div>{{ popoverEvent?.location }}</div>
               </div>
               <div class="flex gap-x-4">
                 <HandHelping />
-                <div>{{ popoverEvent.people }}</div>
+                <div>{{ popoverEvent?.people }}</div>
               </div>
-              <div class="flex gap-x-4" v-if="popoverEvent.guests">
+              <div class="flex gap-x-4" v-if="popoverEvent?.guests">
                 <User />
-                <div>{{ popoverEvent.guests }}</div>
+                <div>{{ popoverEvent?.guests }}</div>
               </div>
               <!-- add more fields as needed -->
-            </div>
-          </Teleport>
-          <Teleport to="body">
-            <div v-if="showEditPopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 25 }" class="bg-white rounded-md shadow-lg p-4">
-              <EditEvent :event="popoverEvent"/>
             </div>
           </Teleport>
         </div>
