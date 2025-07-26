@@ -69,9 +69,9 @@ router.post("/addposts", async (req, res) => {
 
         const cat_id = categoryquery[0].CATEGORY_ID;
 
-        const [insertResult] = await db.execute('INSERT INTO POSTS (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
+        const [insertResult] = await db.execute('INSERT INTO POSTS (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content]) as [any, any];
         
-        const [newPost] = await db.execute('SELECT * FROM POSTS WHERE post_id = ?', [insertResult.insertId]) as [any[], any];
+        const [newPost] = await db.execute('SELECT * FROM POSTS WHERE post_id = ?', [(insertResult as any).insertId]) as [any[], any];
         res.json(newPost[0]);
 
     } catch (error) {
