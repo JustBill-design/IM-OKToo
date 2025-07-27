@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { SettingsComponent } from './index'   <!-- if using index.ts -->
+import { SettingsComponent } from './index'
 import EditUsernameForm from './EditUsernameForm.vue'
 import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
