@@ -13,7 +13,9 @@ import { Button } from "./ui/button"
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 
 const d = new Date()
 let year = d.getFullYear();
@@ -82,12 +84,12 @@ const formSchema = toTypedSchema(z.object({
     start.toDateString() === end.toDateString() &&
     startTime &&
     endTime &&
-    endTime < startTime
+    endTime <= startTime
   ) {
     ctx.addIssue({
       code: "custom",
       path: ['endDate'],
-      message: 'End time must not be before start time',
+      message: 'End time must not be equal or before start time',
     })
   }
 
@@ -112,6 +114,7 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
+
   const response = await fetch("http://localhost:3001/calendar/add",
   {
       method: 'POST',
@@ -120,6 +123,15 @@ const onSubmit = form.handleSubmit(async (values) => {
           'Content-type': 'application/json'
       }              
   });
+
+  if (response.ok) {
+    window.location.reload();
+  }
+  else
+  {
+    alert("Event creation had failed!");
+  }
+
 })
 
 </script>
