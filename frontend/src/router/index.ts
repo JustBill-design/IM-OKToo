@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+// import Settings from '../components/Settings.vue'
 
 
 const Home = () => import('../components/HomePage.vue')
@@ -7,6 +8,7 @@ const Forum = () => import('../components/ForumPage.vue')
 const Login = () => import('../components/Login.vue')
 const ResourcePage = () => import('../components/ResourcePage.vue')
 const ForumPage = () => import('../components/ForumPage.vue')
+const Settings = () => import('../components/Settings.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -37,6 +39,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Forum',
     component: ForumPage,
     meta: { requiresAuth: true }
+  },
+  {
+  path: '/settings',
+  name: 'Settings',
+  component: Settings,
+  meta: { requiresAuth: true }
   }
 ]
 
