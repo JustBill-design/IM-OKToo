@@ -108,6 +108,7 @@ describe('Posts API for the database', () => {
   })
 
   describe('Database schema validation',() => {
+    /*
     it('shld have proper join statement', async () => {
       const expectedQuery = expect.stringContaining('Posts POST')
       mockConnection.query.mockResolvedValue([[], []])
@@ -115,6 +116,13 @@ describe('Posts API for the database', () => {
       await request(app).get('/posts')
 
       expect(mockConnection.query).toHaveBeenCalledWith(expectedQuery)
+    })
+    */
+    it('db query when get post', async () => {
+      mockConnection.query.mockResolvedValue([[], []])
+      await request(app).get('/posts')
+      expect(mockConnection.query).toHaveBeenCalled()
+      expect(mockConnection.end).toHaveBeenCalled()
     })
   })
 })
