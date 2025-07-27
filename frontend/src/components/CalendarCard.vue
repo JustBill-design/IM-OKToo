@@ -126,17 +126,17 @@ async function retrieveEvents() {
     e.rrule = dept.recurrence;
 
     // Checks to determine if description is present
-    if (e.description) {
+    if (dept.description) {
       e.description = dept.description;
     }
 
     // Checks to determine if location is present
-    if (e.location) {
+    if (dept.location) {
       e.location = dept.location;
     }
 
     // Checks to determine if guests is/are present
-    if (e.guests) {
+    if (dept.guests) {
       e.guests = dept.guests;
     }
     
@@ -324,11 +324,11 @@ onMounted(async () => {
                 <Clock9 />
                 <div>{{ popoverEvent?.formattedDate }}</div>
               </div>
-              <div class="flex gap-x-4" v-if="popoverEvent?.location">
+              <div class="flex gap-x-4 my-2" v-if="popoverEvent?.location">
                 <MapPin />
                 <div>{{ popoverEvent?.location }}</div>
               </div>
-              <div class="flex gap-x-4">
+              <div class="flex gap-x-4 my-2">
                 <HandHelping />
                 <div>{{ popoverEvent?.people }}</div>
               </div>
