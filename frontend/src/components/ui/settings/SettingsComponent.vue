@@ -27,7 +27,6 @@ import EditUsernameForm from './EditUsernameForm.vue'
 import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
 import EditPhotoUploader from './EditPhotoUploader.vue'
-import ChangeEmailForm from './ChangeEmailForm.vue'
 
 const username = ref('')
 const email = ref('')
@@ -41,13 +40,36 @@ const profileImageSrc = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await fetch('/api/me')
-    const userData = await response.json()
-    username.value = userData.username
-    email.value = userData.email
-    profileImage.value = userData.profileImage
+    const storedUsername = localStorage.getItem('username')
+    const isGoogleAuth = localStorage.getItem('googleAuth') === 'true'
+    
+    if (storedUsername) {
+      username.value = storedUsername
+      if (isGoogleAuth) {
+        email.value = storedUsername 
+      } else {
+        email.value = localStorage.getItem('email') || `${storedUsername}@mymail.sutd.edu.sg`
+      }
+    } else {
+      username.value = 'test User'
+      email.value = 'user@mymail.sutd.edu.sg'
+    }
+    try {
+      const response = await fetch('/api/me')
+      if (response.ok) {
+        const userData = await response.json()
+        username.value = userData.username
+        email.value = userData.email
+        profileImage.value = userData.profileImage
+      }
+    } catch (apiError) {
+      console.log('API not available, using local data')
+    }
   } catch (error) {
     console.error('Failed to load user data:', error)
+    // Set fallback values
+    username.value = 'test User'
+    email.value = 'user@mymail.sutd.edu.sg'
   }
 })
 </script>

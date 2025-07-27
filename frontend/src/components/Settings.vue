@@ -26,24 +26,8 @@
 
 <script setup>
   import {SettingsComponent} from './ui/settings'
-
-  // function editUsername() {
-  //   alert("Navigate to edit username")
-  // }
-
-  // function editPhoto() {
-  //   alert("Open photo uploader")
-  // }
-
-  // function editPassword() {
-  //   alert("Navigate to password change")
-  // }
-
-  // function addPerson() {
-  //   alert("Open add person form")
-  // }
 </script>
 
 <style>
-  <import './Settings.css'
+
 </style>
