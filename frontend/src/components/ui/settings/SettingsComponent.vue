@@ -1,17 +1,55 @@
 <template>
   <div class="page-container">
     <h1 class="page-title">Settings</h1>
+
+    <!-- Profile Display Section -->
+    <div class="profile-section">
+      <div class="profile-avatar">
+        <img :src="profileImageSrc" :alt="username || 'Profile'" />
+      </div>
+      <div class="profile-info">
+        <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
+        <p class="profile-email">{{ email || 'Loading...' }}</p>
+      </div>
+    </div>
+
     <EditUsernameForm />
+    <ChangeEmailForm/>
     <ChangePasswordForm />
     <EditPhotoUploader />
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
 import { SettingsComponent } from './index'   <!-- if using index.ts -->
 import EditUsernameForm from './EditUsernameForm.vue'
+import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
 import EditPhotoUploader from './EditPhotoUploader.vue'
+import ChangeEmailForm from './ChangeEmailForm.vue'
+
+const username = ref('')
+const email = ref('')
+const profileImage = ref('')
+
+const profileImageSrc = computed(() => {
+  return profileImage.value && profileImage.value.trim() !== '' 
+    ? profileImage.value 
+    : new URL('../assets/lionmascot.png', import.meta.url).href
+})
+
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/me')
+    const userData = await response.json()
+    username.value = userData.username
+    email.value = userData.email
+    profileImage.value = userData.profileImage
+  } catch (error) {
+    console.error('Failed to load user data:', error)
+  }
+})
 </script>
 
 <style scoped>
