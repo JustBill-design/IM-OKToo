@@ -44,7 +44,7 @@ const getToday = () => {
 };
 
 const getTime = () => {
-  let hours;
+  let hours: string;
 
   if (getToday().getHours() < 2) {
     hours = "00";
@@ -59,18 +59,19 @@ const getTime = () => {
 }
 
 const scrollController = createScrollControllerPlugin({
-  initialScroll: getTime() 
+  initialScroll: getTime()
 })
+const eventsServicePlugin = createEventsServicePlugin();
 
-let isCalendarReady = ref(false)
-let deletePopover = ref(false)
-let showPopover = ref(false)
-let popoverEvent = ref<CalendarEventExternal | null>(null)
-let revertEvent = ref<CalendarEventExternal | null>(null)
-let popoverPosition = ref({x:0, y:0})
+const isCalendarReady = ref(false)
+const deletePopover = ref(false)
+const showPopover = ref(false)
+const popoverEvent = ref<CalendarEventExternal | null>(null)
+const revertEvent = ref<CalendarEventExternal | null>(null)
+const popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
-const eventsServicePlugin = createEventsServicePlugin();
+
 
 async function deleteEvent() {
   const eventId = {id: popoverEvent.value?.id};
@@ -85,11 +86,17 @@ async function deleteEvent() {
   });
 
   if (response.ok) {
+    
+    if (popoverEvent.value?.rrule != 'FREQ=DAILY;COUNT=1') {
+      window.location.reload();
+    }
 
     if (popoverEvent.value?.id != undefined) {
       eventsServicePlugin.remove(popoverEvent.value?.id);
     }
-    // Need to create an error state popover
+
+  } else {
+    alert("There was an error deleting the event(s)");
   }
   
   deletePopover.value = false;
@@ -113,7 +120,6 @@ async function retrieveEvents() {
     
     const dept = json[i];
     const e = {} as any;
-
     const start = new Date(dept.start);
     const end = new Date(dept.end);
 
@@ -164,7 +170,26 @@ async function retrieveEvents() {
     const endhour12 = end.getHours() % 12 || 12
 
     // Create the formatted date for the popover
-    if (start.toDateString() === end.toDateString()) {
+    if (dept.recurrence != "FREQ=DAILY;COUNT=1") {
+
+      if (dept.recurrence === "FREQ=DAILY") {
+        e.formattedDate = "Daily";
+      }
+      else if (dept.recurrence === "FREQ=WEEKLY") {
+        e.formattedDate = "Weekly";
+      }
+      else if (dept.recurrence === "FREQ=MONTHLY") {
+        e.formattedDate = "Monthly";
+      }
+      else if (dept.recurrence === "FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR") {
+        e.formattedDate = "Every weekday";
+      }
+      else {
+        e.formattedDate = "Annually";
+      }
+
+    }
+    else if (start.toDateString() === end.toDateString()) {
       const formatted_string = start.toDateString() + " " + starthour12 + ":" + String(start.getMinutes()).padStart(2, "0") + " " + startampm + " - " + endhour12 + ":" + String(end.getMinutes()).padStart(2, "0") + " " + endampm;
       e.formattedDate = formatted_string;
     }
@@ -342,7 +367,8 @@ onMounted(async () => {
           <Teleport to="body">
             <div v-if="deletePopover" :style="{ position: 'absolute', left: popoverPosition.x + 'px', top: popoverPosition.y + 'px', zIndex: 9999 }" class="bg-white rounded-md shadow-lg p-4">
               <div class="mr-20">
-                Are you sure you want to delete this event?
+                <p>Are you sure you want to delete this event?</p>
+                <p>Recurring events will be deleted as well!</p>
               </div>
               <div class="flex gap-2 mt-6 justify-end">
                 <Button variant="outline" class="rounded-full border-2 border-purple-500 text-purple-700 px-6 font-semibold hover:bg-purple-50 hover:border-purple-600" @click="deletePopover = false">
