@@ -4,38 +4,94 @@
 ======================================== -->
 
 <script setup lang="ts">
-// ========================================
-// IMPORTS & DEPENDENCIES
-// ========================================
-import { ref } from 'vue'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { onMounted, ref } from 'vue'
+import { Input } from './ui/input'
+import { Button } from './ui/button'
 import { Trash } from 'lucide-vue-next'
 
-// ========================================
-// COMPONENT PROPS & EMITS
-// ========================================
-const props = defineProps<{ tasks: { text: string; done: boolean }[] }>()
-const emit = defineEmits<{ 
+const emit = defineEmits<{
   (e: 'add-task', task: string): void
   (e: 'toggle-task', idx: number): void
-  (e: 'remove-task', idx: number): void 
+  (e: 'remove-task', idx: number): void
 }>()
 
-// ========================================
-// REACTIVE STATE
-// ========================================
+const USERNAME = 'testuser'
+const tasks = ref<{ id: number; text: string; done: boolean }[]>([])
 const newTask = ref('')
 
-// ========================================
-// TASK MANAGEMENT FUNCTIONS
-// ========================================
-function addTask() {
-  if (newTask.value.trim()) {
-    emit('add-task', newTask.value.trim())
-    newTask.value = ''
+async function fetchTasks() {
+  try {
+    const res = await fetch(`/api/tasks?username=${USERNAME}`)
+    if (!res.ok) throw new Error('Network response not ok')
+    const data = await res.json()
+    tasks.value = data.map((task: any) => ({
+      id: task.task_id,
+      text: task.task_description,
+      done: task.completed === 1
+    }))
+  } catch (err) {
+    console.error('Failed to load tasks:', err)
   }
 }
+
+async function addTask() {
+  const desc = newTask.value.trim()
+  if (!desc) return
+
+  try {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        task_description: desc,
+        username: USERNAME
+      }),
+    })
+    if (!res.ok) throw new Error('Failed to add task')
+    const newEntry = await res.json()
+    tasks.value.unshift({
+      id: newEntry.task_id,
+      text: newEntry.task_description,
+      done: newEntry.completed
+    })
+    emit('add-task', desc)
+    newTask.value = ''
+  } catch (err) {
+    console.error('Failed to add task:', err)
+  }
+}
+
+async function toggleTask(idx: number) {
+  const task = tasks.value[idx]
+  try {
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: !task.done }),
+    })
+    if (!res.ok) throw new Error('Failed to toggle task')
+    task.done = !task.done
+    emit('toggle-task', idx)
+  } catch (err) {
+    console.error('Failed to toggle task:', err)
+  }
+}
+
+async function removeTask(idx: number) {
+  const task = tasks.value[idx]
+  try {
+    const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Failed to remove task')
+    tasks.value.splice(idx, 1)
+    emit('remove-task', idx)
+  } catch (err) {
+    console.error('Failed to remove task:', err)
+  }
+}
+
+onMounted(() => {
+  fetchTasks()
+})
 </script>
 
 <!-- ========================================
@@ -54,12 +110,12 @@ function addTask() {
     
     <!-- Task List -->
     <ul class="mt-2 flex-1 overflow-y-auto space-y-2">
-      <li v-for="(task, idx) in props.tasks" :key="idx" class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 group animate-task-in transform transition-all duration-300 hover:scale-102">
+      <li v-for="(task, idx) in tasks" :key="task.id" class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 group animate-task-in transform transition-all duration-300 hover:scale-102">
         <!-- Checkbox -->
         <input 
           type="checkbox" 
           :checked="task.done" 
-          @change="$emit('toggle-task', idx)" 
+          @change="toggleTask(idx)" 
           class="accent-primary w-5 h-5 rounded border-gray-300 focus:ring-2 focus:ring-primary transition-all duration-300 transform hover:scale-110" 
         />
         
@@ -76,7 +132,7 @@ function addTask() {
           type="button" 
           variant="ghost" 
           size="sm" 
-          @click="$emit('remove-task', idx)" 
+          @click="removeTask(idx)"  
           class="opacity-60 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-red-100" 
           aria-label="Delete task"
         >
@@ -85,7 +141,7 @@ function addTask() {
       </li>
       
       <!-- Empty State -->
-      <li v-if="props.tasks.length === 0" class="text-muted-foreground text-center py-8 animate-fade-in">
+      <li v-if="tasks.length === 0" class="text-muted-foreground text-center py-8 animate-fade-in">
         <div>
           ✨ No tasks yet. Add one above!
         </div>
