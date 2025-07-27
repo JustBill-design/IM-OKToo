@@ -68,7 +68,7 @@
                   <p class="text-sm text-gray-400">Loading comments...</p>
                 </div>
                 <div v-else>
-                  <div v-if="comments[post.post_id]?.length > 0" class="space-y-3">
+                  <div v-if="comments[post.post_id]?.length > 0" class="space-y-3 mb-4">
                     <div v-for="(comment, cIndex) in comments[post.post_id]" :key="cIndex"
                       class="border rounded-md p-3 bg-gray-50">
                       <p class="text-sm font-medium text-gray-800">
@@ -82,7 +82,18 @@
                       </p>
                     </div>
                   </div>
-                  <div v-else class="text-sm text-gray-400">No comments yet.</div>
+                  <div v-else class="text-sm text-gray-400 mb-4">No comments yet.</div>
+
+                  <div class="border-t pt-4">
+                    <div class="flex space-x-2">
+                      <input type="text" placeholder="Add a comment..."
+                        class="flex-1 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <button
+                        class="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium">
+                        + Post
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </transition>
@@ -322,7 +333,7 @@ export default {
         }
 
         const result = await response.json();
-        
+
         posts.value.unshift(result);
         openStates.value.unshift(false);
 

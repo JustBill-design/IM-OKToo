@@ -21,6 +21,7 @@
     "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
+    "@google-cloud/cloud-sql-connector": "^1.8.2",
     "@internationalized/date": "^3.8.2",
     "@schedule-x/current-time": "^2.35.0",
     "@schedule-x/scroll-controller": "^2.35.0",
@@ -40,10 +41,12 @@
     "express": "^4.21.2",
     "hookable": "^5.5.3",
     "lucide-vue-next": "^0.525.0",
+    "mysql": "^2.18.1",
     "reka-ui": "^2.3.2",
     "shadcn-vue": "^2.2.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
+    "telnet": "^0.0.1",
     "vee-validate": "^4.15.1",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1",
