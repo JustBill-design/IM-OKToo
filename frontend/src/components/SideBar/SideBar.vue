@@ -211,9 +211,10 @@ export default {
                 this.$router.push('/forum');
             } else if (item == "calendar") {
                 this.$router.push('/calendar');
-            } else if (item == "settings") {
-                this.$router.push('/settings');
-            }
+            } 
+            // else if (item == "profile") {
+            //     this.$router.push('/profile');
+            // }
 
 
             this.activeItem = item;

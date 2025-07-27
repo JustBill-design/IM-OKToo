@@ -8,7 +8,7 @@ const Forum = () => import('../components/ForumPage.vue')
 const Login = () => import('../components/Login.vue')
 const ResourcePage = () => import('../components/ResourcePage.vue')
 const ForumPage = () => import('../components/ForumPage.vue')
-const Settings = () => import('../components/Settings.vue')
+const Profile = () => import('../components/Profile.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -41,9 +41,9 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
-  path: '/settings',
-  name: 'Settings',
-  component: Settings,
+  path: '/profile',
+  name: 'Profile',
+  component: Profile,
   meta: { requiresAuth: true }
   }
 ]

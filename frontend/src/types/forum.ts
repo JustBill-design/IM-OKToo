@@ -22,3 +22,5 @@ export interface Post {
   likes: number;
   comments: Comment[];
 }
+
+

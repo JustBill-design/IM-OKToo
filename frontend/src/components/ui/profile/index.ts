@@ -1,0 +1,6 @@
+export { default as ProfileComponent } from './ProfileComponent.vue'
+export { default as EditUsernameForm } from './EditUsernameForm.vue'
+export { default as EditPhotoUploader } from './EditPhotoUploader.vue'
+export { default as ChangePasswordForm } from './ChangePasswordForm.vue'
+export { default as DeleteAccountForm } from './DeleteAccountForm.vue'
+export { default as ManageElderlies } from './ManageElderlies.vue'
