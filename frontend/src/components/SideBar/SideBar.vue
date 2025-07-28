@@ -227,7 +227,8 @@ export default {
                 localStorage.removeItem('username');
                 localStorage.removeItem('googleAuth');
                 localStorage.removeItem('authToken');
-
+                this.$router.replace('/');
+                console.log("LEAVE")
                 // Clear any other auth-related data you might have stored
                 sessionStorage.clear();
 
@@ -242,6 +243,8 @@ export default {
                 };
 
                 // Redirect to login page
+                localStorage.clear();
+                localStorage.setItem('isAuthenticated', 'false');
                 this.$router.replace('/');
 
                 // Optional: Show logout message

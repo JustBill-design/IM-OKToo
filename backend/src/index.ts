@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import postsRoute from '../routes/posts'
 import calendarRoute from '../routes/calendar'
+import loginRoute from '../routes/login'
 
 dotenv.config()
 
@@ -17,8 +18,11 @@ app.use(cors(
 
 app.use(express.json())
 
+//API mountings
 app.use('/posts', postsRoute)
 app.use('/calendar', calendarRoute)
+app.use('/', loginRoute)
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
