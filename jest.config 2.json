@@ -1,0 +1,16 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/backend/src/tests/**/*.test.{js,ts}", "<rootDir>/backend/routes/**/*.test.{js,ts}"],
+  "collectCoverageFrom": [
+    "backend/src/**/*.{js,ts}",
+    "backend/routes/**/*.{js,ts}",
+    "!backend/src/**/*.d.ts",
+    "!backend/src/test/**"
+  ],
+  "setupFilesAfterEnv": ["<rootDir>/backend/src/test/setup.ts"],
+  "testTimeout": 10000,
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/backend/src/$1"
+  }
+}
