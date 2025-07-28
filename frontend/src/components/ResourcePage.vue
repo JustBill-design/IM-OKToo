@@ -6,19 +6,37 @@
       <p>Find the latest help, news, and ways to contact us!</p>
     </div>
   </div>
+
   <div class="card-list">
+    <!-- Link cards + fetched titles -->
     <div class="resource-card" v-for="(link, i) in links" :key="'link-' + i">
       <h2>{{ link.title }}</h2>
-      <a :href="link.url" target="_blank">Visit</a>
+      <a :href="link.url" target="_blank" rel="noopener">Visit</a>
+
+      <template v-if="link.loading">
+        <p>Loading titles…</p>
+      </template>
+      <template v-else-if="link.titles.length">
+        <ul>
+          <li v-for="(t, j) in link.titles" :key="`t-${i}-${j}`">{{ t }}</li>
+        </ul>
+      </template>
+      <template v-else>
+        <p>No titles found.</p>
+      </template>
     </div>
+
+    <!-- Static news -->
     <div class="resource-card" v-for="(news, i) in newsList" :key="'news-' + i">
       <h2>News & Updates</h2>
       <p>{{ news }}</p>
     </div>
+
+    <!-- Contact -->
     <div class="resource-card contact-card" key="contact">
       <h2>Contact Us</h2>
-      <p>Facebook: <a href="https://www.facebook.com/lionsbefrienders/">Facebook</a></p>
-      <p>Phone: <a href="+6512345678">+65 12345678</a></p>
+      <p>Facebook: <a href="https://www.facebook.com/lionsbefrienders/" target="_blank" rel="noopener">Facebook</a></p>
+      <p>Phone: <a href="tel:+6512345678">+65 12345678</a></p>
       <p>Or use our <a href="https://www.lionsbefrienders.org.sg/enquiry/" target="_blank" rel="noopener">contact form</a>.</p>
     </div>
   </div>
@@ -27,26 +45,55 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const links = ref([
-  { title: 'Government Resources', url: 'https://www.moh.gov.sg/managing-expenses/keeping-healthcare-affordable/help-for-caregiver' },
-  { title: 'Latest Events', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/' },
-  { title: 'Mental Health Resources', url: 'https://www.lionsbefrienders.org.sg/community-well-being-and-support-services/' },
-  { title: 'CNA news on caregivers', url: 'https://www.channelnewsasia.com/topic/caregiver' },
+type LinkItem = {
+  title: string
+  url: string
+  titles: string[]
+  loading: boolean
+}
+
+// Use ref and reactive array
+const links = ref<LinkItem[]>([
+  { title: 'Government Resources', url: 'https://www.moh.gov.sg/managing-expenses/keeping-healthcare-affordable/help-for-caregiver', titles: [], loading: true },
+  { title: 'Latest Events', url: 'https://www.lionsbefrienders.org.sg/workshops-and-trainings/', titles: [], loading: true },
+  { title: 'Mental Health Resources', url: 'https://www.lionsbefrienders.org.sg/refer-a-senior/', titles: [], loading: true },
+  { title: 'CNA news on caregivers', url: 'https://www.channelnewsasia.com/topic/caregiver', titles: [], loading: true },
 ])
 
 const newsList = ref([
   'Community event: IM-OKTOO GATHERING',
 ])
 
-onMounted(() => {
-  const mascot = document.querySelector('.lion-mascot')
-  if (mascot) {
-    mascot.classList.add('bounce-in')
+async function extractTitlesUniversal(url: string): Promise<string[]> {
+  try {
+    const api = `http://localhost:3001/api/scrape-titles?url=${encodeURIComponent(url)}`
+    const res = await fetch(api)
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`)
+    const { titles } = await res.json()
+    return titles ?? []
+  } catch (err) {
+    console.error('Failed to extract titles:', err)
+    return []
   }
+}
+
+onMounted(async () => {
+  const mascot = document.querySelector('.lion-mascot')
+  if (mascot) mascot.classList.add('bounce-in')
+
+  // Fetch all titles and replace the whole array to trigger reactivity
+  const updatedLinks = await Promise.all(
+    links.value.map(async (l) => {
+      const titles = await extractTitlesUniversal(l.url)
+      return { ...l, titles, loading: false }
+    })
+  )
+  links.value = updatedLinks
 })
 </script>
 
 <style scoped>
+/* Your styles remain unchanged */
 .resource-header {
   display: flex;
   align-items: center;
@@ -112,7 +159,7 @@ onMounted(() => {
 .resource-card:hover {
   transform: translateY(-8px) scale(1.03) rotate(-1deg);
   box-shadow: 0 8px 24px rgba(0,0,0,0.13);
-  background:rgb(145, 203, 234)
+  background: rgb(145, 203, 234);
 }
 .contact-card {
   background: #ffffff;
@@ -169,4 +216,4 @@ onMounted(() => {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
-</style> 
+</style>
