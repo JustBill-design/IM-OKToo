@@ -1,7 +1,7 @@
 import express from 'express'
-import { connectWithConnector } from '../src/db';
 import { format } from 'date-fns'
 import { google , calendar_v3 } from 'googleapis'
+import getConnection from '../src/db'
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
@@ -16,9 +16,9 @@ router.get('/testing',(req,res) => {
 })
 
 router.get('/all', async (req, res) => {
-    const pool = await connectWithConnector({});
-    const [rs] = await pool.query('SELECT * FROM Events');
-    await pool.end();
+    const db = await getConnection();
+    const [rs] = await db.query('SELECT * FROM Events');
+    await db.end();
 
     res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
     res.send(JSON.stringify(rs));
@@ -72,10 +72,10 @@ router.post('/add', async (req, res) => {
         const quotedValues = values.map(v => `'${v}'`);
 
         const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${quotedValues.join(',')} );`;
-        const pool = await connectWithConnector({});
-        const [rs] = await pool.query(query);
+        const db = await getConnection();
+        const [rs] = await db.query(query);
         console.log('Connection successful! Test result:', rs);
-        await pool.end();
+        await db.end();
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.send('Event created!');
     }
@@ -84,10 +84,10 @@ router.post('/add', async (req, res) => {
 router.post('/delete', async (req, res) => {
 
   const data = req.body;
-  const pool = await connectWithConnector({});
-  const [rs] = await pool.query('DELETE FROM Events WHERE event_id = ?', [data.id]);
+  const db = await getConnection();
+  const [rs] = await db.query('DELETE FROM Events WHERE event_id = ?', [data.id]);
   console.log('Connection successful! Test result:', rs);
-  await pool.end();
+  await db.end();
   res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.send('Event deleted!');
 
@@ -96,8 +96,8 @@ router.post('/delete', async (req, res) => {
 router.post('/modify', async (req, res) => {
 
   const data = req.body;
-  const pool = await connectWithConnector({});
-  const [rs] = await pool.query(
+  const db = await getConnection();
+  const [rs] = await db.query(
     `
     UPDATE Events
     SET start = ?, end = ?
@@ -105,7 +105,7 @@ router.post('/modify', async (req, res) => {
     `,
   [data.start, data.end, data.id]);
   console.log('Connection successful! Test result:', rs);
-  await pool.end();
+  await db.end();
   res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.send('Event modified!');
 
@@ -179,9 +179,9 @@ type GoogleCalendarEvent = calendar_v3.Schema$Event;
 const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-  const pool = await connectWithConnector({});
+  const db = await getConnection();
   console.log('its saving events')
-    await pool.query(
+    await db.query(
       `
       DELETE FROM Events WHERE category = 'Google Sync'
       `
@@ -203,7 +203,7 @@ const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
 
     if (!start || !end) continue; // Skip events without start/end
 
-    await pool.query(
+    await db.query(
       `
       INSERT INTO Events (title, category, start, end, caretaker, guests, location, description, recurrence)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
