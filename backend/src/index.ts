@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import postsRoute from '../routes/posts'
 import calendarRoute from '../routes/calendar'
 import loginRoute from '../routes/login'
+import scraperRoute from '../routes/scraper'
 
 dotenv.config()
 
@@ -22,6 +23,7 @@ app.use(express.json())
 app.use('/posts', postsRoute)
 app.use('/calendar', calendarRoute)
 app.use('/', loginRoute)
+app.use('/api/scrape-titles', scraperRoute)
 
 
 const PORT = process.env.PORT || 3001
