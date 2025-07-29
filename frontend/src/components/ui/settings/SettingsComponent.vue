@@ -27,7 +27,8 @@ import EditUsernameForm from './EditUsernameForm.vue'
 import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
 import EditPhotoUploader from './EditPhotoUploader.vue'
-import ChangeEmailForm from './ChangeEmailForm.vue'
+import ManageElderly from './ManageElderly.vue'
+import DeleteAccount from './DeleteAccount.vue'
 
 const username = ref('')
 const email = ref('')
@@ -53,15 +54,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* reuse your page-container, page-title styles from before */
-/* .page-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}*/
 .settings-container {
   padding: 2rem;
   display: flex;
