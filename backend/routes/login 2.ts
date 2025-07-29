@@ -16,7 +16,7 @@ router.post('/validate', async (req, res) => {
 
     try {
         const db = await getConnection();
-        const query = await db.query(`SELECT username, password_hash, email FROM Users WHERE username = ? OR email = ?`, [username, username]);
+        const query = await db.query(`SELECT USERNAME, PASSWORD_HASH, EMAIL FROM USERS WHERE USERNAME = ? OR EMAIL = ?`, [username, username]);
 
         console.log('Query length:', query[0]?.length || 0);
 
@@ -30,25 +30,26 @@ router.post('/validate', async (req, res) => {
         
         const user = query[0][0]; // Get the first user from results
         console.log("we are testing", user)
+        console.log('User found:', user.USERNAME);
 
         // Check if password is bcrypt hash or plain text
-        const isBcryptHash = user.password_hash.startsWith('$2');
+        const isBcryptHash = user.PASSWORD_HASH.startsWith('$2');
         let passwordMatch;
 
         if (isBcryptHash) {
             // Use bcrypt for already hashed passwords
-            passwordMatch = await bcrypt.compare(password, user.password_hash);
+            passwordMatch = await bcrypt.compare(password, user.PASSWORD_HASH);
             console.log('Using bcrypt comparison');
         } else {
             // Direct comparison for plain text passwords (existing users)
-            passwordMatch = password === user.password_hash;
+            passwordMatch = password === user.PASSWORD_HASH;
             console.log('Using plain text comparison');
             
             // If it matches, upgrade to bcrypt for future security
             if (passwordMatch) {
                 const newHash = await bcrypt.hash(password, 10);
-                await db.query('UPDATE Users SET password_hash = ? WHERE username = ?', [newHash, user.username]);
-                console.log('Password upgraded to bcrypt for user:', user.username);
+                await db.query('UPDATE USERS SET PASSWORD_HASH = ? WHERE USERNAME = ?', [newHash, user.USERNAME]);
+                console.log('Password upgraded to bcrypt for user:', user.USERNAME);
             }
         }
 
@@ -60,15 +61,15 @@ router.post('/validate', async (req, res) => {
             });
         }
 
-        await db.query('UPDATE Users SET last_login = NOW() WHERE username = ?', [user.username]);
+        await db.query('UPDATE USERS SET LAST_LOGIN = NOW() WHERE USERNAME = ?', [user.USERNAME]);
 
         await db.end();
 
-        console.log('Login successful for user:', user.username);
+        console.log('Login successful for user:', user.USERNAME);
         return res.json({
             success: true,
             message: 'Login successful',
-            username: user.username
+            username: user.USERNAME
         });
 
     } catch (error) {
@@ -131,7 +132,7 @@ router.post('/register', async (req, res) => {
     try {
         const db = await getConnection();
 
-        const usernameCheck = await db.query('SELECT username FROM Users WHERE username = ?', [username])
+        const usernameCheck = await db.query('SELECT USERNAME FROM USERS WHERE USERNAME = ?', [username])
 
         if (usernameCheck[0] && usernameCheck[0].length > 0) {
             await db.end();
@@ -142,7 +143,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const emailCheck = await db.query('SELECT email FROM Users WHERE email = ?', [email])
+        const emailCheck = await db.query('SELECT EMAIL FROM USERS WHERE EMAIL = ?', [email])
 
         if (emailCheck[0] && emailCheck[0].length > 0) {
             await db.end();
@@ -162,7 +163,7 @@ router.post('/register', async (req, res) => {
             passwordhash = await bcrypt.hash(password, 10);
         }
 
-        const result = await db.query('INSERT INTO Users (username, first_name, email, password_hash) VALUES (?, ?, ?, ?)', [username, firstName, email, passwordhash]);
+        const result = await db.query('INSERT INTO USERS (USERNAME, FIRST_NAME, EMAIL, PASSWORD_HASH) VALUES (?, ?, ?, ?)', [username, firstName, email, passwordhash]);
 
         await db.end();
 
@@ -223,17 +224,17 @@ router.post('/check-google-user', async (req, res) => {
 
     try {
         const db = await getConnection();
-        const query = await db.query('SELECT username, email FROM Users WHERE email = ?', [email])
+        const query = await db.query('SELECT USERNAME, EMAIL FROM USERS WHERE EMAIL = ?', [email])
         await db.end();
         
         if (query[0] && query[0].length > 0) {
             const user = query[0][0];
-            console.log("Google user exists", user.username);
+            console.log("Google user exists", user.USERNAME);
 
             return res.json({
                 success: true,
                 exists: true,
-                username: user.username,
+                username: user.USERNAME,
                 email: user.EMAIL
             });
         } else {
@@ -265,7 +266,7 @@ router.post('/update-last-login', async (req, res) => {
     try {
         const db = await getConnection();
         
-        await db.query('UPDATE Users SET last_login = NOW() WHERE username = ?', [username]);
+        await db.query('UPDATE USERS SET LAST_LOGIN = NOW() WHERE USERNAME = ?', [username]);
         
         await db.end();
 

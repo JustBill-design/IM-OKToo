@@ -227,7 +227,8 @@ export default {
                 localStorage.removeItem('username');
                 localStorage.removeItem('googleAuth');
                 localStorage.removeItem('authToken');
-
+                this.$router.replace('/');
+                console.log("LEAVE")
                 // Clear any other auth-related data you might have stored
                 sessionStorage.clear();
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
+import { Input } from '../components/ui/input'
+import { Button } from '../components/ui/button'
 // @ts-ignore: PNG import for mascot image
 import lionMascot from '@/assets/lionmascot.png'
 
