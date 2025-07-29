@@ -42,8 +42,20 @@ async function getClaudeReply(userText: string): Promise<string> {
       body: JSON.stringify({ message: userText })
     });
     const data = await response.json();
-    return data.reply || 'Sorry, I could not get a response from Claude.';
+    console.log("Claude API response received in frontend:", data); // ADD THIS LINE
+
+    // Extract the text content from the Claude response structure
+    // It's nested under 'content' array, then the first element, then 'text' property
+    if (data && typeof data.reply === 'string') { // Check if 'data' has a 'reply' property and it's a string
+      return data.reply; // Return the string that contains the JSON action
+    } else {
+      // Keep the console.log below for additional debugging if this still fails
+      console.error("Failed to parse Claude response from backend (expected 'reply' property):", data);
+      return 'Sorry, I could not parse the response from Claude.';
+    }
+
   } catch (err) {
+    console.error("Error fetching Claude reply:", err); // Log the error for debugging
     return 'Sorry, there was an error connecting to the AI.';
   }
 }

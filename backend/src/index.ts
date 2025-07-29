@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import postsRoute from '../routes/posts'
 import claudeRoute from '../routes/claude'
 import tasksRouter from '../routes/tasks'
+import loginRoute from '../routes/login'
 
 dotenv.config()
 
@@ -16,9 +17,12 @@ app.use(cors(
 ))
 app.use(express.json())
 
+//API mountings
 app.use('/posts', postsRoute)
 app.use('/claude', claudeRoute)
 app.use('/api/tasks', tasksRouter)
+app.use('/', loginRoute)
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
