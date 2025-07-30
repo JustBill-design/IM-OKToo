@@ -6,9 +6,9 @@
         New Username:
         <input v-model="username" type="text" required />
       </label>
-      <button type="submit">Save</button>
+      <button type="submit" :disabled="isLoading">Save</button>
     </form>
-    <p v-if="message" :class="['message', messageType]">{{ message }}</p>
+    <p v-if="message" :class="['message', messageType]">{{ isLoading ? 'Changing...':'Change username' }}</p>
     
   </div>
 </template>
@@ -18,21 +18,42 @@ import { ref } from 'vue'
 const username = ref('')
 const message = ref('')
 const messageType = ref('')
+const isLoading = ref(false)
 
 async function onSubmit() {
   message.value = '' // clear previous message
+
+  if (!username.value) {
+    message.value = 'Please fill in your new username.'
+    message.type = 'error'
+    return
+  }
+
   try {
-    // Replace with real API call
-    await fetch('/api/me', {
+    isLoading.value = true
+    message.value = ''
+    
+    const response = await fetch('http://localhost:3001/api/me/username', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username.value })
     })
-    message.value = 'Username updated! Refresh to see changes.'
-    messageType.value = 'success'
+
+    if (response.ok) {
+      message.value = 'Username updated! Refresh to see changes.'
+      messageType.value = 'success'
+      username.value = ''
+    } else {
+      const errorData = await response.json()
+      message.value = 'Failed to update username.'
+      messageType.value = 'error'
+      throw new Error(errorData.message)
+    }
   } catch (err) {
-    message.value = 'Error updating username.'
+    message.value = 'Error updating username. Please try again.'
     messageType.value = 'error'
+  } finally {
+    isLoading = false
   }
 }
 </script>

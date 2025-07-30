@@ -10,7 +10,7 @@
         New Password:
         <input v-model="newPass" type="password" required minlength="6" />
       </label>
-      <button type="submit" :disabled="loading">{{ loading ? 'Changing...':'Change password'}}</button>
+      <button type="submit" :disabled="isLoading">{{ isLoading ? 'Changing...':'Change password' }}</button>
     </form>
     <p v-if="message" :class="['message', messageType]">{{ message }}</p>
   </div>
@@ -21,9 +21,7 @@ import { ref, onMounted } from 'vue'
 const current = ref('')
 const newPass = ref('')
 const message = ref('')
-const loading = ref(false)
-
-import getConnection from '../src/db'
+const isLoading = ref(false)
 
 async function onSubmit() {
   if (newPass.value.length < 6) {
@@ -32,29 +30,31 @@ async function onSubmit() {
     return
   }
   try {
-    loading.value = true
+    isLoading.value = true
+    message.value = ''
 
     const response = await fetch('http://localhost:3001/api/me/password', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword: current.value, newPassword: newPass.value })
     })
-    if (!response.ok) {
+    if (response.ok) {
+      const data = response.json()
+      message.value = 'Password successfully changed!'
+      message.type = 'success'
+      current.value = ''
+      newPass.value = ''
+    } else {
       const errorData = await response.json()
-      message.value = 'Failed to change password.'
+      message.value = 'Failed to change password. Please try again.'
       message.type = 'error'
       throw new Error(errorData.message)
     }
-    const data = response.json()
-    message.value = 'Password successfully changed!'
-    message.type = 'success'
-    current.value = ''
-    newPass.value = ''
   } catch {
-    message.value = 'Failed to change password.'
+    message.value = 'Failed to change password. Please try again.'
     message.type = 'error'
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 </script>

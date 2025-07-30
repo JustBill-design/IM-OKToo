@@ -31,39 +31,40 @@ async function onSubmit() {
     message.value = '' // clear previous message
 
     if (!newEmail.value || !password.value) {
-        message.value = 'Please fill in all fields.'
-        messageType.value = 'error'
-        return
+      message.value = 'Please fill in all fields.'
+      messageType.value = 'error'
+      return
     }
 
-    isLoading.value = true
-    message.value = ''
-
     try {
-    const response = await fetch('/api/me/email', {
+      isLoading.value = true
+      message.value = ''
+
+      const response = await fetch('http://localhost:3001/api/me/email', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
         newEmail: newEmail.value, 
         password: password.value 
         })
-    })
+      })
 
-    if (response.ok) {
+      if (response.ok) {
         message.value = 'Email updated! Please check your inbox to verify the new email.'
         messageType.value = 'success'
         newEmail.value = ''
         password.value = ''
-    } else {
-        const error = await response.json()
-        message.value = error.message || 'Failed to update email.'
+      } else {
+        const errorData = await response.json()
+        message.value = 'Failed to update email.'
         messageType.value = 'error'
-    }
+        throw new Error(errorData.message)
+      }
     } catch (error) {
-        message.value = 'Network error. Please try again.'
-        messageType.value = 'error'
+      message.value = 'Network error. Please try again.'
+      messageType.value = 'error'
     } finally {
-        isLoading.value = false
+      isLoading.value = false
     }
 }
 </script>
