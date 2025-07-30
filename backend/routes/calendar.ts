@@ -191,11 +191,10 @@ const saveEventsToDB = async (events: GoogleCalendarEvent[],email:string) => {
 
   const db = await getConnection();
   console.log('its saving events')
-    await db.query(
-      `
-      DELETE FROM Events WHERE category = 'Google Sync'
-      `
-    )
+  await db.query(
+    `DELETE FROM Events WHERE category = 'Google Sync' AND email = ?`,
+    [email]
+  );
   for (const event of events) {
     const title = event.summary ?? '';
     const start = event.start?.dateTime ?? null;
