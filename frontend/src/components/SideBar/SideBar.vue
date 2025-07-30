@@ -54,6 +54,14 @@
                     </div>
 
                     <!-- Messages -->
+                    <div class="nav-item" :class="{ active: activeItem === 'family' }">
+                        <div class="nav-link" @click="setActiveItem('family')">
+                            <i class="icon">👪</i>
+                            <span v-if="!isCollapsed">Family</span>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
                     <div class="nav-item" :class="{ active: activeItem === 'messages' }">
                         <div class="nav-link" @click="setActiveItem('messages')">
                             <i class="icon">💬</i>
@@ -108,6 +116,14 @@
                         <div class="nav-link" @click="setActiveItem('resources')">
                             <i class="icon">📑</i>
                             <span v-if="!isCollapsed">Resources</span>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="nav-item" :class="{ active: activeItem === 'settings' }">
+                        <div class="nav-link" @click="setActiveItem('settings')">
+                            <i class="icon">⚙️</i>
+                            <span v-if="!isCollapsed">Settings</span>
                         </div>
                     </div>
                 </div>
@@ -211,6 +227,10 @@ export default {
                 this.$router.push('/forum');
             } else if (item == "calendar") {
                 this.$router.push('/calendar');
+            } else if (item == "settings") {
+                this.$router.push('/settings');
+            } else if (item == "family") {
+                this.$router.push('/family');
             }
 
             this.activeItem = item;
