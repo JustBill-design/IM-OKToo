@@ -31,11 +31,9 @@ router.get('/', async (req, res) => {
   }
 })
 
-// ========================================
 // POST /api/tasks
 // Create a new task for a user
-// Body: { task_description: string, user_id: number }
-// ========================================
+
 router.post('/', async (req, res) => {
   const { task_description, username } = req.body
 
@@ -61,11 +59,9 @@ router.post('/', async (req, res) => {
   }
 })
 
-// ========================================
 // PATCH /api/tasks/:id
 // Toggle or update task completion
-// Body: { completed: boolean }
-// ========================================
+
 router.patch('/:id', async (req, res) => {
   const { id } = req.params
   const { completed } = req.body
@@ -87,10 +83,10 @@ router.patch('/:id', async (req, res) => {
   }
 })
 
-// ========================================
+
 // DELETE /api/tasks/:id
 // Delete a task by ID
-// ========================================
+
 router.delete('/:id', async (req, res) => {
   const { id } = req.params
 

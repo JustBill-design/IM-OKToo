@@ -1,8 +1,3 @@
-<!-- ========================================
-  TASK LIST COMPONENT
-  Traditional task management interface with visual controls
-======================================== -->
-
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Input } from './ui/input'
@@ -28,7 +23,6 @@ function getCurrentUsername(): string | null {
 async function fetchTasks() {
   const currentUser = getCurrentUsername();
     if (!currentUser) {
-        // Handle case where user is not logged in (e.g., clear tasks, show message)
         tasks.value = [];
         console.warn("No user logged in. Cannot fetch tasks.");
         return;
@@ -203,8 +197,8 @@ defineExpose({
   toggleTask,        // Allows parent to call taskListRef.value.toggleTask()
   removeTask,        // Allows parent to call taskListRef.value.removeTask()
   removeTaskByName,
-  clearAllTasks,     // Allows parent to call taskListRef.value.clearAllTasks() 
-  fetchTasks         // Allows parent to call taskListRef.value.fetchTasks()
+  clearAllTasks,     
+  fetchTasks         
 })
 </script>
 
@@ -264,13 +258,8 @@ defineExpose({
   </div>
 </template>
 
-<!-- ========================================
-  STYLES - ANIMATIONS & VISUAL EFFECTS
-======================================== -->
 <style scoped>
-/* ========================================
-  TASK ITEM ANIMATIONS
-======================================== */
+
 @keyframes task-in {
   from {
     opacity: 0;
@@ -282,9 +271,6 @@ defineExpose({
   }
 }
 
-/* ========================================
-  ENTRANCE ANIMATIONS
-======================================== */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -296,9 +282,6 @@ defineExpose({
   }
 }
 
-/* ========================================
-  ANIMATION CLASSES
-======================================== */
 .animate-task-in {
   animation: task-in 0.4s ease-out forwards;
 }
@@ -307,16 +290,10 @@ defineExpose({
   animation: fade-in 0.6s ease-out forwards;
 }
 
-/* ========================================
-  SMOOTH SCROLLING
-======================================== */
 .overflow-y-auto {
   scroll-behavior: smooth;
 }
 
-/* ========================================
-  CHECKBOX ANIMATIONS
-======================================== */
 input[type="checkbox"]:checked {
   animation: checkmark 0.3s ease-in-out;
 }
@@ -333,9 +310,6 @@ input[type="checkbox"]:checked {
   }
 }
 
-/* ========================================
-  HOVER EFFECTS
-======================================== */
 .hover\:scale-102:hover {
   transform: scale(1.02);
 }

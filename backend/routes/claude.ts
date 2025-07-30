@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
 
   try {
     console.log('Claude API Key:', process.env.CLAUDE_API_KEY);
-    // System prompt for Claude
+    // System prompt for Claude to set the context
     const systemPrompt = `
 You are Leo the Lion, a friendly, empathetic virtual assistant for caregivers using the IM-OKToo webapp, created by Lions Befrienders, based in Singapore.
 
@@ -132,7 +132,7 @@ If you are unsure, ask the user to clarify.
     });
     const data: any = await response.json();
     console.log('Claude API response:', data);
-    // Claude's response is in data.content[0].text (for messages API)
+    // Claude's response is in data.content[0].text
     res.json({ reply: data.content?.[0]?.text || data });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Claude API error' });
