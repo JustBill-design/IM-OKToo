@@ -119,14 +119,7 @@
                     </div>
                 </div>
 
-                <!-- Settings -->
-                 <div class="nav-item" :class="{ active: activeItem === 'settings' }">
-                    <div class="nav-link" @click="setActiveItem('settings')">
-                        <i class="icon">⚙️</i>
-                        <span v-if="!isCollapsed">Settings</span>
-                    </div>
-                </div>
-                
+
                 <!-- Logout Button -->
                 <div class="nav-item">
                     <div class="nav-link logout-link" @click="handleLogout" style="color: #dc3545; font-weight: 500;">
