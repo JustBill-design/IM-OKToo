@@ -5,7 +5,7 @@
     <!-- Profile Display Section -->
     <div class="profile-section">
       <div class="profile-avatar">
-        <img :src="profileImageSrc" :alt="username || 'Profile'" />
+        <img :src='/src/assets/default.png' :alt="username || 'Profile'" />
       </div>
       <div class="profile-info">
         <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
@@ -29,16 +29,16 @@
       <ManageElderly />
     </div>
 
+    <EditUsernameForm />
+    <ChangeEmailForm/>
+    <ChangePasswordForm />
+
     <!-- Danger Zone -->
     <div class="danger-zone">
       <hr class="divider" />
       <h2 class="section-title danger-title">Delete Account</h2>
       <DeleteAccount />
     </div>
-
-    <EditUsernameForm />
-    <ChangeEmailForm/>
-    <ChangePasswordForm />
   </div>
 </template>
 

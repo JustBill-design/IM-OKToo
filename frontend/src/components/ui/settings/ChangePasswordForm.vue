@@ -10,32 +10,51 @@
         New Password:
         <input v-model="newPass" type="password" required minlength="6" />
       </label>
-      <button type="submit">Change Password</button>
+      <button type="submit" :disabled="loading">{{ loading ? 'Changing...':'Change password'}}</button>
     </form>
-    <p v-if="message" class="message">{{ message }}</p>
+    <p v-if="message" :class="['message', messageType]">{{ message }}</p>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 const current = ref('')
 const newPass = ref('')
 const message = ref('')
+const loading = ref(false)
+
+import getConnection from '../src/db'
 
 async function onSubmit() {
   if (newPass.value.length < 6) {
     message.value = 'Password must be at least 6 characters.'
+    message.type = 'error'
     return
   }
   try {
-    await fetch('/api/me/password', {
+    loading.value = true
+
+    const response = await fetch('http://localhost:3001/api/me/password', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword: current.value, newPassword: newPass.value })
     })
-    message.value = 'Password changed! Please log in again.'
+    if (!response.ok) {
+      const errorData = await response.json()
+      message.value = 'Failed to change password.'
+      message.type = 'error'
+      throw new Error(errorData.message)
+    }
+    const data = response.json()
+    message.value = 'Password successfully changed!'
+    message.type = 'success'
+    current.value = ''
+    newPass.value = ''
   } catch {
     message.value = 'Failed to change password.'
+    message.type = 'error'
+  } finally {
+    loading.value = false
   }
 }
 </script>
