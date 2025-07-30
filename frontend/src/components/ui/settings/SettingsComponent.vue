@@ -39,7 +39,6 @@
     <EditUsernameForm />
     <ChangeEmailForm/>
     <ChangePasswordForm />
-    <EditPhotoUploader />
   </div>
 </template>
 
