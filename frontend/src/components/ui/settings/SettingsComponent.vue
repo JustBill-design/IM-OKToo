@@ -10,35 +10,31 @@
       <div class="profile-info">
         <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
         <p class="profile-email">{{ email || 'Loading...' }}</p>
-      </div>
-      <div class="profile-actions">
-        <EditPhotoUploader />
-        <button @click="$emit('edit-profile')">Edit Profile</button>
+        
+        <!-- Photo uploader if you want to include it -->
+        <!-- <EditPhotoUploader /> -->
+        
+        <ChangePasswordForm/>
+        <ChangeEmailForm/>
+        <EditUsernameForm/>
       </div>
     </div>
+
     <!-- Elderly management-->
     <div class="elderly-management">
-      <h2 class="text-xl font-semibold mb-4">Elderly Management</h2>
-      <p class="text-gray-600 mb-4">Manage your elderly care details below</p>
-      <hr class="my-8" />
-      <h2 class="text-xl font-semibold mb-4">Elder Care Details</h2>
+      <h2 class="section-title">Elderly Management</h2>
+      <p class="section-description">Manage your elderly care details below</p>
+      <hr class="divider" />
+      <h3 class="subsection-title">Elder Care Details</h3>
       <ManageElderly />
+    </div>
 
     <!-- Danger Zone -->
-    <div class="delete-account">
-      <hr class="my-8" />
-      <h2 class="text-xl font-semibold mb-4 text-red-600">Delete Account</h2>
+    <div class="danger-zone">
+      <hr class="divider" />
+      <h2 class="section-title danger-title">Delete Account</h2>
       <DeleteAccount />
     </div>
-  </div>
-
-          
-
-
-    <EditUsernameForm />
-    <ChangeEmailForm/>
-    <ChangePasswordForm />
-    <EditPhotoUploader />
   </div>
 </template>
 
@@ -47,7 +43,7 @@ import { ref, computed, onMounted } from 'vue'
 import EditUsernameForm from './EditUsernameForm.vue'
 import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
-import EditPhotoUploader from './EditPhotoUploader.vue'
+// import EditPhotoUploader from './EditPhotoUploader.vue' // Uncomment if using
 import ManageElderly from './ManageElderly.vue'
 import DeleteAccount from './DeleteAccount.vue'
 
@@ -64,18 +60,22 @@ const profileImageSrc = computed(() => {
 onMounted(async () => {
   try {
     const response = await fetch('/api/me')
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
     const userData = await response.json()
     username.value = userData.username
     email.value = userData.email
     profileImage.value = userData.profileImage
   } catch (error) {
     console.error('Failed to load user data:', error)
+    // You might want to show an error message to the user here
   }
 })
 </script>
 
 <style scoped>
-.settings-wrapper {
+.settings-container {
   max-width: 900px;
   margin: auto;
   padding: 2rem;
@@ -93,9 +93,11 @@ onMounted(async () => {
 
 .profile-section {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .profile-avatar img {
@@ -106,18 +108,24 @@ onMounted(async () => {
   border: 3px solid #4a6b8a;
 }
 
-.profile-info h2 {
+.profile-info {
+  flex: 1;
+}
+
+.profile-name {
   font-size: 1.5rem;
   font-weight: 600;
   color: #4a6b8a;
+  margin: 0 0 0.5rem 0;
 }
 
-.profile-info p {
+.profile-email {
   font-size: 1rem;
-  color: #2c3e50;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
 }
 
-.form-section {
+.elderly-management {
   margin-bottom: 2rem;
 }
 
@@ -128,7 +136,26 @@ onMounted(async () => {
   color: #2c3e50;
 }
 
-.danger-zone .section-title {
-  color: #ff6b47;
+.subsection-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #4a6b8a;
+}
+
+.section-description {
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 2rem 0;
+}
+
+.danger-zone .danger-title {
+  color: #dc2626;
 }
 </style>
