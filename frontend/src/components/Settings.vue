@@ -1,7 +1,6 @@
-
 <template>
   <div class="settings-page">
-    <ProfileComponent />
+    <SettingsComponent />
   </div>
 </template>
 

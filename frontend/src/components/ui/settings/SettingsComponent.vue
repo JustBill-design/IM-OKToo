@@ -16,6 +16,7 @@
         <button @click="$emit('edit-profile')">Edit Profile</button>
       </div>
     </div>
+
     <!-- Elderly management-->
     <div class="elderly-management">
       <h2 class="text-xl font-semibold mb-4">Elderly Management</h2>
@@ -23,6 +24,7 @@
       <hr class="my-8" />
       <h2 class="text-xl font-semibold mb-4">Elder Care Details</h2>
       <ManageElderly />
+    </div>
 
     <!-- Danger Zone -->
     <div class="delete-account">
@@ -30,10 +32,6 @@
       <h2 class="text-xl font-semibold mb-4 text-red-600">Delete Account</h2>
       <DeleteAccount />
     </div>
-  </div>
-
-          
-
 
     <EditUsernameForm />
     <ChangeEmailForm/>

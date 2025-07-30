@@ -111,6 +111,7 @@
                         </div>
                     </div>
 
+                    <!-- Settings -->
                     <div class="nav-item" :class="{ active: activeItem === 'settings' }">
                         <div class="nav-link" @click="setActiveItem('settings')">
                             <i class="icon">⚙️</i>
@@ -119,14 +120,7 @@
                     </div>
                 </div>
 
-                <!-- Settings -->
-                 <div class="nav-item" :class="{ active: activeItem === 'settings' }">
-                    <div class="nav-link" @click="setActiveItem('settings')">
-                        <i class="icon">⚙️</i>
-                        <span v-if="!isCollapsed">Settings</span>
-                    </div>
-                </div>
-                
+
                 <!-- Logout Button -->
                 <div class="nav-item">
                     <div class="nav-link logout-link" @click="handleLogout" style="color: #dc3545; font-weight: 500;">
@@ -229,7 +223,6 @@ export default {
                 this.$router.push('/settings');
             }
 
-
             this.activeItem = item;
             // Close mobile menu when item is selected
             this.isMobileMenuOpen = false;
@@ -244,7 +237,8 @@ export default {
                 localStorage.removeItem('username');
                 localStorage.removeItem('googleAuth');
                 localStorage.removeItem('authToken');
-
+                this.$router.replace('/');
+                console.log("LEAVE")
                 // Clear any other auth-related data you might have stored
                 sessionStorage.clear();
 

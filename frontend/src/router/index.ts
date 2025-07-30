@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-// import Settings from '../components/Settings.vue'
-
 
 const Home = () => import('../components/HomePage.vue')
 const Calendar = () => import('../components/CalendarPage.vue')
@@ -41,10 +39,10 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
-  path: '/settings',
-  name: 'Settings',
-  component: Settings,
-  meta: { requiresAuth: true }
+    path: '/settings',
+    name: 'Settings',
+    component: Settings,
+    meta: { requiresAuth: true }
   }
 ]
 
