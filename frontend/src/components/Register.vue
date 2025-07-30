@@ -221,6 +221,7 @@ export default {
 
                     // Auto login after successful registration
                     localStorage.setItem('username', registerForm.username)
+                    localStorage.setItem('email',registerForm.email)
                     localStorage.setItem('isAuthenticated', 'true')
                     if (isGoogleRegistration.value) {
                         localStorage.setItem('googleAuth', 'true')

@@ -13,7 +13,8 @@
 import { Button } from './ui/button';
 
 const fetchCalendarData = async () => {
-window.location.href = "http://localhost:3001/calendar/authgooglecalendar";
+    const email = localStorage.getItem("email");
+    window.location.href = `http://localhost:3001/calendar/authgooglecalendar?email=${email}`;
 }
 
 </script>
