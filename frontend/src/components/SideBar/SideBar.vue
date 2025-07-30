@@ -110,6 +110,13 @@
                             <span v-if="!isCollapsed">Resources</span>
                         </div>
                     </div>
+
+                    <div class="nav-item" :class="{ active: activeItem === 'settings' }">
+                        <div class="nav-link" @click="setActiveItem('settings')">
+                            <i class="icon">⚙️</i>
+                            <span v-if="!isCollapsed">Settings</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Settings -->

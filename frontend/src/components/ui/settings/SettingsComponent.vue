@@ -59,17 +59,36 @@ const profileImageSrc = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await fetch('/api/me')
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+    const storedUsername = localStorage.getItem('username')
+    const isGoogleAuth = localStorage.getItem('googleAuth') === 'true'
+    
+    if (storedUsername) {
+      username.value = storedUsername
+      if (isGoogleAuth) {
+        email.value = storedUsername 
+      } else {
+        email.value = localStorage.getItem('email') || `${storedUsername}@mymail.sutd.edu.sg`
+      }
+    } else {
+      username.value = 'test User'
+      email.value = 'user@mymail.sutd.edu.sg'
     }
-    const userData = await response.json()
-    username.value = userData.username
-    email.value = userData.email
-    profileImage.value = userData.profileImage
+    try {
+      const response = await fetch('/api/me')
+      if (response.ok) {
+        const userData = await response.json()
+        username.value = userData.username
+        email.value = userData.email
+        profileImage.value = userData.profileImage
+      }
+    } catch (apiError) {
+      console.log('API not available, using local data')
+    }
   } catch (error) {
     console.error('Failed to load user data:', error)
-    // You might want to show an error message to the user here
+    // Set fallback values
+    username.value = 'test User'
+    email.value = 'user@mymail.sutd.edu.sg'
   }
 })
 </script>
