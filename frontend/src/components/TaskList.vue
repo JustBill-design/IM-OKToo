@@ -15,13 +15,26 @@ const emit = defineEmits<{
   (e: 'remove-task', idx: number): void
 }>()
 
-const USERNAME = 'testuser'
+const USERNAME = ref<string | null>(null); // Make it a ref to be reactive if needed later
 const tasks = ref<{ id: number; text: string; done: boolean }[]>([])
 const newTask = ref('')
 
+// Helper to get username safely
+function getCurrentUsername(): string | null {
+    const user = localStorage.getItem("username");
+    return user === 'undefined' ? null : user; // Handle "undefined" string if it occurs
+}
+
 async function fetchTasks() {
+  const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        // Handle case where user is not logged in (e.g., clear tasks, show message)
+        tasks.value = [];
+        console.warn("No user logged in. Cannot fetch tasks.");
+        return;
+    }
   try {
-    const res = await fetch(`/api/tasks?username=${USERNAME}`)
+    const res = await fetch(`/api/tasks?username=${currentUser}`)
     if (!res.ok) throw new Error('Network response not ok')
     const data = await res.json()
     tasks.value = data.map((task: any) => ({
@@ -34,9 +47,19 @@ async function fetchTasks() {
   }
 }
 
-async function addTask() {
-  const desc = newTask.value.trim()
-  if (!desc) return
+async function addTask(descriptionFromParent?: string) {
+  const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        alert('Please log in to add tasks.');
+        return;
+    }
+
+  const desc = descriptionFromParent !== undefined && descriptionFromParent.trim() !== ''
+                 ? descriptionFromParent.trim()
+                 : newTask.value.trim();
+  if (!desc){alert('Task description cannot be empty.');
+    return;
+  } 
 
   try {
     const res = await fetch('/api/tasks', {
@@ -44,7 +67,7 @@ async function addTask() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         task_description: desc,
-        username: USERNAME
+        username: currentUser
       }),
     })
     if (!res.ok) throw new Error('Failed to add task')
@@ -54,7 +77,6 @@ async function addTask() {
       text: newEntry.task_description,
       done: newEntry.completed
     })
-    emit('add-task', desc)
     newTask.value = ''
   } catch (err) {
     console.error('Failed to add task:', err)
@@ -62,6 +84,11 @@ async function addTask() {
 }
 
 async function toggleTask(idx: number) {
+    const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        alert('Please log in to toggle tasks.');
+        return;
+    }
   const task = tasks.value[idx]
   try {
     const res = await fetch(`/api/tasks/${task.id}`, {
@@ -78,6 +105,11 @@ async function toggleTask(idx: number) {
 }
 
 async function removeTask(idx: number) {
+  const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        alert('Please log in to remove tasks.');
+        return;
+    }
   const task = tasks.value[idx]
   try {
     const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' })
@@ -89,8 +121,90 @@ async function removeTask(idx: number) {
   }
 }
 
+async function removeTaskByName(taskName: string) {
+    const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        alert('Please log in to remove tasks.');
+        return;
+    }
+
+    const lowerCaseTaskName = taskName.toLowerCase().trim();
+    // Find all tasks that partially match the given name
+    const tasksToRemove = tasks.value.filter(task =>
+        task.text.toLowerCase().includes(lowerCaseTaskName)
+    );
+
+    if (tasksToRemove.length === 0) {
+        alert(`Task "${taskName}" not found.`);
+        console.warn(`No task found matching "${taskName}" for removal.`);
+        return;
+    }
+
+    // Iterate and remove each matching task
+    for (const task of tasksToRemove) {
+        try {
+            const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Failed to remove task '${task.text}': ${errorText}`);
+            }
+            console.log(`Task '${task.text}' removed successfully.`);
+        } catch (err) {
+            console.error(`Error removing task '${task.text}':`, err);
+            alert(`Error removing task '${task.text}'. See console.`);
+        }
+    }
+    // After attempting all removals, re-fetch to update the list
+    await fetchTasks();
+    if (tasksToRemove.length > 0) {
+        alert(`${tasksToRemove.length} task(s) matching "${taskName}" removed.`);
+    }
+}
+
+async function clearAllTasks() {
+    const currentUser = getCurrentUsername();
+    if (!currentUser) {
+        alert('Please log in to clear tasks.');
+        return;
+    }
+
+    if (tasks.value.length === 0) {
+        alert('No tasks to clear.');
+        return;
+    }
+
+
+    const tasksSnapshot = [...tasks.value]; // Work on a copy to avoid mutation issues during loop
+    for (const task of tasksSnapshot) {
+        try {
+            const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const errorText = await res.text();
+                // Log and potentially alert, but continue trying to delete others
+                console.error(`Failed to delete task ID ${task.id}: ${errorText}`);
+            }
+        } catch (err) {
+            console.error(`Error deleting task ID ${task.id}:`, err);
+        }
+    }
+    // After attempting to delete all, re-fetch to synchronize UI with DB
+    await fetchTasks();
+    alert('All tasks cleared!');
+  }
+
 onMounted(() => {
-  fetchTasks()
+  USERNAME.value = getCurrentUsername(); // Set the ref value on mount
+  fetchTasks(); // Initial fetch
+})
+
+// Expose the methods 
+defineExpose({
+  addTask,           // Allows parent to call taskListRef.value.addTask()
+  toggleTask,        // Allows parent to call taskListRef.value.toggleTask()
+  removeTask,        // Allows parent to call taskListRef.value.removeTask()
+  removeTaskByName,
+  clearAllTasks,     // Allows parent to call taskListRef.value.clearAllTasks() 
+  fetchTasks         // Allows parent to call taskListRef.value.fetchTasks()
 })
 </script>
 
