@@ -3,22 +3,24 @@
     <h1 class="settings-title">Settings</h1>
 
     <!-- Profile Display Section -->
-    <div class="profile-section">
-      <div class="profile-avatar">
-        <img :src="profileImageSrc" :alt="username || 'Profile'" />
-      </div>
-      <div class="profile-info">
-        <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
-        <p class="profile-email">{{ email || 'Loading...' }}</p>
-        
-        <!-- Photo uploader if you want to include it -->
-        <!-- <EditPhotoUploader /> -->
-        
-        <ChangePasswordForm/>
-        <ChangeEmailForm/>
-        <EditUsernameForm/>
-      </div>
-    </div>
+    <section class="profile-section">
+        <!-- <img :src="profileImageSrc" :alt="username || 'Profile'" /> -->
+        <div class="profile-name">
+          <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
+          <button class="edit-username-button" @click="$emit('edit-username')">Update Username</button>
+          <EditUsernameForm/>
+        </div>
+        <div class = "profile-email">
+          <h2 class="profile-email">{{ email || 'Loading...' }}</h2>
+          <button class="change-email-button" @click="$emit('change-email')">Update Email</button>
+          <ChangeEmailForm/>
+        </div>
+        <div class="profile-password">
+          <h2 class="profile-password">{{ password || 'Loading...' }}</h2>
+          <button class="edit-photo-button" @click="$emit('edit-photo')">Update password</button>
+          <ChangePasswordForm/>
+        </div>
+    </section>
 
     <!-- Elderly management-->
     <div class="elderly-management">
@@ -35,10 +37,6 @@
       <h2 class="section-title danger-title">Delete Account</h2>
       <DeleteAccount />
     </div>
-
-    <EditUsernameForm />
-    <ChangeEmailForm/>
-    <ChangePasswordForm />
   </div>
 </template>
 
@@ -55,11 +53,11 @@ const username = ref('')
 const email = ref('')
 const profileImage = ref('')
 
-const profileImageSrc = computed(() => {
-  return profileImage.value && profileImage.value.trim() !== '' 
-    ? profileImage.value 
-    : new URL('../assets/lionmascot.png', import.meta.url).href
-})
+// const profileImageSrc = computed(() => {
+//   return profileImage.value && profileImage.value.trim() !== '' 
+//     ? profileImage.value 
+//     : new URL('../assets/lionmascot.png', import.meta.url).href
+// })
 
 onMounted(async () => {
   try {

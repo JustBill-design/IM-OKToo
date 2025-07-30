@@ -6,16 +6,16 @@ const elderlies = ref<Elderly[]>([])
 const newName = ref('')
 
 function add() {
-  elderlies.value.push({ id: Date.now().toString(), name: newName.value, avatar: '' })
+  elderlies.value.push({ id: Date.now().toString(), name: newName.value, age: 0, medicalCondition: '', allergies: '' })
   newName.value = ''
 }
 function edit(idx: number) {
   const updated = prompt('Edit name', elderlies.value[idx].name)
   if (updated) elderlies.value[idx].name = updated
 }
-function remove(idx: number) {
-  if (confirm('Remove this elder?')) elderlies.value.splice(idx, 1)
-}
+// function remove(idx: number) {
+//   if (confirm('Remove this elder?')) elderlies.value.splice(idx, 1)
+// }
 </script>
 
 <template>
@@ -30,7 +30,7 @@ function remove(idx: number) {
         <span>{{ e.name }}</span>
         <div class="space-x-2">
           <button class="text-sm text-[#3B82F6]" @click="edit(i)">Edit</button>
-          <button class="text-sm text-[#FF6F61]" @click="remove(i)">Remove</button>
+          <!-- <button class="text-sm text-[#FF6F61]" @click="remove(i)">Remove</button> -->
         </div>
       </li>
     </ul>
@@ -51,7 +51,7 @@ function remove(idx: number) {
       </button>
     </div>
     <p class="mt-4 text-sm text-gray-500">
-      Note: You can add, edit, or remove elderlies under your care.
+      Note: You can add elderlies under your care.
     </p>
   </div>
 </template>
