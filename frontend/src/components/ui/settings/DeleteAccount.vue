@@ -10,8 +10,7 @@ const remove = () => {
   <div class="mt-4">
     <button
       class="px-4 py-2 bg-[#FF6F61] text-white rounded w-full"
-      @click="remove"
-    >
+      @click="remove">
       Delete Account
     </button>
   </div>

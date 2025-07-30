@@ -4,54 +4,81 @@
 
     <!-- Profile Display Section -->
     <section class="profile-section">
-        <!-- <img :src="profileImageSrc" :alt="username || 'Profile'" /> -->
-        <div class="profile-name">
-          <h2 class="profile-name">{{ username || 'Loading...' }}</h2>
-          <button class="edit-username-button" @click="$emit('edit-username')">Update Username</button>
-          <EditUsernameForm/>
-        </div>
-        <div class = "profile-email">
-          <h2 class="profile-email">{{ email || 'Loading...' }}</h2>
-          <button class="change-email-button" @click="$emit('change-email')">Update Email</button>
-          <ChangeEmailForm/>
-        </div>
-        <div class="profile-password">
-          <h2 class="profile-password">{{ password || 'Loading...' }}</h2>
-          <button class="edit-photo-button" @click="$emit('edit-photo')">Update password</button>
-          <ChangePasswordForm/>
-        </div>
+      <h2 class="settings-content">Edit your profile details here</h2>
     </section>
 
-    <!-- Elderly management-->
-    <div class="elderly-management">
-      <h2 class="section-title">Elderly Management</h2>
-      <p class="section-description">Manage your elderly care details below</p>
-      <hr class="divider" />
-      <h3 class="subsection-title">Elder Care Details</h3>
-      <ManageElderly />
+      <!-- Username section -->
+      <div class="settings-grid">
+      <div class="setting-card">
+        <h2 class="section-label">Update Username</h2>
+        <EditUsernameForm v-model="username"/>
+      </div>
+
+      <!-- Email section -->
+    <div class="setting-card">
+        <h2 class="section-label">Update Email</h2>
+        <p class="profile-email">Current email: {{ email }}</p>
+        <ChangeEmailForm v-model="email"/>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="danger-zone">
-      <hr class="divider" />
-      <h2 class="section-title danger-title">Delete Account</h2>
-      <DeleteAccount />
+    <!-- Password section -->
+    <div class="setting-card">
+        <h2 class="section-label">Update Password</h2>
+        <ChangePasswordForm v-model="password"/>
+      </div>
+    </div>
+
+    <!-- Elderly management-->
+    <div class ="elderly-management-header">
+      <h2 class="section-label">Manage Elderly</h2>
+      <p class="section-description">Add and manage elderly under your care.</p>
+    <section class="elderly-management">
+      <ManageElderly v-model="elderlies"/>
+    </section>
+    </div>
+
+    <!-- Danger Zone: Delete section -->
+    <div class="card destructive-card">
+      <h2 class="delete-account">Delete Account</h2>
+      <p class="danger-description">This action is irreversible. Please proceed with caution.</p>
+      <!-- <button class="primary-destructive" @click="deleteAccount">
+      </button> -->
+      <DeleteAccount @delete="remove" />
     </div>
   </div>
 </template>
 
+
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+
+import { ref, reactive, onMounted } from 'vue'
+// import FormField from './FormField.vue'
 import EditUsernameForm from './EditUsernameForm.vue'
 import ChangeEmailForm from './ChangeEmailForm.vue'
 import ChangePasswordForm from './ChangePasswordForm.vue'
-// import EditPhotoUploader from './EditPhotoUploader.vue' // Uncomment if using
 import ManageElderly from './ManageElderly.vue'
 import DeleteAccount from './DeleteAccount.vue'
 
+const showUsernameForm = ref(false)
+const showEmailForm = ref(false)
+const showPasswordForm = ref(false)
+
 const username = ref('')
 const email = ref('')
-const profileImage = ref('')
+
+const usernameMessage = ref('')
+const emailMessage = ref('')
+const passwordMessage = ref('')
+const elderlies = ref([]) // Array to hold elderly data
+const elderlyForm = reactive({
+  name: '',
+  age: '',
+  medicalCondition: '',
+  allergies: ''
+})
+
+const currentUsername = ref('current username')
+const currentEmail = ref('someone@example.com')
 
 // const profileImageSrc = computed(() => {
 //   return profileImage.value && profileImage.value.trim() !== '' 
@@ -100,7 +127,7 @@ onMounted(async () => {
   max-width: 900px;
   margin: auto;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: #e0f6ff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -112,6 +139,27 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 
+.settings-content {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 1.75rem;
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.setting-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .profile-section {
   display: flex;
   align-items: flex-start;
@@ -121,12 +169,19 @@ onMounted(async () => {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.section-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
 .profile-avatar img {
   width: 80px;
   height: 80px;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid #4a6b8a;
+  border: 3px solid #2c3e50;
 }
 
 .profile-info {
@@ -136,13 +191,13 @@ onMounted(async () => {
 .profile-name {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #4a6b8a;
+  color: #2c3e50;
   margin: 0 0 0.5rem 0;
 }
 
 .profile-email {
   font-size: 1rem;
-  color: #64748b;
+  color: #2c3e50;
   margin: 0 0 1.5rem 0;
 }
 
@@ -172,11 +227,24 @@ onMounted(async () => {
 .divider {
   border: none;
   height: 1px;
-  background-color: #e2e8f0;
+  background-color: #4a6b8a;
   margin: 2rem 0;
 }
 
-.danger-zone .danger-title {
+.danger-zone, .danger-title {
   color: #dc2626;
 }
+
+.danger-description {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.delete-account {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 0.5rem;
+}
+
 </style>
