@@ -22,7 +22,9 @@ export default {
     )
 
     async function retrieveEvents() {
-      const response = await fetch(`http://localhost:3001/calendar/all`, {
+      const email = localStorage.getItem("email");
+
+      const response = await fetch(`http://localhost:3001/calendar/all?email=${email}`, {
         method: 'GET',
         headers: {
           'Content-type': 'application/json'

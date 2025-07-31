@@ -30,7 +30,6 @@ const formSchema = toTypedSchema(z.object({
   title: z.string(),
   category: z.string(),
   elderly: z.string(),
-  caretaker: z.string(),
   startDate: z.object({
     era: z.literal("AD"),
     year: z.coerce.number().int().min(year),
@@ -114,6 +113,8 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
+  values.caretaker = localStorage.getItem('username')
+
   const email = localStorage.getItem('email')
   const payload = {
     ...values,
@@ -147,7 +148,6 @@ const onSubmit = form.handleSubmit(async (values) => {
         <EventTitle/>
         <EventCategory/>
         <EventElderly/>
-        <EventCaretaker/>
         <EventDateTimeRange/>
         <EventGuest/>
         <EventLocation/>

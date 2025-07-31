@@ -37,13 +37,6 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
         'main-content-full': route.name === 'Login'
       }"
     >
-      <div v-if="$route.path === '/resources'">
-        <div style="margin-top: 1rem;">
-          <router-link to="/resources">
-            <Button>Go to Resources</Button>
-          </router-link>
-        </div>
-      </div>
       <!-- Router View for all pages -->
       <router-view />
     </div>

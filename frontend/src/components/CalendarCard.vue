@@ -71,9 +71,11 @@ const revertEvent = ref<CalendarEventExternal | null>(null)
 const popoverPosition = ref({x:0, y:0})
 
 let calendarApp: CalendarApp | null = null;
+let isDeleting = ref(false)
 
 
 async function deleteEvent() {
+  isDeleting.value = true;
   const eventId = {id: popoverEvent.value?.id};
 
   const response = await fetch("http://localhost:3001/calendar/delete",
@@ -100,6 +102,7 @@ async function deleteEvent() {
   }
   
   deletePopover.value = false;
+  isDeleting.value = false;
 }
 
 async function retrieveEvents() {
@@ -303,7 +306,6 @@ onMounted(async () => {
 
         }
 
-        console.log('Updated successfully!');
       },
       onBeforeEventUpdate(oldEvent, newEvent, $app) {
 
@@ -375,8 +377,8 @@ onMounted(async () => {
                 <Button variant="outline" class="rounded-full border-2 border-purple-500 text-purple-700 px-6 font-semibold hover:bg-purple-50 hover:border-purple-600" @click="deletePopover = false">
                   Cancel
                 </Button>
-                <Button variant="destructive" class="rounded-full px-8 font-bold" @click="deleteEvent">
-                  Delete
+                <Button variant="destructive" class="rounded-full px-8 font-bold" @click="deleteEvent" :disabled="isDeleting">
+                  {{ isDeleting ? 'Deleting...' : 'Delete' }}
                 </Button>
               </div>
             </div>
