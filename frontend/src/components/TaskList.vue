@@ -14,7 +14,7 @@ const USERNAME = ref<string | null>(null); // Make it a ref to be reactive if ne
 const tasks = ref<{ id: number; text: string; done: boolean }[]>([])
 const newTask = ref('')
 
-// Helper to get username safely
+
 function getCurrentUsername(): string | null {
     const user = localStorage.getItem("username");
     return user === 'undefined' ? null : user; // Handle "undefined" string if it occurs
@@ -48,12 +48,23 @@ async function addTask(descriptionFromParent?: string) {
         return;
     }
 
-  const desc = descriptionFromParent !== undefined && descriptionFromParent.trim() !== ''
-                 ? descriptionFromParent.trim()
-                 : newTask.value.trim();
-  if (!desc){alert('Task description cannot be empty.');
-    return;
-  } 
+  let desc = '';
+  if (typeof descriptionFromParent === 'string' && descriptionFromParent.trim() !== '') {
+    desc = descriptionFromParent.trim();
+  } else {
+    desc = newTask.value.trim();
+  }
+
+  // OPTIMISTIC UPDATE - Update UI immediately
+  const tempId = -Date.now(); // Negative temp ID to avoid conflicts
+  const optimisticTask = {
+    id: tempId,
+    text: desc,
+    done: false
+  };
+  
+  tasks.value.unshift(optimisticTask);
+  newTask.value = '';
 
   try {
     const res = await fetch('/api/tasks', {
@@ -66,16 +77,33 @@ async function addTask(descriptionFromParent?: string) {
     })
     if (!res.ok) throw new Error('Failed to add task')
     const newEntry = await res.json()
-    tasks.value.unshift({
-      id: newEntry.task_id,
-      text: newEntry.task_description,
-      done: newEntry.completed
-    })
-    newTask.value = ''
+
+    // Replace optimistic task with real data
+    const taskIndex = tasks.value.findIndex(t => t.id === tempId);
+    if (taskIndex !== -1) {
+      tasks.value[taskIndex] = {
+        id: newEntry.task_id,
+        text: newEntry.task_description,
+        done: newEntry.completed
+      };
+    }
   } catch (err) {
-    console.error('Failed to add task:', err)
+    console.error('Failed to add task:', err);
+    // Remove optimistic task on failure
+    tasks.value = tasks.value.filter(t => t.id !== tempId);
+    alert('Failed to add task. Please try again.');
   }
 }
+//     tasks.value.unshift({
+//       id: newEntry.task_id,
+//       text: newEntry.task_description,
+//       done: newEntry.completed
+//     })
+//     newTask.value = ''
+//   } catch (err) {
+//     console.error('Failed to add task:', err)
+//   }
+// }
 
 async function toggleTask(idx: number) {
     const currentUser = getCurrentUsername();
