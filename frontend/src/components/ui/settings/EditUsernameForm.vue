@@ -59,7 +59,7 @@ async function handleSubmit() {
     message.value = 'Error updating username. Please try again.'
     messageType.value = 'error'
   } finally {
-    isLoading = false
+    isLoading.value = false
   }
 }
 </script>
