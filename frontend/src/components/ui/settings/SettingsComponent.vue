@@ -3,30 +3,30 @@
     <h1 class="settings-title">Settings</h1>
 
     <!-- Profile Display Section -->
-    <section class="profile-section">
+    <!-- <section class="profile-section">
       <h2 class="settings-content">Edit your profile details here</h2>
-    </section>
+    </section> -->
 
       <!-- Username section -->
-      <div class="settings-grid">
+      <!-- <div class="settings-grid">
       <div class="setting-card">
         <h2 class="section-label">Update Username</h2>
         <EditUsernameForm v-model="username"/>
-      </div>
+      </div> -->
 
       <!-- Email section -->
-    <div class="setting-card">
+    <!-- <div class="setting-card">
         <h2 class="section-label">Update Email</h2>
         <p class="profile-email">Current email: {{ email }}</p>
         <ChangeEmailForm v-model="email"/>
-    </div>
+    </div> -->
 
     <!-- Password section -->
-    <div class="setting-card">
+    <!-- <div class="setting-card">
         <h2 class="section-label">Update Password</h2>
         <ChangePasswordForm v-model="password"/>
       </div>
-    </div>
+    </div> -->
 
     <!-- Elderly management-->
     <div class ="elderly-management-header">
@@ -53,22 +53,22 @@
 
 import { ref, reactive, onMounted } from 'vue'
 // import FormField from './FormField.vue'
-import EditUsernameForm from './EditUsernameForm.vue'
-import ChangeEmailForm from './ChangeEmailForm.vue'
-import ChangePasswordForm from './ChangePasswordForm.vue'
+// import EditUsernameForm from './EditUsernameForm.vue'
+// import ChangeEmailForm from './ChangeEmailForm.vue'
+// import ChangePasswordForm from './ChangePasswordForm.vue'
 import ManageElderly from './ManageElderly.vue'
-import DeleteAccount from './DeleteAccount.vue'
+// import DeleteAccount from './DeleteAccount.vue'
 
-const showUsernameForm = ref(false)
-const showEmailForm = ref(false)
-const showPasswordForm = ref(false)
+// const showUsernameForm = ref(false)
+// const showEmailForm = ref(false)
+// const showPasswordForm = ref(false)
 
 const username = ref('')
 const email = ref('')
 
 const usernameMessage = ref('')
-const emailMessage = ref('')
-const passwordMessage = ref('')
+// const emailMessage = ref('')
+// const passwordMessage = ref('')
 const elderlies = ref([]) // Array to hold elderly data
 const elderlyForm = reactive({
   name: '',
@@ -77,8 +77,8 @@ const elderlyForm = reactive({
   allergies: ''
 })
 
-const currentUsername = ref('current username')
-const currentEmail = ref('someone@example.com')
+// const currentUsername = ref('current username')
+// const currentEmail = ref('someone@example.com')
 
 // const profileImageSrc = computed(() => {
 //   return profileImage.value && profileImage.value.trim() !== '' 
@@ -86,40 +86,40 @@ const currentEmail = ref('someone@example.com')
 //     : new URL('../assets/lionmascot.png', import.meta.url).href
 // })
 
-onMounted(async () => {
-  try {
-    const storedUsername = localStorage.getItem('username')
-    const isGoogleAuth = localStorage.getItem('googleAuth') === 'true'
+// onMounted(async () => {
+//   try {
+//     const storedUsername = localStorage.getItem('username')
+//     const isGoogleAuth = localStorage.getItem('googleAuth') === 'true'
     
-    if (storedUsername) {
-      username.value = storedUsername
-      if (isGoogleAuth) {
-        email.value = storedUsername 
-      } else {
-        email.value = localStorage.getItem('email') || `${storedUsername}@mymail.sutd.edu.sg`
-      }
-    } else {
-      username.value = 'test User'
-      email.value = 'user@mymail.sutd.edu.sg'
-    }
-    try {
-      const response = await fetch('/api/me')
-      if (response.ok) {
-        const userData = await response.json()
-        username.value = userData.username
-        email.value = userData.email
-        profileImage.value = userData.profileImage
-      }
-    } catch (apiError) {
-      console.log('API not available, using local data')
-    }
-  } catch (error) {
-    console.error('Failed to load user data:', error)
-    // Set fallback values
-    username.value = 'test User'
-    email.value = 'user@mymail.sutd.edu.sg'
-  }
-})
+//     if (storedUsername) {
+//       username.value = storedUsername
+//       if (isGoogleAuth) {
+//         email.value = storedUsername 
+//       } else {
+//         email.value = localStorage.getItem('email') || `${storedUsername}@mymail.sutd.edu.sg`
+//       }
+//     } else {
+//       username.value = 'test User'
+//       email.value = 'user@mymail.sutd.edu.sg'
+//     }
+//     try {
+//       const response = await fetch('/api/me')
+//       if (response.ok) {
+//         const userData = await response.json()
+//         username.value = userData.username
+//         email.value = userData.email
+//         profileImage.value = userData.profileImage
+//       }
+//     } catch (apiError) {
+//       console.log('API not available, using local data')
+//     }
+//   } catch (error) {
+//     console.error('Failed to load user data:', error)
+//     // Set fallback values
+//     username.value = 'test User'
+//     email.value = 'user@mymail.sutd.edu.sg'
+//   }
+// })
 </script>
 
 <style scoped>
