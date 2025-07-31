@@ -110,6 +110,14 @@
                             <span v-if="!isCollapsed">Resources</span>
                         </div>
                     </div>
+
+                    <!-- Settings -->
+                    <div class="nav-item" :class="{ active: activeItem === 'settings' }">
+                        <div class="nav-link" @click="setActiveItem('settings')">
+                            <i class="icon">⚙️</i>
+                            <span v-if="!isCollapsed">Settings</span>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -211,6 +219,8 @@ export default {
                 this.$router.push('/forum');
             } else if (item == "calendar") {
                 this.$router.push('/calendar');
+            } else if (item == "settings") {
+                this.$router.push('/settings');
             }
 
             this.activeItem = item;

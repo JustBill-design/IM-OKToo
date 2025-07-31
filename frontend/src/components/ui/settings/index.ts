@@ -1,0 +1,6 @@
+export { default as SettingsComponent } from './SettingsComponent.vue'
+export { default as EditUsernameForm } from './EditUsernameForm.vue'
+export { default as ChangePasswordForm } from './ChangePasswordForm.vue'
+export { default as ChangeEmailForm } from './ChangeEmailForm.vue'
+export { default as ManageElderly } from './ManageElderly.vue'
+export { default as DeleteAccount } from './DeleteAccount.vue'
