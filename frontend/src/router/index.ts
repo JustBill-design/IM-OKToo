@@ -7,12 +7,19 @@ const ResourcePage = () => import('../components/ResourcePage.vue')
 const ForumPage = () => import('../components/ForumPage.vue')
 const Settings = () => import('../components/Settings.vue')
 const Family = () => import('../components/FamilyPage.vue')
+const Register = () => import('../components/Register.vue')
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/register',
+    name: 'Registration',
+    component: Register,
+    meta: { requiresAuth: false }
   },
   {
     path: '/home',
