@@ -1,5 +1,5 @@
 import express from 'express'
-import { format } from 'date-fns'
+import { eachMinuteOfInterval, format } from 'date-fns'
 import { google , calendar_v3 } from 'googleapis'
 import getConnection from '../src/db'
 
@@ -16,8 +16,15 @@ router.get('/testing',(req,res) => {
 })
 
 router.get('/all', async (req, res) => {
+    const email = req.query.email;
+    if (!email){
+      return res.status(400).send("Missing email");
+    }
     const db = await getConnection();
-    const [rs] = await db.query('SELECT * FROM Events');
+    const [rs] = await db.query(
+      'SELECT * FROM Events WHERE email = ?',
+      [email, `%${email}%`] // match if user is the caretaker or invited guest
+    );
     await db.end();
 
     res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
@@ -27,7 +34,7 @@ router.get('/all', async (req, res) => {
 router.post('/add', async (req, res) => {
 
     const data = req.body;
-    let columns = ['title', 'category', 'start', 'end', 'caretaker'];
+    let columns = ['title', 'category', 'start', 'end', 'caretaker','email'];
 
     const startTimes = data.startTime.split(":");
     const endTimes = data.endTime.split(":");
@@ -38,7 +45,7 @@ router.post('/add', async (req, res) => {
     const end = new Date(data.endDate.year, data.endDate.month-1, data.endDate.day, parseInt(endTimes[0]), parseInt(endTimes[1]), 0);
     const formattedEnd = format(end, 'yyyy-MM-dd HH:mm:ss');
 
-    let values = [data.elderly + ": " + data.title, data.category, formattedStart, formattedEnd, data.caretaker];
+    let values = [data.elderly + ": " + data.title, data.category, formattedStart, formattedEnd, data.caretaker,data.email];
 
     if (end < start) {
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
@@ -116,7 +123,8 @@ router.get('/authgooglecalendar', (req, res) => {
   // Generate the Google authentication URL
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // Request offline access to receive a refresh token
-    scope: 'https://www.googleapis.com/auth/calendar.readonly' // Scope for read-only access to the calendar
+    scope: 'https://www.googleapis.com/auth/calendar.readonly', // Scope for read-only access to the calendar
+    state: req.query.email
   });
   // Redirect the user to Google's OAuth 2.0 server
   res.redirect(url);
@@ -145,6 +153,8 @@ router.get('/events', async (req, res) => {
     }
 
     const code = req.query.code as string;
+    const email = req.query.state as string;
+    console.log(email)
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
@@ -163,7 +173,7 @@ router.get('/events', async (req, res) => {
     const events = response.data.items || [];
 
     // Save fetched events to DB
-    await saveEventsToDB(events);
+    await saveEventsToDB(events,email);
 
     // Optional: send back a response
     res.redirect('http://localhost:5173/calendar');
@@ -176,16 +186,15 @@ router.get('/events', async (req, res) => {
 
 type GoogleCalendarEvent = calendar_v3.Schema$Event;
 
-const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
+const saveEventsToDB = async (events: GoogleCalendarEvent[],email:string) => {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
   const db = await getConnection();
   console.log('its saving events')
-    await db.query(
-      `
-      DELETE FROM Events WHERE category = 'Google Sync'
-      `
-    )
+  await db.query(
+    `DELETE FROM Events WHERE category = 'Google Sync' AND email = ?`,
+    [email]
+  );
   for (const event of events) {
     const title = event.summary ?? '';
     const start = event.start?.dateTime ?? null;
@@ -201,12 +210,13 @@ const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
     const caretaker = 'System';
     const recurrence = event.recurrence?.join(', ') ?? 'FREQ=DAILY;COUNT=1';
 
+
     if (!start || !end) continue; // Skip events without start/end
 
     await db.query(
       `
-      INSERT INTO Events (title, category, start, end, caretaker, guests, location, description, recurrence)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO Events (title, category, start, end, caretaker, guests, location, description, recurrence, email)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         title,
@@ -217,7 +227,8 @@ const saveEventsToDB = async (events: GoogleCalendarEvent[]) => {
         guests,
         location,
         description,
-        recurrence
+        recurrence,
+        email
       ]
     );
   }
