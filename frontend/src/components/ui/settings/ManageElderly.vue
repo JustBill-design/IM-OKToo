@@ -28,9 +28,9 @@ function edit(index: number) {
   if (newName) localElderlies.value[index].name = newName
 }
 
-function remove(index: number) {
-  if (confirm('Remove this elder?')) localElderlies.value.splice(index, 1)
-}
+// function remove(index: number) {
+//   if (confirm('Remove this elder?')) localElderlies.value.splice(index, 1)
+// }
 </script>
 
 <template>
@@ -45,7 +45,7 @@ function remove(index: number) {
         </div>
         <div class="space-x-2">
           <button class="text-sm text-[#3B82F6]" @click="edit(i)">Edit</button>
-          <button class="text-sm text-[#FF6F61]" @click="remove(i)">Remove</button>
+          <!-- <button class="text-sm text-[#FF6F61]" @click="remove(i)">Remove</button> -->
         </div>
       </li>
     </ul>
