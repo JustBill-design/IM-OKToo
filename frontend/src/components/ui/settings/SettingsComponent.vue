@@ -38,13 +38,11 @@
     </div>
 
     <!-- Danger Zone: Delete section -->
-    <div class="card destructive-card">
+    <!-- <div class="card destructive-card">
       <h2 class="delete-account">Delete Account</h2>
       <p class="danger-description">This action is irreversible. Please proceed with caution.</p>
-      <!-- <button class="primary-destructive" @click="deleteAccount">
-      </button> -->
       <DeleteAccount @delete="remove" />
-    </div>
+    </div> -->
   </div>
 </template>
 

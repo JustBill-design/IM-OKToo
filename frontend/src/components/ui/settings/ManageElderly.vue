@@ -20,12 +20,25 @@ function add() {
   const { name, age } = newElder.value
   if (!name.trim() || !age || age<0) return
   localElderlies.value.push({ ...newElder.value, id: Date.now().toString() })
-  newElder.value = { id: '', name: '', age, medicalCondition: '', allergies: '' }
+  newElder.value = { id: '', name: '', age: null, medicalCondition: '', allergies: '' }
 }
 
 function edit(index: number) {
   const newName = prompt('Edit name', localElderlies.value[index].name)
   if (newName) localElderlies.value[index].name = newName
+  const newAge = prompt('Edit age', String(localElderlies.value[index].age))
+  if (newAge !== null) {
+    const ageNum = Number(newAge)
+    if (!isNaN(ageNum) && ageNum >= 0) {
+      localElderlies.value[index].age = ageNum
+    } else {
+      alert('Invalid age input. Please enter a valid number.')
+    }
+  }
+  const newCondition = prompt('Edit medical condition', )
+  if (newCondition !== null) localElderlies.value[index].medicalCondition = newCondition
+  const newAllergies = prompt('Edit allergies', localElderlies.value[index].allergies)
+  if (newAllergies !== null) localElderlies.value[index].allergies = newAllergies
 }
 
 // function remove(index: number) {
@@ -52,7 +65,7 @@ function edit(index: number) {
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
       <input v-model="newElder.name" placeholder="Name" class="input" />
-      <input v-model.number="newElder.age" type="number" placeholder="Age" class="input" />      
+      <input v-model.number="newElder.age" type="number" min=0 placeholder="Age" class="input" />      
       <input v-model="newElder.medicalCondition" placeholder="Condition" class="input" />
       <input v-model="newElder.allergies" placeholder="Allergies" class="input" />
     </div>
@@ -60,7 +73,7 @@ function edit(index: number) {
     <div class="mt-4 flex justify-between items-center">
       <p class="text-sm text-gray-500">Note: You can add elderlies under your care.</p>
       <button
-      :disabled="!newElder.name.trim() || newElder.age === null"
+      :disabled="!newElder.name.trim() || newElder.age === null || newElder.age < 0"
       @click="add"
       class="px-4 py-2 bg-[#2C3E50] text-white rounded"> Add
     </button>
