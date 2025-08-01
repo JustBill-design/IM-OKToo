@@ -105,8 +105,9 @@ async function deleteEvent() {
 async function retrieveEvents() {
 
   const events: CalendarEvent[] = [];
+  const email = localStorage.getItem("email");
 
-  const response = await fetch(`http://localhost:3001/calendar/all`,
+  const response = await fetch(`http://localhost:3001/calendar/all?email=${email}`,
   {
       method: 'GET',
       headers: {

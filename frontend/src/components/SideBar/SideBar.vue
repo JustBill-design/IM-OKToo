@@ -54,6 +54,14 @@
                     </div>
 
                     <!-- Messages -->
+                    <div class="nav-item" :class="{ active: activeItem === 'family' }">
+                        <div class="nav-link" @click="setActiveItem('family')">
+                            <i class="icon">👪</i>
+                            <span v-if="!isCollapsed">Family</span>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
                     <div class="nav-item" :class="{ active: activeItem === 'messages' }">
                         <div class="nav-link" @click="setActiveItem('messages')">
                             <i class="icon">💬</i>
@@ -353,7 +361,6 @@ export default {
 .sidebar-nav {
     flex: 1;
     padding: 1rem 0;
-    overflow-y: auto;
 }
 
 .nav-section {

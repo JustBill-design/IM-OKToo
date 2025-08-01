@@ -61,7 +61,6 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
   margin-left: 280px;
   /* Expanded sidebar width */
   padding: 1rem;
-  overflow-y: auto;
   transition: margin-left 0.3s ease;
 }
 

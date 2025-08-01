@@ -225,6 +225,7 @@ export default {
                 if (checkData.exists) {
                     localStorage.setItem('isAuthenticated', 'true')
                     localStorage.setItem('username', checkData.username)
+                    localStorage.setItem('email', user_id.email)
                     localStorage.setItem('googleAuth', 'true')
 
                     await fetch('http://localhost:3001/update-last-login', {

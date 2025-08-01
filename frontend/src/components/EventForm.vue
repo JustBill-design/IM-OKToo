@@ -114,11 +114,15 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
-
+  const email = localStorage.getItem('email')
+  const payload = {
+    ...values,
+    email
+  }
   const response = await fetch("http://localhost:3001/calendar/add",
   {
       method: 'POST',
-      body: JSON.stringify(values),
+      body: JSON.stringify(payload),
       headers: {
           'Content-type': 'application/json'
       }              
