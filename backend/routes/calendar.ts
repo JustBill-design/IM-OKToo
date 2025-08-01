@@ -124,7 +124,7 @@ router.get('/authgooglecalendar', (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // Request offline access to receive a refresh token
     scope: 'https://www.googleapis.com/auth/calendar.readonly', // Scope for read-only access to the calendar
-    state: req.query.email
+    state: req.query.email as string | undefined,
   });
   // Redirect the user to Google's OAuth 2.0 server
   res.redirect(url);

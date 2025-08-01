@@ -7,6 +7,7 @@ import tasksRouter from '../routes/tasks'
 import calendarRoute from '../routes/calendar'
 import loginRoute from '../routes/login'
 import scraperRoute from '../routes/scraper'
+import path = require('path')
 
 dotenv.config()
 
@@ -19,7 +20,14 @@ app.use(cors(
     }
 ))
 
+const frontendDistPath = path.resolve(__dirname, '../../../frontend/dist');
+
+app.use(express.static(frontendDistPath));
 app.use(express.json())
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
+});
 
 //API mountings
 app.use('/posts', postsRoute)

@@ -1,6 +1,7 @@
 import express from 'express'
 import getConnection from '../src/db'
 import { get } from 'http';
+import { ResultSetHeader } from 'mysql2';
 
 const router = express.Router();
 
@@ -76,7 +77,7 @@ router.post("/addposts", async (req, res) => {
         const cat_id = categoryquery[0].category_id;
         console.log("STILL NULL?!!",cat_id)
 
-        const [insertResult] = await db.execute('INSERT INTO Posts (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
+        const [insertResult] = await db.execute<ResultSetHeader>('INSERT INTO Posts (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
         
         const [newPost] = await db.execute('SELECT * FROM Posts WHERE post_id = ?', [insertResult.insertId]) as [any[], any];
         res.json(newPost[0]);

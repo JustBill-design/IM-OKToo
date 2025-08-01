@@ -1,6 +1,7 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
 import getConnection from '../src/db'
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 
 const router = express.Router();
 
@@ -16,20 +17,17 @@ router.post('/validate', async (req, res) => {
 
     try {
         const db = await getConnection();
-        const query = await db.query(`SELECT username, password_hash, email FROM Users WHERE username = ? OR email = ?`, [username, username]);
+        const query = await db.query<RowDataPacket[]>(`SELECT username, password_hash, email FROM Users WHERE username = ? OR email = ?`, [username, username]);
 
-        console.log('Query length:', query[0]?.length || 0);
-
-        if (!query[0] || query[0].length == 0) {
+        if (!Array.isArray(query[0]) || query[0].length === 0) {
             await db.end();
             return res.status(401).json({
                 success: false,
                 message: 'Invalid username or password'
-            })
+            });
         }
         
         const user = query[0][0]; // Get the first user from results
-        console.log("we are testing", user)
 
         // Check if password is bcrypt hash or plain text
         const isBcryptHash = user.password_hash.startsWith('$2');
@@ -131,7 +129,7 @@ router.post('/register', async (req, res) => {
     try {
         const db = await getConnection();
 
-        const usernameCheck = await db.query('SELECT username FROM Users WHERE username = ?', [username])
+        const usernameCheck = await db.query<RowDataPacket[]>('SELECT username FROM Users WHERE username = ?', [username])
 
         if (usernameCheck[0] && usernameCheck[0].length > 0) {
             await db.end();
@@ -142,7 +140,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const emailCheck = await db.query('SELECT email FROM Users WHERE email = ?', [email])
+        const emailCheck = await db.query<RowDataPacket[]>('SELECT email FROM Users WHERE email = ?', [email])
 
         if (emailCheck[0] && emailCheck[0].length > 0) {
             await db.end();
@@ -162,7 +160,7 @@ router.post('/register', async (req, res) => {
             passwordhash = await bcrypt.hash(password, 10);
         }
 
-        const result = await db.query('INSERT INTO Users (username, first_name, email, password_hash) VALUES (?, ?, ?, ?)', [username, firstName, email, passwordhash]);
+        const result = await db.query<ResultSetHeader>('INSERT INTO Users (username, first_name, email, password_hash) VALUES (?, ?, ?, ?)', [username, firstName, email, passwordhash]);
 
         await db.end();
 
@@ -178,31 +176,43 @@ router.post('/register', async (req, res) => {
             throw new Error('Failed to insert user');
         }
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Registration error:', error);
 
-        // Handle specific MySQL errors
-        if (error.code === 'ER_DUP_ENTRY') {
-            if (error.message.includes('USERNAME')) {
-                return res.status(400).json({
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            'message' in error &&
+            typeof (error as any).code === 'string' &&
+            typeof (error as any).message === 'string'
+        ) {
+            const err = error as { code: string; message: string };
+
+            if (err.code === 'ER_DUP_ENTRY') {
+                if (err.message.includes('USERNAME')) {
+                    return res.status(400).json({
                     success: false,
                     message: 'Username already exists',
                     field: 'username'
-                });
-            } else if (error.message.includes('EMAIL')) {
-                return res.status(400).json({
+                    });
+                } else if (err.message.includes('EMAIL')) {
+                    return res.status(400).json({
                     success: false,
                     message: 'Email already exists',
                     field: 'email'
-                });
-            } else if (error.message.includes('FIRST_NAME')) {
-                return res.status(400).json({
+                    });
+                } else if (err.message.includes('FIRST_NAME')) {
+                    return res.status(400).json({
                     success: false,
                     message: 'First name already exists',
                     field: 'firstName'
-                });
+                    });
+                }
             }
         }
+
+        // Default fallback error response
         return res.status(500).json({
             success: false,
             message: 'Registration failed. Please try again.',
@@ -223,7 +233,7 @@ router.post('/check-google-user', async (req, res) => {
 
     try {
         const db = await getConnection();
-        const query = await db.query('SELECT username, email FROM Users WHERE email = ?', [email])
+        const query = await db.query<RowDataPacket[]>('SELECT username, email FROM Users WHERE email = ?', [email])
         await db.end();
         
         if (query[0] && query[0].length > 0) {
