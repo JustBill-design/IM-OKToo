@@ -33,53 +33,69 @@ function scrollToBottom() {
   })
 }
 
-function botReply(userText: string) {
-  const text = userText.trim().toLowerCase()
-  if (text === 'help') {
-    return `You can:\n- Add a task: 'add task [task name]'\n- Remove a task: 'remove task [task name]'\n- Clear all tasks: 'clear all tasks'\n- Ask about the forum: type 'forums'\n- Just type a task name to add it.\n- Or say 'help' to see this message again!`
-  }
-  if (text === 'forums' || text === 'forum') {
-    return `The Forum page lets you connect with other caregivers, share experiences, and ask questions. Navigate to the Forum tab to join the discussion!`
-  }
-  if (text.startsWith('add task ')) {
-    const task = userText.slice(9).trim()
-    if (task) {
-      emit('add-task', task)
-      return `Task added: ${task}`
+// Add a function to call the backend Claude endpoint
+async function getClaudeReply(userText: string): Promise<string> {
+  try {
+    const response = await fetch('http://localhost:3001/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText })
+    });
+    const data = await response.json();
+    console.log("Claude API response received in frontend:", data); // ADD THIS LINE
+
+    // Extract the text content from the Claude response structure
+    // It's nested under 'content' array, then the first element, then 'text' property
+    if (data && typeof data.reply === 'string') { // Check if 'data' has a 'reply' property and it's a string
+      return data.reply; // Return the string that contains the JSON action
     } else {
-      return `Please specify a task after 'add task'.`
+      // Keep the console.log below for additional debugging if this still fails
+      console.error("Failed to parse Claude response from backend (expected 'reply' property):", data);
+      return 'Sorry, I could not parse the response from Claude.';
     }
+
+  } catch (err) {
+    console.error("Error fetching Claude reply:", err); // Log the error for debugging
+    return 'Sorry, there was an error connecting to the AI.';
   }
-  if (text.startsWith('remove task ')) {
-    const taskName = userText.slice(12).trim()
-    if (taskName) {
-      emit('remove-task', taskName)
-      return `I'll remove the task: ${taskName}`
-    } else {
-      return `Please specify which task to remove after 'remove task'.`
-    }
-  }
-  if (text === 'clear all tasks' || text === 'clear tasks') {
-    emit('clear-all-tasks')
-    return `All tasks have been cleared!`
-  }
-  // If user just types a task name, add it
-  if (text.length > 0) {
-    emit('add-task', userText)
-    return `Task added: ${userText}`
-  }
-  return `Sorry, I didn't understand. Type 'help' for options.`
 }
 
-function sendMessage(text: string) {
-  if (!text.trim()) return
-  chat.value.push({ sender: 'user', text })
-  setTimeout(() => {
-    const reply = botReply(text)
-    chat.value.push({ sender: 'bot', text: reply })
-    scrollToBottom()
-  }, 500)
-  scrollToBottom()
+// Update sendMessage to use Claude for general chat
+async function sendMessage(text: string) {
+  if (!text.trim()) return;
+  chat.value.push({ sender: 'user', text });
+  scrollToBottom();
+
+  chat.value.push({ sender: 'bot', text: 'Thinking...' });
+  scrollToBottom();
+  const aiReply = await getClaudeReply(text);
+  chat.value.pop();
+
+  // Try to parse as JSON for task actions
+  let parsed;
+  try {
+    parsed = JSON.parse(aiReply);
+    if (parsed.action === 'add_task' && parsed.task) {
+      emit('add-task', parsed.task);
+      chat.value.push({ sender: 'bot', text: `Task added: ${parsed.task}` });
+      scrollToBottom();
+      return;
+    } else if (parsed.action === 'remove_task' && parsed.task) {
+      emit('remove-task', parsed.task);
+      chat.value.push({ sender: 'bot', text: `Task removed: ${parsed.task}` });
+      scrollToBottom();
+      return;
+    } else if (parsed.action === 'clear_all_tasks') {
+      emit('clear-all-tasks');
+      chat.value.push({ sender: 'bot', text: `All tasks have been cleared!` });
+      scrollToBottom();
+      return;
+    }
+  } catch (e) {
+    // Not a JSON, just show as normal reply
+  }
+  chat.value.push({ sender: 'bot', text: aiReply });
+  scrollToBottom();
 }
 
 function submitTask() {
@@ -160,7 +176,7 @@ function startSpeech() {
             {{ recognizing ? 'Listening...' : 'Tap to Speak' }}
           </p>
           <p class="text-xs text-gray-600 mt-1 transition-colors duration-300">
-            {{ recognizing ? 'Speak clearly now' : 'Say "add task" followed by what you need to do' }}
+            {{ recognizing ? 'Speak clearly now' : 'e.g. Say "add task" followed by what you need to do' }}
           </p>
         </div>
       </div>
@@ -227,7 +243,6 @@ function startSpeech() {
 /* Custom focus styles */
 button:focus {
   outline: none;
-  ring: 4px;
-  ring-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3);
 }
 </style> 
