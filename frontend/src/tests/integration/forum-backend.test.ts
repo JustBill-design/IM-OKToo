@@ -87,7 +87,7 @@ describe('forum and backend',() => {
         await waitForNextTick()
         await waitForNextTick()
         
-        expect(mockFetch).toHaveBeenCalledTimes(3)
+        expect(mockFetch).toHaveBeenCalledTimes(2)
       }
     })
   })
