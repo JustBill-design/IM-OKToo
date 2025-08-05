@@ -101,7 +101,7 @@ const timeOptions = computed(() => {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="startTime-trigger">
                     <SelectValue placeholder="Select a time" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">
@@ -165,7 +165,7 @@ const timeOptions = computed(() => {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="endTime-trigger">
                     <SelectValue placeholder="Select a time" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">

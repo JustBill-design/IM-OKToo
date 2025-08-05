@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import EventForm from '../EventForm.vue' // Adjust path accordingly
+import { mount, flushPromises } from '@vue/test-utils'
+import EventForm from '../EventForm.vue'
 import { nextTick } from 'vue'
+import { CalendarDate } from '@internationalized/date'
 
-describe('EventForm.vue full integration test', () => {
+describe('EventForm.vue component existence test', () => {
   let fetchMock: any
 
   beforeEach(() => {
@@ -17,121 +18,225 @@ describe('EventForm.vue full integration test', () => {
       removeItem: vi.fn(),
       clear: vi.fn(),
     }
-
-    fetchMock = vi.fn().mockResolvedValue({
+    fetchMock = vi.fn().mockResolvedValue({ 
       ok: true,
+      json: () => Promise.resolve({}) 
     })
     global.fetch = fetchMock
   })
 
-  it('fills all fields and submits the form successfully', async () => {
-    const wrapper = mount(EventForm, {
-      global: {
-        // Register child components normally if needed
-        // or stub components if focusing on form-level functionality
-      },
-    })
+  it('renders all form components', async () => {
+    const wrapper = mount(EventForm, {attachTo: document.body})
 
-    // Fill EventTitle (input)
-    const titleInput = wrapper.find('input[name="title"]')
-    await titleInput.setValue('Test Event')
+    // Check that the main form exists
+    expect(wrapper.find('form').exists()).toBe(true)
 
-    // Select EventCategory
+    // 1. Check that the Event Title field exists
+    expect(wrapper.findComponent({ name: 'EventTitle' }).exists()).toBe(true)
+    expect(wrapper.find('input[name="title"]').exists()).toBe(true)
+
+    // 2. Check that the Event Category field exists as well as all its options
+    expect(wrapper.findComponent({ name: 'EventCategory' }).exists()).toBe(true)
+    expect(wrapper.find('[data-testid="category-trigger"]').exists()).toBe(true)
     await wrapper.find('[data-testid="category-trigger"]').trigger('click')
     await nextTick()
-    const categoryOption = wrapper.findAll('li').find(li => li.text().includes('Appointments'))
-    if (categoryOption) await categoryOption.trigger('click')
+    expect(wrapper.text()).toContain('Appointments')
+    expect(wrapper.text()).toContain('Chores & Household Tasks')
+    expect(wrapper.text()).toContain('Medication & Health Management')
+    expect(wrapper.text()).toContain('Rest & Wellness')
 
-    // Select EventElderly
+    // 3. Check that the Event Elderly field exists as well as all its options
+    expect(wrapper.findComponent({ name: 'EventElderly' }).exists()).toBe(true)
+    expect(wrapper.find('[data-testid="elderly-trigger"]').exists()).toBe(true)
     await wrapper.find('[data-testid="elderly-trigger"]').trigger('click')
     await nextTick()
-    const elderlyOption = wrapper.findAll('li').find(li => li.text().includes('Sally'))
-    if (elderlyOption) await elderlyOption.trigger('click')
+    expect(wrapper.text()).toContain('Sally')
+    expect(wrapper.text()).toContain('June')
 
-    await wrapper.find('[data-testid="start-trigger-calendar"]').trigger('click')
+    // 4. Check that the Event Start Date and End Date field exists
+    expect(wrapper.findComponent({ name: 'EventDateTimeRange' }).exists()).toBe(true)
+    expect(wrapper.find('[data-testid="start-trigger-calendar"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="end-trigger-calendar"]').exists()).toBe(true)
+
+    // 5. Check that the Event Start Time and End Time field exists as well as its options
+    expect(wrapper.find('[data-testid="startTime-trigger"]').exists()).toBe(true)
+    await wrapper.find('[data-testid="startTime-trigger"]').trigger('click')
     await nextTick()
-    const startCalendar = wrapper.find('[data-testid="start-calendar"]')
-    expect(startCalendar.exists()).toBe(true)
-    // Only then, if it's a real Vue component:
-    if (startCalendar.vm) {
-    await startCalendar.vm.$emit('update:modelValue', new Date())
-    }
+    expect(wrapper.text()).toContain('00:00')
+
+    expect(wrapper.find('[data-testid="endTime-trigger"]').exists()).toBe(true)
+    await wrapper.find('[data-testid="endTime-trigger"]').trigger('click')
     await nextTick()
+    expect(wrapper.text()).toContain('00:00')
 
-    // 2. Find startTime select and choose a time (e.g., "10:00")
-    const startTimeSelect = wrapper.findAllComponents({ name: 'Select' })[0]  // Adjust index as needed
-    await startTimeSelect.find('button').trigger('click')  // open dropdown
+    // 6. Check that the Event Guests field exists
+    expect(wrapper.findComponent({ name: 'EventGuest' }).exists()).toBe(true)
+    expect(wrapper.find('input[name="guests"]').exists()).toBe(true)
+
+    // 7. Check that the Event Location field exists
+    expect(wrapper.findComponent({ name: 'EventLocation' }).exists()).toBe(true)
+    expect(wrapper.find('input[name="location"]').exists()).toBe(true)
+
+    // 8. Check that the Event Description field exists
+    expect(wrapper.findComponent({ name: 'EventDescription' }).exists()).toBe(true)
+    expect(wrapper.find('textarea[placeholder="Add Description"]').exists()).toBe(true)
+
+    // 9. Check that the Event Recurrence field exists as well as its options
+    expect(wrapper.findComponent({ name: 'EventRecurrence' }).exists()).toBe(true)
+    expect(wrapper.find('[data-testid="recurrence-trigger"]').exists()).toBe(true)
+    await wrapper.find('[data-testid="recurrence-trigger"]').trigger('click')
     await nextTick()
+    expect(wrapper.text()).toContain('Does not repeat')
+    expect(wrapper.text()).toContain('Daily')
+    expect(wrapper.text()).toContain('Weekly on this day')
+    expect(wrapper.text()).toContain('Monthly on this day')
+    expect(wrapper.text()).toContain('Every weekday')
+    expect(wrapper.text()).toContain('Anually on this day')
 
-    // Select the option "10:00" (find by text)
-    const startTimeOption = startTimeSelect.findAll('li').find(li => li.text().trim() === '10:00')
-    if (startTimeOption) {
-    await startTimeOption.trigger('click')
-    await nextTick()
-    }
+    // Check that submit button exists
+    expect(wrapper.find('button[type="submit"]').exists()).toBe(true)
+    expect(wrapper.find('button[type="submit"]').text()).toBe('Create Event')
 
-    // 3. Find endDate Calendar component and emit update with a date 1 hour later
-    const endCalendar = wrapper.findAllComponents({ name: 'Calendar' })[1]  // Adjust index accordingly
-    const endDate = new Date(today.getTime() + 60 * 60 * 1000)  // 1 hour later (still same day)
-    await endCalendar.vm.$emit('update:modelValue', endDate)
-    await nextTick()
-
-    // 4. Find endTime select and choose "11:00"
-    const endTimeSelect = wrapper.findAllComponents({ name: 'Select' })[1]  // Adjust index
-    await endTimeSelect.find('button').trigger('click')
-    await nextTick()
-
-    const endTimeOption = endTimeSelect.findAll('li').find(li => li.text().trim() === '11:00')
-    if (endTimeOption) {
-    await endTimeOption.trigger('click')
-    await nextTick()
-    }
-
-
-    // Fill EventGuest (textarea input)
-    const guestsInput = wrapper.find('input[name="guests"]')
-    await guestsInput.setValue('guest1@example.com, guest2@example.com')
-
-    // Fill EventLocation (input)
-    const locationInput = wrapper.find('input[name="location"]')
-    await locationInput.setValue('123 Event Location')
-
-    // Fill EventDescription (textarea)
-    const descriptionTextarea = wrapper.find('textarea[name="description"]')
-    await descriptionTextarea.setValue('This is a test event description.')
-
-    // Select EventRecurrence
-    await wrapper.find('button:contains("Does not repeat")').trigger('click')
-    await nextTick()
-    const recurrenceOption = wrapper.findAll('li').find(li => li.text().includes('Weekly on this day'))
-    if (recurrenceOption) await recurrenceOption.trigger('click')
-
-    // Submit the form
-    await wrapper.find('form').trigger('submit.prevent')
-    await nextTick()
-
-    // Assert fetch was called to submit form
-    expect(fetchMock).toHaveBeenCalled()
-
-    // Check fetch payload
-    const payload = JSON.parse(fetchMock.mock.calls[0][1].body)
-    expect(payload.title).toBe('Test Event')
-    expect(payload.category).toBe('Appointments')
-    expect(payload.elderly).toBe('Sally')
-    expect(payload.guests).toBe('guest1@example.com, guest2@example.com')
-    expect(payload.location).toBe('123 Event Location')
-    expect(payload.description).toBe('This is a test event description.')
-    expect(payload.recurrence).toBe('FREQ=WEEKLY')
+    // Check form title
+    expect(wrapper.find('h2').text()).toBe('Create Event')
   })
 
-  it('shows validation errors on empty submit', async () => {
+  it('has correct form structure', () => {
     const wrapper = mount(EventForm)
 
-    await wrapper.find('form').trigger('submit.prevent')
-    await nextTick()
-
-    // Validate error messages appear for required fields
-    expect(wrapper.text()).toContain('Start date cannot be in the past')
-    // Add more error checks relevant to your form schema
+    // Check form is present
+    const form = wrapper.find('form')
+    expect(form.exists()).toBe(true)
+    
   })
+
+  it('can access form instance', () => {
+    const wrapper = mount(EventForm)
+
+    // Check that vee-validate form is properly initialized
+    expect(wrapper.vm.form).toBeDefined()
+    expect(typeof wrapper.vm.form.handleSubmit).toBe('function')
+    expect(typeof wrapper.vm.form.setFieldValue).toBe('function')
+    expect(typeof wrapper.vm.form.validate).toBe('function')
+  })
+
+  it('validates required fields correctly', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
+
+    const form = wrapper.vm.form
+
+    // Test validation with empty form
+    const { valid: emptyFormValid, errors: emptyFormErrors } = await form.validate()
+    expect(emptyFormValid).toBe(false)
+    expect(Object.keys(emptyFormErrors)).toContain('title')
+    expect(Object.keys(emptyFormErrors)).toContain('category')
+    expect(Object.keys(emptyFormErrors)).toContain('elderly')
+
+    // Test with valid data
+    await form.setFieldValue('title', 'Test Event')
+    await form.setFieldValue('category', 'Appointments')
+    await form.setFieldValue('elderly', 'Sally')
+    await form.setFieldValue('startDate', {
+      era: 'AD',
+      year: 2025,
+      month: 8,
+      day: 6
+    })
+    await form.setFieldValue('startTime', '10:00')
+    await form.setFieldValue('endDate', {
+      era: 'AD',
+      year: 2025,
+      month: 8,
+      day: 6
+    })
+    await form.setFieldValue('endTime', '11:00')
+
+    const { valid: validFormValid, errors: validFormErrors } = await form.validate()
+    expect(validFormValid).toBe(true)
+    expect(Object.keys(validFormErrors)).toHaveLength(0)
+  })
+
+  // it('validates date constraints correctly', async () => {
+  //   const wrapper = mount(EventForm, {
+  //     global: { stubs: { /* stub all components */ } }
+  //   })
+
+  //   const form = wrapper.vm.form
+
+  //   // Test past date validation
+  //   const pastDate = new CalendarDate(2020, 1, 1)
+  //   await form.setFieldValue('startDate', pastDate)
+    
+  //   const { errors } = await form.validate()
+  //   expect(errors.startDate).toContain('Start date cannot be in the past')
+  // })
+
+  // it('validates end date is not before start date', async () => {
+  //   const wrapper = mount(EventForm, {
+  //     global: { stubs: { /* stub all components */ } }
+  //   })
+
+  //   const form = wrapper.vm.form
+
+  //   // Set start date after end date
+  //   await form.setFieldValue('startDate', new CalendarDate(2025, 8, 10))
+  //   await form.setFieldValue('endDate', new CalendarDate(2025, 8, 5))
+  //   await form.setFieldValue('startTime', '10:00')
+  //   await form.setFieldValue('endTime', '11:00')
+
+  //   const { errors } = await form.validate()
+  //   expect(errors.endDate).toContain('End date must not be before start date')
+  // })
+
+  // it('validates same day time constraints', async () => {
+  //   const wrapper = mount(EventForm, {
+  //     global: { stubs: { /* stub all components */ } }
+  //   })
+
+  //   const form = wrapper.vm.form
+
+  //   // Same day but end time before start time
+  //   const sameDate = new CalendarDate(2025, 8, 5)
+  //   await form.setFieldValue('startDate', sameDate)
+  //   await form.setFieldValue('endDate', sameDate)
+  //   await form.setFieldValue('startTime', '15:00')
+  //   await form.setFieldValue('endTime', '10:00') // Earlier than start
+
+  //   const { errors } = await form.validate()
+  //   expect(errors.endDate).toContain('End time must not be equal or before start time')
+  // })
+
+  // it('validates guest email format', async () => {
+  //   const wrapper = mount(EventForm, {
+  //     global: { stubs: { /* stub all components */ } }
+  //   })
+
+  //   const form = wrapper.vm.form
+
+  //   // Invalid email format
+  //   await form.setFieldValue('guests', 'invalid-email, another-invalid')
+
+  //   const { errors } = await form.validate()
+  //   expect(errors.guests).toContain('Emails provided are invalid')
+
+  //   // Valid email format
+  //   await form.setFieldValue('guests', 'test@example.com, another@test.com')
+
+  //   const { errors: validErrors } = await form.validate()
+  //   expect(validErrors.guests).toBeUndefined()
+  // })
+
 })

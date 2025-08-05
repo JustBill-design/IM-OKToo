@@ -37,7 +37,7 @@ import {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">     
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="recurrence-trigger">
                     <SelectValue placeholder="Does not repeat" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">
