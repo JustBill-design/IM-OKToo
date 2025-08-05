@@ -29,7 +29,7 @@ import {
         <FormItem>
         <FormControl>
             <Select class="w-[280px]" v-bind="componentField">     
-                <SelectTrigger class="w-[180px]">
+                <SelectTrigger class="w-[180px]" data-testid="elderly-trigger">
                 <SelectValue placeholder="Select elderly" />
                 </SelectTrigger>
                 <SelectContent class="max-h-60">

@@ -70,6 +70,7 @@ const timeOptions = computed(() => {
                     <PopoverTrigger as-child>
                     <Button
                         variant="outline"
+                        data-testid="start-trigger-calendar"
                         :class="cn(
                         'w-[280px] justify-start text-left font-normal',
                         !componentField.modelValue && 'text-muted-foreground',
@@ -83,6 +84,7 @@ const timeOptions = computed(() => {
                     <Calendar 
                         :modelValue="componentField.modelValue" 
                         :min-value="today(getLocalTimeZone())"
+                        data-testid="start-calendar"
                         initial-focus 
                         @update:modelValue="date => {componentField.onChange(date); startPopoverOpen=false}"/>
                     </PopoverContent>
@@ -132,6 +134,7 @@ const timeOptions = computed(() => {
                     <PopoverTrigger as-child>
                     <Button
                         variant="outline"
+                        data-testid="end-trigger-calendar"
                         :class="cn(
                         'w-[280px] justify-start text-left font-normal',
                         !componentField.modelValue && 'text-muted-foreground',
@@ -145,6 +148,7 @@ const timeOptions = computed(() => {
                     <Calendar 
                         :modelValue="componentField.modelValue" 
                         :min-value="today(getLocalTimeZone())"
+                        data-testid="end-calendar"
                         initial-focus
                         @update:modelValue="date => {componentField.onChange(date); endPopoverOpen=false}"/>
                     </PopoverContent>
