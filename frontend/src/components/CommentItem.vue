@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
-import type { Comment } from '../types/forum';
+import type { Comment } from '@/types/forum';
 
 const props = defineProps<{
   comment: Comment;

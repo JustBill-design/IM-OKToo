@@ -2,21 +2,31 @@ import request from 'supertest'
 import express from 'express'
 import postsRouter from '../../routes/posts'
 import mysql from 'mysql2/promise'
+import getConnection from '../db'
 
-jest.mock('mysql2/promise')
-const mockMysql = mysql as jest.Mocked<typeof mysql>
+
+jest.mock('../db', () => {
+  return jest.fn().mockResolvedValue({
+    query: jest.fn(),
+  })
+})
+
+
+const mockGetConnection = getConnection as jest.MockedFunction<typeof getConnection>
+
 const app = express()
 app.use(express.json())
 app.use('/posts', postsRouter)
+
 describe('Posts API for the database', () => {
-  let mockConnection: any
+  let mockDb: any
 
   beforeEach(() => {
-    mockConnection = {
+    mockDb = {
       query: jest.fn(),
-      end: jest.fn()
+      // No more end() method since we use pools
     }
-    mockMysql.createConnection = jest.fn().mockResolvedValue(mockConnection)
+    mockGetConnection.mockResolvedValue(mockDb)
   })
   
   afterEach(() => {
@@ -35,9 +45,8 @@ describe('Posts API for the database', () => {
             likes_count: 99,
             comments_count: 2,
             created_at: '2025-07-19T03:22:47.000Z',
-            username: 'yeye',
-            name: 'General',
-            comment_id: 2
+            post_author: 'yeye', // changed from username to post_author
+            category_name: 'General', // changed from name to category_name
           },
           {
             post_id: 2,
@@ -47,15 +56,14 @@ describe('Posts API for the database', () => {
             likes_count: 30,
             comments_count: 1,
             created_at: '2025-07-19T03:22:47.000Z',
-            username: 'dora',
-            name: 'Anxiety',
-            comment_id: 3
+            post_author: 'dora', 
+            category_name: 'Anxiety', 
           }
         ],
         []
       ]
 
-      mockConnection.query.mockResolvedValue(mockDbResponse)
+      mockDb.query.mockResolvedValue(mockDbResponse)
 
       const response = await request(app)
         .get('/posts')
@@ -70,14 +78,14 @@ describe('Posts API for the database', () => {
         likes_count: expect.any(Number),
         comments_count: expect.any(Number),
         created_at: expect.any(String),
-        username: expect.any(String),
-        name: expect.any(String)
+        post_author: expect.any(String), 
+        category_name: expect.any(String)
       })
-      expect(mockConnection.end).toHaveBeenCalledTimes(1)
+      // remove the .end() expectation since we don't call it anymore
     })
 
     it('handle database connection', async () => {
-      mockConnection.query.mockRejectedValue(new Error('Connection failed'))
+      mockDb.query.mockRejectedValue(new Error('Connection failed'))
       
       const response = await request(app)
         .get('/posts')
@@ -87,7 +95,7 @@ describe('Posts API for the database', () => {
     })
 
     it('shld handle missing table errors', async () => {
-      mockConnection.query.mockRejectedValue(new Error("Table 'Posts' dont exist"))
+      mockDb.query.mockRejectedValue(new Error("Table 'Posts' dont exist"))
 
       const response = await request(app)
         .get('/posts')
@@ -97,7 +105,7 @@ describe('Posts API for the database', () => {
     })
 
     it('empty when no posts exist', async () => {
-      mockConnection.query.mockResolvedValue([[], []])
+      mockDb.query.mockResolvedValue([[], []])
       const response = await request(app)
         .get('/posts')
         .expect(200)
@@ -108,21 +116,13 @@ describe('Posts API for the database', () => {
   })
 
   describe('Database schema validation',() => {
-    /*
     it('shld have proper join statement', async () => {
       const expectedQuery = expect.stringContaining('Posts POST')
-      mockConnection.query.mockResolvedValue([[], []])
+      mockDb.query.mockResolvedValue([[], []])
 
       await request(app).get('/posts')
 
-      expect(mockConnection.query).toHaveBeenCalledWith(expectedQuery)
-    })
-    */
-    it('db query when get post', async () => {
-      mockConnection.query.mockResolvedValue([[], []])
-      await request(app).get('/posts')
-      expect(mockConnection.query).toHaveBeenCalled()
-      expect(mockConnection.end).toHaveBeenCalled()
+      expect(mockDb.query).toHaveBeenCalledWith(expectedQuery)
     })
   })
 })

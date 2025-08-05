@@ -1,21 +1,21 @@
 import mysql from 'mysql2/promise';
-import { Connector, IpAddressTypes } from '@google-cloud/cloud-sql-connector';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_NAME:', process.env.DB_NAME);
+
 const db = async () => {
-  const connector = new Connector();
-  const clientOpts = await connector.getOptions({
-    instanceConnectionName: process.env.INSTANCE_CONNECTION_NAME!,
-    ipType: IpAddressTypes.PUBLIC
-  });
+  console.log('Cloud SQL Proxy');
   
   return mysql.createPool({
-    ...clientOpts,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    host: '127.0.0.1',
+    port:3307,
+    user:process.env.DB_USER,
+    password:process.env.DB_PASS,
     database: process.env.DB_NAME,
-    connectTimeout: 30000,
+    connectionLimit: 10
   });
 };
 
