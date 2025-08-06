@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import EventForm from '../EventForm.vue'
 import { nextTick } from 'vue'
-import { CalendarDate } from '@internationalized/date'
+import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 
 describe('EventForm.vue component existence test', () => {
   let fetchMock: any
@@ -149,19 +149,9 @@ describe('EventForm.vue component existence test', () => {
     await form.setFieldValue('title', 'Test Event')
     await form.setFieldValue('category', 'Appointments')
     await form.setFieldValue('elderly', 'Sally')
-    await form.setFieldValue('startDate', {
-      era: 'AD',
-      year: 2025,
-      month: 8,
-      day: 6
-    })
+    await form.setFieldValue('startDate', today(getLocalTimeZone()))
     await form.setFieldValue('startTime', '10:00')
-    await form.setFieldValue('endDate', {
-      era: 'AD',
-      year: 2025,
-      month: 8,
-      day: 6
-    })
+    await form.setFieldValue('endDate', today(getLocalTimeZone()))
     await form.setFieldValue('endTime', '11:00')
 
     const { valid: validFormValid, errors: validFormErrors } = await form.validate()
@@ -169,74 +159,196 @@ describe('EventForm.vue component existence test', () => {
     expect(Object.keys(validFormErrors)).toHaveLength(0)
   })
 
-  // it('validates date constraints correctly', async () => {
-  //   const wrapper = mount(EventForm, {
-  //     global: { stubs: { /* stub all components */ } }
-  //   })
+  it('validates date constraints before 2025', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
 
-  //   const form = wrapper.vm.form
+    const form = wrapper.vm.form
 
-  //   // Test past date validation
-  //   const pastDate = new CalendarDate(2020, 1, 1)
-  //   await form.setFieldValue('startDate', pastDate)
+    // Test past date validation
+    const pastDate = new CalendarDate(2020, 1, 1)
+    await form.setFieldValue('startDate', pastDate)
     
-  //   const { errors } = await form.validate()
-  //   expect(errors.startDate).toContain('Start date cannot be in the past')
-  // })
+    const { errors } = await form.validate()
+    expect(errors.startDate).toContain('Number must be greater than or equal to 2025')
+  })
 
-  // it('validates end date is not before start date', async () => {
-  //   const wrapper = mount(EventForm, {
-  //     global: { stubs: { /* stub all components */ } }
-  //   })
+  it('validates date constraints before today date (for start date)', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
 
-  //   const form = wrapper.vm.form
+    const form = wrapper.vm.form
 
-  //   // Set start date after end date
-  //   await form.setFieldValue('startDate', new CalendarDate(2025, 8, 10))
-  //   await form.setFieldValue('endDate', new CalendarDate(2025, 8, 5))
-  //   await form.setFieldValue('startTime', '10:00')
-  //   await form.setFieldValue('endTime', '11:00')
+    // Test past date validation
+    const pastDate = new CalendarDate(2025, 8, 5)
+    await form.setFieldValue('startDate', pastDate)
+    await form.setFieldValue('endDate', pastDate)
 
-  //   const { errors } = await form.validate()
-  //   expect(errors.endDate).toContain('End date must not be before start date')
-  // })
+    const { errors } = await form.validate()
+    expect(errors.startDate).toContain('Start date cannot be in the past')
+    expect(errors.endDate).toContain('End date cannot be in the past')
+  })
 
-  // it('validates same day time constraints', async () => {
-  //   const wrapper = mount(EventForm, {
-  //     global: { stubs: { /* stub all components */ } }
-  //   })
+  it('validates date constraints where end date is earlier than start date', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
 
-  //   const form = wrapper.vm.form
+    const form = wrapper.vm.form
 
-  //   // Same day but end time before start time
-  //   const sameDate = new CalendarDate(2025, 8, 5)
-  //   await form.setFieldValue('startDate', sameDate)
-  //   await form.setFieldValue('endDate', sameDate)
-  //   await form.setFieldValue('startTime', '15:00')
-  //   await form.setFieldValue('endTime', '10:00') // Earlier than start
+    await form.setFieldValue('title', 'Test Event')
+    await form.setFieldValue('category', 'Appointments')
+    await form.setFieldValue('elderly', 'Sally')
 
-  //   const { errors } = await form.validate()
-  //   expect(errors.endDate).toContain('End time must not be equal or before start time')
-  // })
+    const startDate = new CalendarDate(2025, 12, 25)
+    await form.setFieldValue('startDate', startDate)
 
-  // it('validates guest email format', async () => {
-  //   const wrapper = mount(EventForm, {
-  //     global: { stubs: { /* stub all components */ } }
-  //   })
+    await form.setFieldValue('startTime', '10:00')
 
-  //   const form = wrapper.vm.form
+    const endDate = today(getLocalTimeZone())
+    await form.setFieldValue('endDate', endDate)
+    
+    await form.setFieldValue('endTime', '11:00')
 
-  //   // Invalid email format
-  //   await form.setFieldValue('guests', 'invalid-email, another-invalid')
+    const { errors } = await form.validate()
+    expect(errors.endDate).toContain('End date must not be before start date')
+  })
 
-  //   const { errors } = await form.validate()
-  //   expect(errors.guests).toContain('Emails provided are invalid')
+  it('validates date constraints where end time is earlier than start time on the same day', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
 
-  //   // Valid email format
-  //   await form.setFieldValue('guests', 'test@example.com, another@test.com')
+    const form = wrapper.vm.form
 
-  //   const { errors: validErrors } = await form.validate()
-  //   expect(validErrors.guests).toBeUndefined()
-  // })
+    await form.setFieldValue('title', 'Test Event')
+    await form.setFieldValue('category', 'Appointments')
+    await form.setFieldValue('elderly', 'Sally')
+
+    const startDate = today(getLocalTimeZone())
+    await form.setFieldValue('startDate', startDate)
+
+    await form.setFieldValue('startTime', '10:00')
+
+    const endDate = today(getLocalTimeZone())
+    await form.setFieldValue('endDate', endDate)
+    
+    await form.setFieldValue('endTime', '09:00')
+
+    const { errors } = await form.validate()
+    expect(errors.endDate).toContain('End time must not be equal or before start time')
+  })
+
+  it('validates email constraints', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
+
+    const form = wrapper.vm.form
+
+    await form.setFieldValue('title', 'Test Event')
+    await form.setFieldValue('category', 'Appointments')
+    await form.setFieldValue('elderly', 'Sally')
+    await form.setFieldValue('startDate', today(getLocalTimeZone()))
+    await form.setFieldValue('startTime', '10:00')
+    await form.setFieldValue('endDate', today(getLocalTimeZone()))
+    await form.setFieldValue('endTime', '11:00')
+    await form.setFieldValue('guests', 'abc')
+
+    const { errors } = await form.validate()
+    expect(errors.guests).toContain('Emails provided are invalid')
+  })
+
+  it('validates all fields correctly', async () => {
+    const wrapper = mount(EventForm, {
+      global: {
+        stubs: {
+          EventTitle: true,
+          EventCategory: true,
+          EventElderly: true,
+          EventDateTimeRange: true,
+          EventGuest: true,
+          EventLocation: true,
+          EventDescription: true,
+          EventRecurrence: true
+        }
+      }
+    })
+
+    const form = wrapper.vm.form
+
+    // Test with valid data
+    await form.setFieldValue('title', 'Test Event')
+    await form.setFieldValue('category', 'Appointments')
+    await form.setFieldValue('elderly', 'Sally')
+    await form.setFieldValue('startDate', today(getLocalTimeZone()))
+    await form.setFieldValue('startTime', '10:00')
+    await form.setFieldValue('endDate', today(getLocalTimeZone()))
+    await form.setFieldValue('endTime', '11:00')
+    await form.setFieldValue('guests', 'abd@testing.com')
+    await form.setFieldValue('location', 'SUTD')
+    await form.setFieldValue('description', 'this is for testing purposes!')
+
+    const { valid: validFormValid, errors: validFormErrors } = await form.validate()
+    expect(validFormValid).toBe(true)
+    expect(Object.keys(validFormErrors)).toHaveLength(0)
+  })
 
 })

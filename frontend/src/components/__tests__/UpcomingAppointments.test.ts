@@ -83,6 +83,7 @@ describe('UpcomingAppointments.vue', () => {
     
     const wrapper = mount(Appointments)
 
+    await new Promise(resolve => setTimeout(resolve, 0))
     await nextTick()
     await nextTick()
 
