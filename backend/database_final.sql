@@ -15,6 +15,21 @@ CREATE TABLE Users (
     is_admin BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE Elderly (
+    fullname VARCHAR(50) PRIMARY KEY,
+    age INT NOT NULL,
+    medical_condition VARCHAR(50),
+    allergies VARCHAR(50)
+);
+
+CREATE TABLE Assignment (
+    caretaker_name VARCHAR(50) NOT NULL,
+    elderly_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (caretaker_name, elderly_name),
+    FOREIGN KEY (caretaker_name) REFERENCES Users (username),
+    FOREIGN KEY (elderly_name) REFERENCES Elderly (fullname)
+);
+
 CREATE TABLE Categories (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL

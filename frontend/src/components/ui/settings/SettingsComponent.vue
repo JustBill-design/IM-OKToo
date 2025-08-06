@@ -33,7 +33,7 @@
       <h2 class="section-label">Manage Elderly</h2>
       <p class="section-description">Add and manage elderly under your care.</p>
     <section class="elderly-management">
-      <ManageElderly v-model="elderlies"/>
+      <ManageElderly username=current_user />
     </section>
     </div>
 
@@ -61,8 +61,10 @@ import ManageElderly from './ManageElderly.vue'
 // const showEmailForm = ref(false)
 // const showPasswordForm = ref(false)
 
-const username = ref('')
-const email = ref('')
+// // IDK IF WE NEED THIS
+const current_user = ref('');
+// const email = ref('')
+current_user.value = localStorage.getItem('username');
 
 const usernameMessage = ref('')
 // const emailMessage = ref('')
