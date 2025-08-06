@@ -20,9 +20,9 @@ onMounted(() => {
     loggedInUsername.value = getUsernameFromLocalStorage();
 });
 
-// ========================================
+
 // Chatbot Event Handlers - DELEGATING TO TASKLIST
-// ========================================
+
 
 // Handle 'add-task' event from Chatbot
 async function handleAddTask(taskDescription: string) {
@@ -52,19 +52,6 @@ async function handleRemoveTaskByName(taskName: string) {
   }
 }
 
-// Handle 'clear-all-tasks' event from Chatbot
-async function handleClearAllTasks() {
-  if (!loggedInUsername.value) {
-      alert('Please log in to clear tasks.');
-      return;
-  }
-  if (taskListRef.value) {
-    // Call the clearAllTasks method exposed by TaskList.vue
-    await taskListRef.value.clearAllTasks();
-  } else {
-    console.error("TaskList component ref is null. Cannot clear all tasks.");
-  }
-}
 </script>
 
 <template>
@@ -83,7 +70,7 @@ async function handleClearAllTasks() {
         <ChatbotWithSpeech
           @add-task="handleAddTask"
           @remove-task="handleRemoveTaskByName"
-          @clear-all-tasks="handleClearAllTasks"
+          
         />
       </div>
 

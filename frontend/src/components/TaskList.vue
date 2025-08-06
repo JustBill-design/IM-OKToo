@@ -6,7 +6,6 @@ import { Trash } from 'lucide-vue-next'
 
 const emit = defineEmits<{
   (e: 'add-task', task: string): void
-  (e: 'toggle-task', idx: number): void
   (e: 'remove-task', idx: number): void
 }>()
 
@@ -55,16 +54,9 @@ async function addTask(descriptionFromParent?: string) {
     desc = newTask.value.trim();
   }
 
-  // OPTIMISTIC UPDATE - Update UI immediately
-  const tempId = -Date.now(); // Negative temp ID to avoid conflicts
-  const optimisticTask = {
-    id: tempId,
-    text: desc,
-    done: false
-  };
-  
-  tasks.value.unshift(optimisticTask);
-  newTask.value = '';
+  if (!desc) {
+    return;
+  }
 
   try {
     const res = await fetch('/api/tasks', {
@@ -76,53 +68,15 @@ async function addTask(descriptionFromParent?: string) {
       }),
     })
     if (!res.ok) throw new Error('Failed to add task')
-    const newEntry = await res.json()
+    
 
-    // Replace optimistic task with real data
-    const taskIndex = tasks.value.findIndex(t => t.id === tempId);
-    if (taskIndex !== -1) {
-      tasks.value[taskIndex] = {
-        id: newEntry.task_id,
-        text: newEntry.task_description,
-        done: newEntry.completed
-      };
-    }
+    // After a successful API call, we simply re-fetch the tasks to update the UI
+    await fetchTasks();
+    newTask.value = '';
+    
   } catch (err) {
     console.error('Failed to add task:', err);
-    // Remove optimistic task on failure
-    tasks.value = tasks.value.filter(t => t.id !== tempId);
     alert('Failed to add task. Please try again.');
-  }
-}
-//     tasks.value.unshift({
-//       id: newEntry.task_id,
-//       text: newEntry.task_description,
-//       done: newEntry.completed
-//     })
-//     newTask.value = ''
-//   } catch (err) {
-//     console.error('Failed to add task:', err)
-//   }
-// }
-
-async function toggleTask(idx: number) {
-    const currentUser = getCurrentUsername();
-    if (!currentUser) {
-        alert('Please log in to toggle tasks.');
-        return;
-    }
-  const task = tasks.value[idx]
-  try {
-    const res = await fetch(`/api/tasks/${task.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: !task.done }),
-    })
-    if (!res.ok) throw new Error('Failed to toggle task')
-    task.done = !task.done
-    emit('toggle-task', idx)
-  } catch (err) {
-    console.error('Failed to toggle task:', err)
   }
 }
 
@@ -183,37 +137,6 @@ async function removeTaskByName(taskName: string) {
     }
 }
 
-async function clearAllTasks() {
-    const currentUser = getCurrentUsername();
-    if (!currentUser) {
-        alert('Please log in to clear tasks.');
-        return;
-    }
-
-    if (tasks.value.length === 0) {
-        alert('No tasks to clear.');
-        return;
-    }
-
-
-    const tasksSnapshot = [...tasks.value]; // Work on a copy to avoid mutation issues during loop
-    for (const task of tasksSnapshot) {
-        try {
-            const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
-            if (!res.ok) {
-                const errorText = await res.text();
-                // Log and potentially alert, but continue trying to delete others
-                console.error(`Failed to delete task ID ${task.id}: ${errorText}`);
-            }
-        } catch (err) {
-            console.error(`Error deleting task ID ${task.id}:`, err);
-        }
-    }
-    // After attempting to delete all, re-fetch to synchronize UI with DB
-    await fetchTasks();
-    alert('All tasks cleared!');
-  }
-
 onMounted(() => {
   USERNAME.value = getCurrentUsername(); // Set the ref value on mount
   fetchTasks(); // Initial fetch
@@ -222,17 +145,13 @@ onMounted(() => {
 // Expose the methods 
 defineExpose({
   addTask,           // Allows parent to call taskListRef.value.addTask()
-  toggleTask,        // Allows parent to call taskListRef.value.toggleTask()
-  removeTask,        // Allows parent to call taskListRef.value.removeTask()
+  removeTask,        
   removeTaskByName,
-  clearAllTasks,     
   fetchTasks         
 })
 </script>
 
-<!-- ========================================
-  TEMPLATE - UI STRUCTURE
-======================================== -->
+
 <template>
   <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6 flex flex-col gap-4 h-[30rem] transform transition-all duration-300 hover:shadow-xl">
     <!-- Header -->
@@ -248,19 +167,11 @@ defineExpose({
     <ul class="mt-2 flex-1 overflow-y-auto space-y-2">
       <li v-for="(task, idx) in tasks" :key="task.id" class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 group animate-task-in transform transition-all duration-300 hover:scale-102">
         <!-- Checkbox -->
-        <input 
-          type="checkbox" 
-          :checked="task.done" 
-          @change="toggleTask(idx)" 
-          class="accent-primary w-5 h-5 rounded border-gray-300 focus:ring-2 focus:ring-primary transition-all duration-300 transform hover:scale-110" 
-        />
+        
         
         <!-- Task Text -->
-        <span 
-          :class="{ 'line-through text-muted-foreground': task.done, 'text-gray-900': !task.done }" 
-          class="flex-1 text-base transition-all duration-300"
-        >
-          {{ task.text }}
+        <span class="flex-1 text-base transition-all duration-300">
+        {{ task.text }}
         </span>
         
         <!-- Delete Button -->

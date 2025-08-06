@@ -13,7 +13,6 @@ interface ChatMessage {
 const emit = defineEmits<{ 
   (e: 'add-task', task: string): void
   (e: 'remove-task', taskName: string): void
-  (e: 'clear-all-tasks'): void
 }>()
 
 const chat = ref<ChatMessage[]>([
@@ -33,7 +32,7 @@ function scrollToBottom() {
   })
 }
 
-// Add a function to call the backend Claude endpoint
+// call the backend claude endpoint
 async function getClaudeReply(userText: string): Promise<string> {
   try {
     const response = await fetch('http://localhost:3001/claude', {
@@ -42,20 +41,20 @@ async function getClaudeReply(userText: string): Promise<string> {
       body: JSON.stringify({ message: userText })
     });
     const data = await response.json();
-    console.log("Claude API response received in frontend:", data); // ADD THIS LINE
+    console.log("Claude API response received in frontend:", data); 
 
     // Extract the text content from the Claude response structure
     // It's nested under 'content' array, then the first element, then 'text' property
     if (data && typeof data.reply === 'string') { // Check if 'data' has a 'reply' property and it's a string
       return data.reply; // Return the string that contains the JSON action
     } else {
-      // Keep the console.log below for additional debugging if this still fails
+      
       console.error("Failed to parse Claude response from backend (expected 'reply' property):", data);
       return 'Sorry, I could not parse the response from Claude.';
     }
 
   } catch (err) {
-    console.error("Error fetching Claude reply:", err); // Log the error for debugging
+    console.error("Error fetching Claude reply:", err); 
     return 'Sorry, there was an error connecting to the AI.';
   }
 }
@@ -83,11 +82,6 @@ async function sendMessage(text: string) {
     } else if (parsed.action === 'remove_task' && parsed.task) {
       emit('remove-task', parsed.task);
       chat.value.push({ sender: 'bot', text: `Task removed: ${parsed.task}` });
-      scrollToBottom();
-      return;
-    } else if (parsed.action === 'clear_all_tasks') {
-      emit('clear-all-tasks');
-      chat.value.push({ sender: 'bot', text: `All tasks have been cleared!` });
       scrollToBottom();
       return;
     }
