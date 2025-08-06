@@ -32,7 +32,7 @@ const username = ref(props.initialUsername)
 const showForm = ref(false)
 const message = ref('')
 const messageType = ref('')
-const isLoading = ref(false)
+let isLoading = ref(false)
 
 watch(() => props.initialUsername, (newVal) => {
   username.value = newVal

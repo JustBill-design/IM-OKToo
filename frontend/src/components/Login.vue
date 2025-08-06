@@ -42,7 +42,7 @@
                     </div>
 
                     <!-- Login Button -->
-                    <button type="submit" class="login-button" :disabled="isLoading" @click="basicValidation()">
+                    <button type="submit" class="login-button" :disabled="isLoading">
                         {{ isLoading ? 'Logging in...' : 'Log in' }}
                     </button>
 
@@ -65,7 +65,7 @@
                 <div class="form-footer">
                     <a href="#" class="forgot-password">Lost Password?</a>
                     <div class="register-link">
-                        New to IM-OKToo? <a href="#" class="register-button">Register</a>
+                        New to IM-OKToo? <a href="/register" class="register-button">Register</a>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@ export default {
 
                 if (data.success) {
                     console.log("user exists and has logged in!");
-                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('username', loginForm.username);
                     localStorage.setItem('isAuthenticated', 'true');
 
                     await router.replace('/home')
@@ -180,7 +180,6 @@ export default {
         }
 
         const initializeGoogle = async () => {
-            console.log("Google Client ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID)
             console.log('Current origin:', window.location.origin)
             console.log('Current URL:', window.location.href)
 
@@ -195,7 +194,6 @@ export default {
                     })
                     console.log('Google Auth initialized')
                     isGoogleReady.value = true
-
                     // Wait for DOM to update, then render button
                     await nextTick()
                     renderGoogleButton()
@@ -211,18 +209,36 @@ export default {
         const handleGoogleResponse = async (response) => {
             try {
                 // Decode the JWT token to get user info
-                const userInfo = decodeJWT(response.credential)
-                // console.log('Google user info:', userInfo)
+                const user_id = decodeJWT(response.credential)
 
-                // Store auth info
-                localStorage.setItem('isAuthenticated', 'true')
-                localStorage.setItem('username', userInfo.email)
-                localStorage.setItem('googleAuth', 'true')
+                const checkResponse = await fetch("http://localhost:3001/check-google-user", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: user_id.email,
+                        google_id: user_id.sub
+                    })
+                })
 
-                // alert(`Welcome ${userInfo.name}!\nEmail: ${userInfo.email}`)
+                const checkData = await checkResponse.json()
 
-                // Redirect to home page after successful Google login
-                await router.replace('/home')
+                if (checkData.exists) {
+                    localStorage.setItem('isAuthenticated', 'true')
+                    localStorage.setItem('username', checkData.username)
+                    localStorage.setItem('email', user_id.email)
+                    localStorage.setItem('googleAuth', 'true')
+
+                    await fetch('http://localhost:3001/update-last-login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: checkData.username })
+                    })
+
+                    await router.replace('/home')
+                } else {
+                    const googleData = encodeURIComponent(JSON.stringify(user_id))
+                    await router.push(`/register?googleData=${googleData}`)
+                }
 
             } catch (error) {
                 console.error('Error handling Google response:', error)

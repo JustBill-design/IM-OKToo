@@ -24,7 +24,7 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
   <div class="app-layout">
     <!-- Sidebar - only show when NOT on login page -->
     <SideBar 
-      v-if="route.name !== 'Login'"
+      v-if="route.name !== 'Login' && route.name !== 'Registration'"
       @menu-item-selected="handleMenuSelection" 
       @sidebar-state-changed="handleSidebarStateChange" 
     />
@@ -37,13 +37,6 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
         'main-content-full': route.name === 'Login'
       }"
     >
-      <div v-if="$route.path === '/resources'">
-        <div style="margin-top: 1rem;">
-          <router-link to="/resources">
-            <Button>Go to Resources</Button>
-          </router-link>
-        </div>
-      </div>
       <!-- Router View for all pages -->
       <router-view />
     </div>
@@ -61,7 +54,6 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
   margin-left: 280px;
   /* Expanded sidebar width */
   padding: 1rem;
-  overflow-y: auto;
   transition: margin-left 0.3s ease;
 }
 

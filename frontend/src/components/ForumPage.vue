@@ -4,6 +4,13 @@
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-2">IM-OKToo Forum</h1>
         <p class="text-gray-600">Connect and share with our community</p>
+        <button @click="showAddPostModal = true"
+          class="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Create New Post
+        </button>
       </div>
 
       <div v-if="loading" class="text-center py-12">
@@ -23,7 +30,8 @@
         <div v-if="posts.length === 0" class="text-center py-12 bg-white rounded-lg shadow-sm border">
           <h3 class="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
           <p class="text-gray-500 mb-4">Be the first to start a conversation!</p>
-          <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+          <button @click="showAddPostModal = true"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
             Create First Post
           </button>
         </div>
@@ -35,7 +43,7 @@
               <div class="flex items-center space-x-3">
                 <div
                   class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {{ (post.username || 'U').charAt(0).toUpperCase() }}
+                  {{ (post.username || post.post_author || 'U').charAt(0).toUpperCase() }}
                 </div>
                 <div>
                   <p class="font-medium text-gray-900">{{ post.post_author || 'Anonymous User' }}</p>
@@ -56,12 +64,11 @@
             <transition name="collapse">
               <div v-if="openStates[index]" class="mt-4 text-gray-700">
 
-                <!-- Comments section -->
                 <div v-if="loadingComments[post.post_id]">
                   <p class="text-sm text-gray-400">Loading comments...</p>
                 </div>
                 <div v-else>
-                  <div v-if="comments[post.post_id]?.length > 0" class="space-y-3">
+                  <div v-if="comments[post.post_id]?.length > 0" class="space-y-3 mb-4">
                     <div v-for="(comment, cIndex) in comments[post.post_id]" :key="cIndex"
                       class="border rounded-md p-3 bg-gray-50">
                       <p class="text-sm font-medium text-gray-800">
@@ -75,7 +82,18 @@
                       </p>
                     </div>
                   </div>
-                  <div v-else class="text-sm text-gray-400">No comments yet.</div>
+                  <div v-else class="text-sm text-gray-400 mb-4">No comments yet.</div>
+
+                  <div class="border-t pt-4">
+                    <div class="flex space-x-2">
+                      <input type="text" placeholder="Add a comment..."
+                        class="flex-1 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <button
+                        class="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium">
+                        + Post
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </transition>
@@ -107,11 +125,79 @@
         </div>
       </div>
     </div>
+
+    <!-- Add Post Modal -->
+    <div v-if="showAddPostModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Create New Post</h2>
+            <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="submitPost" class="space-y-6">
+
+            <!-- Category -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <select v-model="newPost.category"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                <option v-for="category in categories" :key="category" :value="category">
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Post Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Post Title</label>
+              <input v-model="newPost.title" type="text" placeholder="What's your post about?"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                required />
+            </div>
+
+            <!-- Post Content -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Content</label>
+              <textarea v-model="newPost.content" rows="6"
+                placeholder="Share your thoughts, experiences, or questions..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                required></textarea>
+              <div class="text-sm text-gray-500 mt-1">
+                {{ newPost.content.length }}/1000 characters
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-4">
+              <button type="button" @click="closeModal"
+                class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                Cancel
+              </button>
+              <button type="submit" :disabled="isSubmitting"
+                class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span v-if="isSubmitting" class="flex items-center justify-center">
+                  <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Creating...
+                </span>
+                <span v-else>Create Post</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ca } from 'zod/v4/locales'
 
 export default {
   setup() {
@@ -121,6 +207,18 @@ export default {
     const openStates = ref<boolean[]>([])
     const comments = ref<Record<number, any[]>>({})
     const loadingComments = ref<Record<number, boolean>>({})
+    const router = useRouter()
+    const categories = ref([])
+
+    // Add Post Modal state
+    const showAddPostModal = ref(false)
+    const newPost = ref({
+      title: '',
+      content: '',
+      category: 'General',
+      author: ''
+    })
+    const isSubmitting = ref(false)
 
     const fetchPosts = async () => {
       try {
@@ -145,7 +243,7 @@ export default {
         try {
           const res = await fetch(`http://localhost:3001/posts/${postId}/comments`)
           const data = await res.json()
-          console.log('Comments data:', data) // Debug log to see the structure
+          console.log('Comments data:', data)
           // Extract the actual comments from the first element of the array
           comments.value[postId] = Array.isArray(data) && Array.isArray(data[0]) ? data[0] : data
         } catch (err) {
@@ -177,8 +275,85 @@ export default {
       })
     }
 
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/posts/categories')
+        const data = await response.json()
+        categories.value = data.map(cat => cat.name)
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
+
+    // Add Post functions
+
+    const closeModal = () => {
+      showAddPostModal.value = false
+      newPost.value = {
+        title: '',
+        content: '',
+        category: 'General',
+        author: ''
+      }
+    }
+
+    const submitPost = async () => {
+      const username = localStorage.getItem("username");
+
+      if (!newPost.value.title || !newPost.value.content) {
+        alert('Please fill in all fields');
+        return;
+      }
+      if (!username || username === 'undefined') {
+        alert('Please Log in before posting!');
+        await router.replace('/');
+        return;
+      }
+
+      isSubmitting.value = true;
+
+      try {
+        const postData = {
+          username: localStorage.getItem('username'),
+          category: newPost.value.category,
+          title: newPost.value.title,
+          content: newPost.value.content
+        };
+
+
+        const response = await fetch('http://localhost:3001/posts/addposts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postData),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+
+        posts.value.unshift(result);
+        openStates.value.unshift(false);
+
+        await fetchPosts();
+
+
+        closeModal();
+        alert('Post created successfully!');
+
+      } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Failed to create post: ' + error.message);
+      } finally {
+        isSubmitting.value = false;
+      }
+    };
+
     onMounted(() => {
       fetchPosts()
+      fetchCategories()
     })
 
     return {
@@ -191,8 +366,14 @@ export default {
       formatDate,
       comments,
       loadingComments,
-      getCommentContent,   
-      getCommentAuthor     
+      getCommentContent,
+      getCommentAuthor,
+      showAddPostModal,
+      newPost,
+      isSubmitting,
+      categories,
+      closeModal,
+      submitPost
     }
   }
 }

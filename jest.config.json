@@ -1,0 +1,16 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/backend/src/tests/**/*.test.{js,ts}"],
+  "testTimeout": 30000,
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/backend/src/$1"
+  },
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", {
+      "tsconfig": "backend/tsconfig.test.json"
+    }]
+  },
+  "setupFilesAfterEnv": ["<rootDir>/backend/src/test/integration-setup.ts"],
+  "testPathIgnorePatterns": ["node_modules", "dist"]
+}

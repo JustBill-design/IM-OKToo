@@ -37,27 +37,27 @@ import {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">     
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="recurrence-trigger">
                     <SelectValue placeholder="Does not repeat" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">
                     <SelectGroup>
-                        <SelectItem value="Does not repeat">
+                        <SelectItem value="FREQ=DAILY;COUNT=1">
                         Does not repeat
                         </SelectItem>
-                        <SelectItem value="Daily">
+                        <SelectItem value="FREQ=DAILY">
                         Daily
                         </SelectItem>
-                        <SelectItem value="Weekly on this day">
+                        <SelectItem value="FREQ=WEEKLY">
                         Weekly on this day
                         </SelectItem>
-                        <SelectItem value="Monthly on this day">
+                        <SelectItem value="FREQ=MONTHLY">
                         Monthly on this day
                         </SelectItem>
-                        <SelectItem value="Every weekday">
+                        <SelectItem value="FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR">
                         Every weekday
                         </SelectItem>
-                        <SelectItem value="Anually on this day">
+                        <SelectItem value="FREQ=YEARLY">
                         Anually on this day
                         </SelectItem>
                     </SelectGroup>

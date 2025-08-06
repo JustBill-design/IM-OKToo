@@ -17,11 +17,11 @@ router.get('/', async (req, res) => {
     POST.created_at,
     POST.username AS post_author,
     CAT.name AS category_name
-FROM POSTS POST
-JOIN USERS U ON POST.username = U.username
-JOIN CATEGORIES CAT ON POST.category_id = CAT.category_id
+FROM Posts POST
+JOIN Users U ON POST.username = U.username
+JOIN Categories CAT ON POST.category_id = CAT.category_id
 ORDER BY POST.created_at DESC;`);
-        await db.end(); // Close the connection
+        // Don't close the pool connection, let it manage itself
         res.json(rows)
     } catch (error) {
         console.error('Database error:', error);
@@ -40,7 +40,5 @@ router.get("/:id/comments", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 })
-
-router.get("/")
 
 export default router
