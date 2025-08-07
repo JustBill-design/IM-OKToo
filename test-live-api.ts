@@ -31,9 +31,9 @@ async function testLiveAPI() {
 
     console.log('\ntest 3 post new stuff');
     const newPost = {
-      title: `api test ${new Date().toISOString()}`,
-      content: 'just testing api stuff dont mind this post lol',
-      username: 'testuser1',
+      title: `need help managing dad's medication schedule pls`,
+      content: 'he keeps forgetting to take his pills and im worried about double dosing anyone have tips for pill organizers',
+      username: 'stressed_caregiver',
       category_id: 1
     };
 
