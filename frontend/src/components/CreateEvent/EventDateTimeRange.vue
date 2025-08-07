@@ -70,6 +70,7 @@ const timeOptions = computed(() => {
                     <PopoverTrigger as-child>
                     <Button
                         variant="outline"
+                        data-testid="start-trigger-calendar"
                         :class="cn(
                         'w-[280px] justify-start text-left font-normal',
                         !componentField.modelValue && 'text-muted-foreground',
@@ -83,6 +84,7 @@ const timeOptions = computed(() => {
                     <Calendar 
                         :modelValue="componentField.modelValue" 
                         :min-value="today(getLocalTimeZone())"
+                        data-testid="start-calendar"
                         initial-focus 
                         @update:modelValue="date => {componentField.onChange(date); startPopoverOpen=false}"/>
                     </PopoverContent>
@@ -99,7 +101,7 @@ const timeOptions = computed(() => {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="startTime-trigger">
                     <SelectValue placeholder="Select a time" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">
@@ -132,6 +134,7 @@ const timeOptions = computed(() => {
                     <PopoverTrigger as-child>
                     <Button
                         variant="outline"
+                        data-testid="end-trigger-calendar"
                         :class="cn(
                         'w-[280px] justify-start text-left font-normal',
                         !componentField.modelValue && 'text-muted-foreground',
@@ -145,6 +148,7 @@ const timeOptions = computed(() => {
                     <Calendar 
                         :modelValue="componentField.modelValue" 
                         :min-value="today(getLocalTimeZone())"
+                        data-testid="end-calendar"
                         initial-focus
                         @update:modelValue="date => {componentField.onChange(date); endPopoverOpen=false}"/>
                     </PopoverContent>
@@ -161,7 +165,7 @@ const timeOptions = computed(() => {
             <FormItem>
             <FormControl>
                 <Select v-bind="componentField">
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-[180px]" data-testid="endTime-trigger">
                     <SelectValue placeholder="Select a time" />
                     </SelectTrigger>
                     <SelectContent class="max-h-60">

@@ -1,22 +1,17 @@
 
 import * as dotenv from 'dotenv';
+import { getTestDbConnection, setupTestDatabase, seedTestData, cleanupTestData } from './cloud-test-setup';
 dotenv.config();
-process.env.NODE_ENV = 'test'
-console.log('wait');
+process.env.NODE_ENV = 'test';
+console.log('cloud db for integration tests');
 console.log('Database:', process.env.DB_NAME);
-console.log('Host: 127.0.0.1:3307');
+console.log('Instance:', process.env.INSTANCE_CONNECTION_NAME);
+beforeAll(async () => {
+  await setupTestDatabase();
+  await seedTestData();
+}, 30000);
 
-const originalConsoleLog = console.log
-console.log = (...args) => {
-  if (args[0]?.includes?.('DB_') || args[0]?.includes?.('Cloud SQL')) {
-    originalConsoleLog(...args);
-  }
-}
-console.error = originalConsoleLog
-export const cleanupTestData = async () => {
-  console.log('Test cleanup');
-}
-
-export const seedTestData = async () => {
-  console.log('seeded');
-}
+afterAll(async () => {
+  await cleanupTestData();
+}, 10000);
+export { cleanupTestData, seedTestData, getTestDbConnection };

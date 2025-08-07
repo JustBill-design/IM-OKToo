@@ -77,7 +77,7 @@ export default {
     <div
       v-for="event in todayEvents"
       :key="event.id"
-      class="w-full max-w-5xl bg-gray-50 rounded-xl p-8 mb-3"
+      class="w-full max-w-5xl bg-gray-50 rounded-xl p-8 mb-3 event-card"
     >
       <p><strong>Title:</strong> {{ event.title }}</p>
       <p><strong>Date and time:</strong> {{ event.start.toLocaleString() }}</p>

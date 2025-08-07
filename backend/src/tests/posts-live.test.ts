@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 app.use('/posts', postsRouter)
 
-describe('Posts API Live Cloud Database Tests', () => {
+describe('Posts API Database Test', () => {
   
   beforeAll(async () => {
     await setupTestDatabase()
@@ -27,7 +27,7 @@ describe('Posts API Live Cloud Database Tests', () => {
   })
   
   describe('GET /posts', () => {
-    it('should return posts', async () => {
+    it('should return posts with correct database schema', async () => {
       const response = await request(app)
         .get('/posts')
         .expect(200)
@@ -36,7 +36,6 @@ describe('Posts API Live Cloud Database Tests', () => {
       
       if (response.body.length > 0) {
         const post = response.body[0]
-        
         expect(post).toHaveProperty('post_id')
         expect(post).toHaveProperty('title')
         expect(post).toHaveProperty('content')
@@ -57,12 +56,10 @@ describe('Posts API Live Cloud Database Tests', () => {
       }
     }, 15000)
 
-    it('handle database connection errors', async () => {
+    it('handle database connection error', async () => {
       const db = await getTestDbConnection()
-
       const response = await request(app)
         .get('/posts')
-      
       expect([200, 500]).toContain(response.status)
       
       if (response.status === 500) {
@@ -90,10 +87,10 @@ describe('Posts API Live Cloud Database Tests', () => {
   })
 
   describe('POST /posts', () => {
-    it('should create a new post in cloud database', async () => {
+    it('should create a new post', async () => {
       const newPost = {
-        title: 'live test post pls ignore',
-        content: 'just testing stuff nothing to see here move along',
+        title: 'live test post dont mind me',
+        content: 'just testing stuff during testing time',
         username: 'testuser1',
         category_id: 1
       }
