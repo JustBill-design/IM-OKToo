@@ -309,4 +309,92 @@ describe('Security & Input Validation Tests', () => {
       expect(successfulResponses).toBeGreaterThan(0)
     })
   })
+
+  // merged from vitest-enhanced-coverage.test.ts                               Additional Edge Cases
+  describe('Request Handling Edge Cases', () => {
+    it('should handle empty request bodies', async () => {
+      const response = await fetch(`${baseUrl}/posts/addposts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      })
+
+      console.log(`vitest empty body status ${response.status}`)
+      expect([400, 422, 500]).toContain(response.status)
+    })
+
+    it('should handle missing content-type', async () => {
+      const response = await fetch(`${baseUrl}/posts/addposts`, {
+        method: 'POST',
+        body: 'some data'
+      })
+
+      console.log(`vitest missing contenttype status ${response.status}`)
+      expect([400, 415, 500]).toContain(response.status)
+    })
+
+    it('should handle very long content', async () => {
+      const longContent = 'x'.repeat(10000)
+      const postData = {
+        title: 'very long post',
+        content: longContent,
+        username: 'test_user',
+        category: 'general',
+        email: 'mymail@sutd.edu.sg'
+      }
+
+      const response = await fetch(`${baseUrl}/posts/addposts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      })
+
+      console.log(`vitest long content status ${response.status}`)
+      expect([200, 201, 400, 413, 500]).toContain(response.status)
+    })
+
+    it('should handle special characters and unicode', async () => {
+      const postData = {
+        title: 'test with 特殊字符 & symbols @#$%',
+        content: 'content with emoji 😊 and unicode ñáéíóú',
+        username: 'test_user_特殊',
+        category: 'general',
+        email: 'mymail@sutd.edu.sg'
+      }
+
+      const response = await fetch(`${baseUrl}/posts/addposts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      })
+
+      console.log(`vitest special chars status ${response.status}`)
+      expect([200, 201, 400, 500]).toContain(response.status)
+    })
+
+    it('should handle concurrent requests', async () => {
+      const requests = Array(5).fill(0).map(() => 
+        fetch(`${baseUrl}/posts`)
+      )
+
+      const responses = await Promise.all(requests)
+      const statuses = responses.map(r => r.status)
+      
+      console.log(`vitest concurrent requests statuses ${statuses.join(', ')}`)
+      statuses.forEach(status => {
+        expect([200, 429, 500]).toContain(status)
+      })
+    })
+
+    it('should handle invalid json in request', async () => {
+      const response = await fetch(`${baseUrl}/claude`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{"message": "invalid json"'
+      })
+
+      console.log(`vitest invalid json status ${response.status}`)
+      expect([400, 422, 500]).toContain(response.status)
+    })
+  })
 })

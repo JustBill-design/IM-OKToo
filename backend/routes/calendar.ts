@@ -16,6 +16,12 @@ router.get('/testing',(req,res) => {
   res.json({ status: 'ok', message: 'calendar endpoint works' });
 })
 
+//  authgooglecalendar for backward compatibility
+router.get('/auth', (req, res) => {
+  // Redirect to the actual Google OAuth endpoint
+  res.redirect('/calendar/authgooglecalendar' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''));
+})
+
 router.get('/all', async (req, res) => {
     const email = req.query.email;
     if (!email){
@@ -77,11 +83,12 @@ router.post('/add', async (req, res) => {
             values.push("FREQ=DAILY;COUNT=1")
         }
 
-        const quotedValues = values.map(v => `'${v}'`);
-
-        const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${quotedValues.join(',')} );`;
+        // Use parameterized query to prevent SQL injection
+        const placeholders = values.map(() => '?').join(',');
+        const query = `INSERT INTO Events ( ${columns.join(',')} ) VALUES ( ${placeholders} )`;
+        
         const db = await getConnection();
-        const [rs] = await db.query(query);
+        const [rs] = await db.query(query, values);  // pass values as parameters
         console.log('Connection successful! Test result:', rs);
         await db.end();
         res.set('Access-Control-Allow-Origin', 'http://localhost:5173');

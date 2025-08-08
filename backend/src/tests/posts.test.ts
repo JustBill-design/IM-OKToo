@@ -347,4 +347,63 @@ describe('Posts API Integration Tests', () => {
       expect([200, 201, 400, 413, 500]).toContain(response.status)
     })
   })
+
+  // Merged from vitest-enhanced-coverage.test.ts - Additional Posts Tests
+  describe('Comments API', () => {
+    it('should handle get post comments', async () => {
+      const response = await fetch(`${baseUrl}/posts/1/comments`)
+      
+      console.log(`vitest post comments status ${response.status}`)
+      if (response.ok) {
+        const comments = await response.json() as any[]
+        expect(Array.isArray(comments)).toBe(true)
+      }
+    })
+
+    it('should handle add comment', async () => {
+      const commentData = {
+        postId: 1,
+        content: 'my grandma has this too, we found that keeping a daily routine really helps with her memory',
+        username: 'caring_son',
+        email: 'mymail@sutd.edu.sg'
+      }
+
+      const response = await fetch(`${baseUrl}/posts/addcomments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(commentData)
+      })
+
+      console.log(`vitest add comment status ${response.status}`)
+      expect([200, 201, 400, 500]).toContain(response.status)
+    })
+  })
+
+  describe('Post Management', () => {
+    it('should handle edit post', async () => {
+      const editData = {
+        title: 'updated: caring for mom',
+        content: 'updated content about memory care strategies',
+        category: 'memory care'
+      }
+
+      const response = await fetch(`${baseUrl}/posts/1/edit`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      })
+
+      console.log(`vitest edit post status ${response.status}`)
+      expect([200, 400, 404, 500]).toContain(response.status)
+    })
+
+    it('should handle delete post', async () => {
+      const response = await fetch(`${baseUrl}/posts/delete/999`, {
+        method: 'DELETE'
+      })
+
+      console.log(`vitest delete post status ${response.status}`)
+      expect([200, 404, 500]).toContain(response.status)
+    })
+  })
 })

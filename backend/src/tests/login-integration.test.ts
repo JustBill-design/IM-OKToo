@@ -239,4 +239,57 @@ describe('Login & Authentication API Tests', () => {
       })
     })
   })
+
+  // merged from vitest-enhanced-coverage.test.ts                     Additional Login Tests
+  describe('Additional Authentication Tests', () => {
+    it('should handle user registration (enhanced)', async () => {
+      const registerData = {
+        email: 'newuser@sutd.edu.sg',
+        password: 'password123',
+        username: 'new_caregiver',
+        firstName: 'caring',
+        lastName: 'person'
+      }
+
+      const response = await fetch(`${baseUrl}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerData)
+      })
+
+      console.log(`vitest register status ${response.status}`)
+      expect([200, 201, 400, 409, 500]).toContain(response.status)
+    })
+
+    it('should handle google user check (enhanced)', async () => {
+      const googleData = {
+        email: 'mymail@sutd.edu.sg',
+        googleId: 'test-google-id'
+      }
+
+      const response = await fetch(`${baseUrl}/check-google-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(googleData)
+      })
+
+      console.log(`vitest google check status ${response.status}`)
+      expect([200, 404, 400, 500]).toContain(response.status)
+    })
+
+    it('should handle update last login (enhanced)', async () => {
+      const updateData = {
+        email: 'mymail@sutd.edu.sg'
+      }
+
+      const response = await fetch(`${baseUrl}/update-last-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      })
+
+      console.log(`vitest update login status ${response.status}`)
+      expect([200, 404, 400, 500]).toContain(response.status)
+    })
+  })
 })
