@@ -11,6 +11,10 @@ const oauth2Client = new google.auth.OAuth2(
 
 const router = express.Router();
 
+router.get('/testing',(req,res) => {
+  console.log("working");
+  res.json({ status: 'ok', message: 'calendar endpoint works' });
+})
 
 router.get('/all', async (req, res) => {
     const email = req.query.email;
