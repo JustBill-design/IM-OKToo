@@ -23,14 +23,6 @@ describe('Calendar API integration tests', () => {
     }
   })
 
-  describe('GET /calendar/testing', () => {
-    it('should respond with testing endpoint', async () => {
-      const response = await request(app)
-        .get('/calendar/testing')
-        .expect(200)
-    })
-  })
-
   describe('GET /calendar/all', () => {
     it('should require email parameter', async () => {
       const response = await request(app)
@@ -41,12 +33,12 @@ describe('Calendar API integration tests', () => {
     })
 
     it('shld fetch events for valid email', async () => {
-      const testEmail = 'test@gmail.com'
+      const testEmail = 'su.jessica69@gmail.com'
       
       const response = await request(app)
         .get(`/calendar/all?email=${testEmail}`)
       expect([200, 404]).toContain(response.status)
-      
+
       if (response.status === 200) {
         expect(Array.isArray(response.body)).toBe(true)
       }

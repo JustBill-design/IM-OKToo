@@ -31,10 +31,10 @@ async function testLiveAPI() {
 
     console.log('\ntest 3 post new stuff');
     const newPost = {
+      username: `BillyBoiiiii`,
       title: `need help managing dad's medication schedule pls`,
       content: 'he keeps forgetting to take his pills and im worried about double dosing anyone have tips for pill organizers',
-      username: 'stressed_caregiver',
-      category_id: 1
+      category: 'Mental Health',
     };
 
     const createResponse = await fetch(`${baseUrl}/posts/addposts`, {

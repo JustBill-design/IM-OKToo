@@ -11,9 +11,6 @@ const oauth2Client = new google.auth.OAuth2(
 
 const router = express.Router();
 
-router.get('/testing',(req,res) => {
-  console.log("working");
-})
 
 router.get('/all', async (req, res) => {
     const email = req.query.email;
@@ -28,7 +25,7 @@ router.get('/all', async (req, res) => {
     await db.end();
 
     res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.send(JSON.stringify(rs));
+    res.json(rs);
 })
 
 router.post('/add', async (req, res) => {
