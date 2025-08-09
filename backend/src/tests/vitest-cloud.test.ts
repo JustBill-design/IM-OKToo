@@ -24,11 +24,30 @@ describe('vitest cloud database test', () => {
   it('should create post via vitest', async () => {
     console.log('testing post creation with vitest')
     
+    // ensure the test user exists
+    const testUser = {
+      username: 'vitest_tester',
+      firstName: 'Vitest',
+      email: `vitest_${Date.now()}@test.com`,
+      password: 'TestPassword123!'
+    }
+
+    try {
+      await fetch(`${baseUrl}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testUser)
+      })
+    } catch (e) {
+      //if user already exists, ignore
+      console.log('User registration result')
+    }
+    
     const newPost = {
       title: 'vitest cloud test post',
       content: 'testing if vitest works with cloud database better than jest',
       username: 'vitest_tester',
-      category_id: 1
+      category_id: 17  // general category
     }
 
     const response = await fetch(`${baseUrl}/posts/addposts`, {
@@ -44,7 +63,8 @@ describe('vitest cloud database test', () => {
       console.log(`vitest post created ${result.post_id}`)
       expect(result.post_id).toBeDefined()
     } else {
-      console.log(`vitest post creation failed`)
+      const errorText = await response.text()
+      console.log(`vitest post creation failed: ${errorText}`)
       expect(response.status).toBe(200)
     }
   })

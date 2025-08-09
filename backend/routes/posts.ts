@@ -42,26 +42,39 @@ router.get("/categories", async (req, res) => {
 router.post("/addposts", async (req, res) => {
     const username = req.body.username;
     const categoryName = req.body.category;
+    const categoryId = req.body.category_id;
     const title = req.body.title;
     const content = req.body.content;
 
     console.log("HALPPPP PLZ WORK", username);
-    console.log(categoryName);
+    console.log("Category name:", categoryName);
+    console.log("Category ID:", categoryId);
     console.log(title);
     console.log(content);
 
+    if (!username || !title || !content) {
+        return res.status(400).json({ error: "Missing required fields: username, title, and content" });
+    }
+
+    if (!categoryName && !categoryId) {
+        return res.status(400).json({ error: "category name or category_id is required" });
+    }
 
     console.log(username)
     try {
         const db = await getConnection()
 
-        const [categoryquery] = await db.execute('SELECT category_id FROM Categories WHERE name = ?', [categoryName]) as [any[], any]
+        let cat_id = categoryId;
+        if (categoryName && !categoryId) {
+            const [categoryquery] = await db.execute('SELECT category_id FROM Categories WHERE name = ?', [categoryName]) as [any[], any]
 
-        if (categoryquery.length === 0) {
-            return res.status(400).json({ error: "Invalid category" });
+            if (categoryquery.length === 0) {
+                return res.status(400).json({ error: "Invalid category" });
+            }
+
+            cat_id = categoryquery[0].category_id;
         }
 
-        const cat_id = categoryquery[0].category_id;
         console.log("STILL NULL?!!", cat_id)
 
         const [insertResult] = await db.execute<ResultSetHeader>('INSERT INTO Posts (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])

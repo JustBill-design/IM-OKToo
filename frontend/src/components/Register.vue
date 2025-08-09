@@ -224,7 +224,8 @@ export default {
                     localStorage.setItem('isAuthenticated', 'true')
                     if (isGoogleRegistration.value) {
                         localStorage.setItem('googleAuth', 'true')
-                    }
+                        localStorage.setItem('email', googleUserInfo.value.email)
+                    } 
 
                     await router.replace('/home')
                 } else {

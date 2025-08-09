@@ -9,7 +9,10 @@ export default defineConfig({
       './backend/src/test/crypto-polyfill.ts',
       './backend/src/test/cloud-test-setup.ts'
     ],
-    include: ['backend/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}'],
-    exclude: ['node_modules', 'dist', 'frontend']
+    include: ['backend/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}'],
+    exclude: ['node_modules', 'dist', 'frontend', 'backend/node_modules/**/*'],
+    // try run tests sequentially as it crashed my laptop 
+    fileParallelism: false,
+    maxConcurrency: 1
   }
 })

@@ -133,7 +133,7 @@ If you are unsure, ask the user to clarify.
     const data: any = await response.json();
     console.log('Claude API response:', data);
     // Claude's response is in data.content[0].text
-    res.json({ reply: data.content?.[0]?.text || data });
+    res.json({ response: data.content?.[0]?.text || data.error || 'No response from Claude' });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Claude API error' });
   }

@@ -101,6 +101,30 @@ router.post('/register', async (req, res) => {
         });
     }
 
+    // password strength check
+    if (!isGoogleUser && password) {
+        if (password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long',
+                field: 'password'
+            });
+        }
+        
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\?]/.test(password);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+                field: 'password'
+            });
+        }
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({
@@ -222,45 +246,77 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/check-google-user', async (req, res) => {
-    const { email, google_id } = req.body;
+    const { email, google_id, googleId } = req.body;
 
-    if (!email) {
+    // Handle both googleId (from test) and email (from existing functionality)
+    const identifier = googleId || email;
+    
+    if (!identifier) {
         return res.status(400).json({
             success: false,
-            message: 'Email is required'
+            message: 'Email or Google ID is required'
         });
+    }
+
+    // If googleId is explicitly provided (even if empty), validate it
+    if (req.body.hasOwnProperty('googleId')) {
+        if (typeof googleId !== 'string' || googleId.trim() === '') {
+            return res.status(422).json({
+                success: false,
+                message: 'Invalid Google ID format'
+            });
+        }
     }
 
     try {
         const db = await getConnection();
-        const query = await db.query<RowDataPacket[]>('SELECT username, email FROM Users WHERE email = ?', [email])
+        let query;
+        
+        if (req.body.hasOwnProperty('googleId') && googleId.trim() !== '') {
+            // Search by google_id - check if column exists first
+            try {
+                query = await db.query<RowDataPacket[]>('SELECT username, email FROM Users WHERE google_id = ?', [googleId]);
+            } catch (columnError: any) {
+                if (columnError.code === 'ER_BAD_FIELD_ERROR') {
+                    // google_id column doesn't exist, fall back to email search
+                    console.log("Google user check error:", columnError);
+                    query = await db.query<RowDataPacket[]>('SELECT username, email FROM Users WHERE email = ?', [email]);
+                } else {
+                    throw columnError;
+                }
+            }
+        } else {
+            // Search by email (existing functionality)  
+            query = await db.query<RowDataPacket[]>('SELECT username, email FROM Users WHERE email = ?', [email]);
+        }
+        
         await db.end();
         
         if (query[0] && query[0].length > 0) {
             const user = query[0][0];
             console.log("Google user exists", user.username);
 
-            return res.json({
+            return res.status(200).json({
                 success: true,
                 exists: true,
                 username: user.username,
-                email: user.EMAIL
+                email: user.email
             });
         } else {
-            console.log('Google user not found for email:', email);
-            return res.json({
+            console.log('Google user not found for identifier:', identifier);
+            return res.status(404).json({
                 success: true,
                 exists: false
             });
         }
     } catch (error) {
-        console.error('Database error:', error);
+        console.error('Google user check error:', error);
         return res.status(500).json({
             success: false,
-            message: 'Database error occurred'
+            message: 'Database error'
         });
     }
-})
+});
 
 router.post('/update-last-login', async (req, res) => {
     const { username } = req.body;
