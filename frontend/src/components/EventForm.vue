@@ -2,7 +2,6 @@
 import EventTitle from './CreateEvent/EventTitle.vue'
 import EventDateTimeRange from './CreateEvent/EventDateTimeRange.vue'
 import EventElderly from './CreateEvent/EventElderly.vue'
-import EventCaretaker from './CreateEvent/EventCaretaker.vue'
 import EventLocation from './CreateEvent/EventLocation.vue'
 import EventDescription from './CreateEvent/EventDescription.vue'
 import EventRecurrence from './CreateEvent/EventRecurrence.vue'
@@ -30,7 +29,6 @@ const formSchema = toTypedSchema(z.object({
   title: z.string(),
   category: z.string(),
   elderly: z.string(),
-  caretaker: z.string(),
   startDate: z.object({
     era: z.literal("AD"),
     year: z.coerce.number().int().min(year),
@@ -54,7 +52,7 @@ const formSchema = toTypedSchema(z.object({
       const inputDate = new Date(year, month - 1, day);
       return inputDate >= getToday();
     },
-    { message: "Start date cannot be in the past" }
+    { message: "End date cannot be in the past" }
   ),
   endTime: z.string(),
   guests: z.string().optional(),
@@ -114,6 +112,9 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
+  console.log('onSubmit called', values);
+  values.caretaker = localStorage.getItem('username')
+
   const email = localStorage.getItem('email')
   const payload = {
     ...values,
@@ -147,7 +148,6 @@ const onSubmit = form.handleSubmit(async (values) => {
         <EventTitle/>
         <EventCategory/>
         <EventElderly/>
-        <EventCaretaker/>
         <EventDateTimeRange/>
         <EventGuest/>
         <EventLocation/>

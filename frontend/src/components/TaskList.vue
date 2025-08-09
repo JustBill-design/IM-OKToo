@@ -151,7 +151,6 @@ defineExpose({
 })
 </script>
 
-
 <template>
   <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6 flex flex-col gap-4 h-[30rem] transform transition-all duration-300 hover:shadow-xl">
     <!-- Header -->
