@@ -67,7 +67,91 @@ Consider gentle massage if she finds it soothing
 For ongoing joint pain management, Singapore has many resources including physiotherapy services available through polyclinics, and some may be covered under government schemes.
 If her pain becomes severe or she develops signs of infection (redness, swelling, warmth), please seek medical attention promptly.
 Would you like information about accessing healthcare services in Singapore or other non-medication approaches to managing joint pain?`
-    }
+    },
+    {
+  category: "Task Management",
+  prompt: "Please add a reminder to buy groceries tomorrow.",
+  reference_answer: `{"action": "add_task", "task": "buy groceries tomorrow"}`
+},
+ {category: "Emotional Support",
+  prompt: "What can I do to stay hopeful and positive during difficult times caregiving?",
+  reference_answer: `Maintaining hope and positivity during the toughest caregiving moments is one of the greatest challenges you'll face, and it's completely normal to struggle with this. Your awareness of needing hope shows incredible strength.
+Here are some ways to nurture hope and find light during dark times:
+Focus on Small Moments:
+
+Celebrate tiny victories - a good day, a smile from your loved one, a moment of connection
+Keep a gratitude journal, even if it's just noting one small thing each day
+Look for moments of joy or humor, however brief they may be
+Take photos or notes of peaceful or happy moments to revisit later
+
+Reframe Your Perspective:
+
+Remember that providing love and care is one of the most meaningful things a person can do
+Focus on the present moment rather than worrying about the future
+Recognize that difficult days don't last, but your love and dedication do
+View challenges as opportunities to grow stronger and more compassionate
+
+Build Your Support Network:
+
+Connect with other caregivers who can remind you that you're not alone
+Share your struggles honestly with trusted friends or family
+Consider joining caregiver support groups where hope and encouragement are shared
+Don't isolate yourself when things get tough
+
+Spiritual and Personal Growth:
+
+Engage in activities that feed your soul - music, nature, reading, prayer, meditation
+Remember your "why" - the love and commitment that drives your caregiving
+Allow yourself to grieve losses while still holding space for hope
+Consider counseling or support services when hope feels too hard to find alone
+
+Lions Befrienders offers training specifically on managing grief and loss in caregiving, which can help you process difficult emotions while maintaining hope.`},
+
+{
+  category: "Health Management",
+  prompt: "My dad has diabetes. How can I help him manage it better?",
+  reference_answer: `Managing diabetes well is absolutely crucial for your dad's health and quality of life, and having family support like yours makes such a difference. Here are key areas where you can help:
+Blood Sugar Monitoring:
+
+Help establish a routine for checking blood glucose levels as recommended by his doctor
+Keep a log of his readings, noting patterns and what might affect them
+Learn to recognize signs of high blood sugar (frequent urination, excessive thirst, fatigue) and low blood sugar (shakiness, sweating, confusion)
+Ensure he always has his glucose meter and supplies easily accessible
+
+Diet and Nutrition:
+
+Work with a dietitian to create meal plans that keep blood sugar stable
+Focus on consistent meal timing rather than skipping meals
+Learn about carbohydrate counting and portion control
+Keep healthy snacks available for low blood sugar episodes
+Encourage plenty of water and limit sugary drinks
+
+Medication Management:
+
+Help him take medications exactly as prescribed and at consistent times
+Use pill organizers or medication reminder systems
+Never skip or double doses without consulting his doctor
+Keep an updated list of all his medications
+
+Physical Activity:
+
+Encourage regular, gentle exercise as approved by his doctor
+Even short walks after meals can help with blood sugar control
+Monitor his feet daily for cuts or sores that might not heal well
+
+Emergency Preparedness:
+
+Keep glucose tablets or fast-acting sugar sources readily available
+Know when to seek immediate medical help
+Ensure he wears medical identification
+
+Regular Healthcare:
+
+Help him keep all medical appointments
+Ensure regular eye exams, foot checks, and kidney function tests
+
+In Singapore, polyclinics offer diabetes management programs, and there may be subsidies available through various government health schemes.
+Would you like specific information about diabetes support services available locally?`}
 ]
     ;
 interface EvaluationResult {
@@ -163,6 +247,7 @@ describe('Claude API integration with evaluation', () => {
     for (const res of evaluationResult.results) {
       console.log(`${res.Prompt}: SBERT similarity = ${res['SBERT Similarity']}`)
       expect(typeof res['SBERT Similarity']).toBe('number')
+      expect(res['SBERT Similarity']).toBeGreaterThanOrEqual(0.75) //check for reasonable similarity
     }
-  }, 120000) // increase timeout if needed for API calls
+  }, 300000) // increase timeout if needed for API calls
 })
