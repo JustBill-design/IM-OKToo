@@ -92,7 +92,11 @@ router.delete('/:id', async (req, res) => {
 
   try {
     const db = await getConnection()
-    await db.execute('DELETE FROM Tasks WHERE task_id = ?', [id])
+    const [result] = await db.execute('DELETE FROM Tasks WHERE task_id = ?',[id]) as [ResultSetHeader]
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Task not found' })
+    }
+    
     res.json({ message: 'Task deleted successfully' })
   } catch (error) {
     console.error('Error deleting task:', error)

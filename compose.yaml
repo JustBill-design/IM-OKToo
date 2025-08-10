@@ -13,6 +13,15 @@ services:
       context: .
     environment:
       NODE_ENV: production
+      INSTANCE_CONNECTION_NAME: ${INSTANCE_CONNECTION_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      GOOGLE_APPLICATION_CREDENTIALS: ./backend/im-oktoo-465704-a2b515835023.json
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+      CLIENT_ID: ${CLIENT_ID}
+      SECRET_ID: ${SECRET_ID}
+      REDIRECT: ${REDIRECT}
     ports:
       - 3000:3000
 

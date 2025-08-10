@@ -1,7 +1,7 @@
 import express from 'express'
 import getConnection from '../src/db'
 import { get } from 'http';
-import { ResultSetHeader } from 'mysql2';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 
 const router = express.Router();
 
@@ -22,7 +22,6 @@ FROM Posts POST
 JOIN Users U ON POST.username = U.username
 JOIN Categories CAT ON POST.category_id = CAT.category_id
 ORDER BY POST.created_at DESC;`);
-        await db.end(); // Close the connection
         res.json(rows)
     } catch (error) {
         console.error('Database error:', error);
@@ -43,26 +42,39 @@ router.get("/categories", async (req, res) => {
 router.post("/addposts", async (req, res) => {
     const username = req.body.username;
     const categoryName = req.body.category;
+    const categoryId = req.body.category_id;
     const title = req.body.title;
     const content = req.body.content;
 
     console.log("HALPPPP PLZ WORK", username);
-    console.log(categoryName);
+    console.log("Category name:", categoryName);
+    console.log("Category ID:", categoryId);
     console.log(title);
     console.log(content);
 
+    if (!username || !title || !content) {
+        return res.status(400).json({ error: "Missing required fields: username, title, and content" });
+    }
+
+    if (!categoryName && !categoryId) {
+        return res.status(400).json({ error: "category name or category_id is required" });
+    }
 
     console.log(username)
     try {
         const db = await getConnection()
 
-        const [categoryquery] = await db.execute('SELECT category_id FROM Categories WHERE name = ?', [categoryName]) as [any[], any]
+        let cat_id = categoryId;
+        if (categoryName && !categoryId) {
+            const [categoryquery] = await db.execute('SELECT category_id FROM Categories WHERE name = ?', [categoryName]) as [any[], any]
 
-        if (categoryquery.length === 0) {
-            return res.status(400).json({ error: "Invalid category" });
+            if (categoryquery.length === 0) {
+                return res.status(400).json({ error: "Invalid category" });
+            }
+
+            cat_id = categoryquery[0].category_id;
         }
 
-        const cat_id = categoryquery[0].category_id;
         console.log("STILL NULL?!!", cat_id)
 
         const [insertResult] = await db.execute<ResultSetHeader>('INSERT INTO Posts (username, category_id, title, content) VALUES (?, ?, ?, ?)', [username, cat_id, title, content])
@@ -91,12 +103,12 @@ router.post("/addcomments", async (req, res) => {
     try {
         const db = await getConnection();
 
-        const [result] = await db.execute(
+        const [result] = await db.execute<ResultSetHeader>(
             'INSERT INTO Comments (post_id, username, content, created_at) VALUES (?, ?, ?, NOW())',
             [post_id, username, content]
         );
-
-        const [newComment] = await db.execute(
+        console.log(result)
+        const [newComment] = await db.execute<RowDataPacket[]>(
             'SELECT comment_id, post_id, username, content, created_at FROM Comments WHERE comment_id = ?',
             [result.insertId]
         );
@@ -110,16 +122,26 @@ router.post("/addcomments", async (req, res) => {
     } catch (error) {
         console.error('Error adding comment:', error);
 
-        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-            return res.status(400).json({
-                error: 'Invalid post_id or username'
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            'message' in error &&
+            typeof (error as any).code === 'string' &&
+            typeof (error as any).message === 'string'
+        ) {
+            if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+                return res.status(400).json({
+                    error: 'Invalid post_id or username'
+                });
+            }
+
+            res.status(500).json({
+                error: 'Failed to add comment',
+                details: error.message
             });
         }
-
-        res.status(500).json({
-            error: 'Failed to add comment',
-            details: error.message
-        });
+        
     }
 });
 
@@ -160,7 +182,7 @@ router.delete("/deletecomment/:commentId", async (req, res) => {
     try {
         const db = await getConnection();
 
-        const [existingComment] = await db.execute(
+        const [existingComment] = await db.execute<RowDataPacket[]>(
             'SELECT username, post_id FROM Comments WHERE comment_id = ?',
             [commentId]
         );
@@ -198,10 +220,19 @@ router.delete("/deletecomment/:commentId", async (req, res) => {
 
     } catch (error) {
         console.error('Error deleting comment:', error);
-        res.status(500).json({
-            error: 'Failed to delete comment',
-            details: error.message
-        });
+
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'message' in error &&
+            typeof (error as any).message === 'string'
+        ) {
+            res.status(500).json({
+                error: 'Failed to delete comment',
+                details: error.message
+            });
+        }
+        
     }
 });
 
@@ -224,12 +255,10 @@ router.put('/:postId/edit', async (req, res) => {
         ) as [any[], any];
 
         if (!postResult.length) {
-            await db.end();
             return res.status(404).json({ error: 'Post not found' });
         }
 
         if (postResult[0].username !== username) {
-            await db.end();
             return res.status(403).json({ error: 'Unauthorized: You can only edit your own posts' });
         }
 
@@ -239,7 +268,6 @@ router.put('/:postId/edit', async (req, res) => {
         ) as [any[], any];
 
         if (!catResult.length) {
-            await db.end();
             return res.status(400).json({ error: 'Invalid category name: ' + category });
         }
 
@@ -250,7 +278,6 @@ router.put('/:postId/edit', async (req, res) => {
             [title, content, categoryId, postId]
         ) as [ResultSetHeader, any];
 
-        await db.end(); 
 
         if (updateResult.affectedRows === 0) {
             return res.status(500).json({ error: 'Post update failed (no changes applied)' });
@@ -318,8 +345,6 @@ router.delete("/delete/:postId", async (req, res) => {
         if (deleteResult.affectedRows === 0) {
             return res.status(500).json({ error: 'Post deletion failed' });
         }
-
-        await db.end();
 
         res.status(200).json({
             success: true,
