@@ -295,12 +295,13 @@ export default {
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
     display: flex;
+    top: 0;
     flex-direction: column;
     transition: all 0.3s ease;
-    position: relative;
+    position: sticky;
     z-index: 999;
-    height: 100vh;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
 }
 
 .sidebar.sidebar-collapsed {
@@ -510,7 +511,7 @@ export default {
         position: fixed;
         top: 0;
         left: -280px;
-        height: 100vh;
+        height: 100dvh;
         z-index: 999;
     }
 

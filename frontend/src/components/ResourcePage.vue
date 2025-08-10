@@ -98,6 +98,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   animation: fadeInDown 1s;
   max-width: 900px;
