@@ -19,7 +19,7 @@
     "^@/(.*)$": "<rootDir>/backend/src/$1"
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!(@google-cloud|axios)/)"
+    "node_modules/(?!(@google-cloud|axios|node-fetch)/)"
   ],
   "globals": {
     "ts-jest": {

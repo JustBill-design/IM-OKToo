@@ -320,9 +320,12 @@ export default {
 <style scoped>
 .login-container {
     display: flex;
-    min-height: 100vh;
     /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
     background-image: url(../lib/Imgs/hdb.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    min-height: 100dvh;
 }
 
 /* Left side - Image section */
@@ -378,8 +381,6 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    /* background: white; */
-    background-image: url(../lib/Imgs/hdb.jpg);
 }
 
 .form-wrapper {

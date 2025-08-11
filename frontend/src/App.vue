@@ -46,19 +46,16 @@ const handleSidebarStateChange = (isCollapsed: boolean) => {
 <style scoped>
 .app-layout {
   display: flex;
-  height: 100vh;
 }
 
 .main-content {
   flex: 1;
-  margin-left: 280px;
   /* Expanded sidebar width */
-  padding: 1rem;
   transition: margin-left 0.3s ease;
 }
 
 .main-content-collapsed {
-  margin-left: 60px;
+  margin-left: 0;
   /* Collapsed sidebar width */
 }
 

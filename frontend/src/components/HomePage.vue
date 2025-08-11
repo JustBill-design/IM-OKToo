@@ -3,11 +3,6 @@ import { ref, onMounted } from 'vue'
 import ChatbotWithSpeech from './ChatbotWithSpeech.vue'
 import TaskList from './TaskList.vue'
 
-// Event Flow:
-//   1. ChatbotWithSpeech emits 'add-task' , 'remove-task' , 'clear-all-tasks'
-//   2. This component Hompeage calls these exposed methods on TaskList
-//   3. TaskList handles actual API operations and UI updates
-
 // Ref to get a direct instance of the TaskList component
 const taskListRef = ref<InstanceType<typeof TaskList> | null>(null)
 
@@ -25,9 +20,9 @@ onMounted(() => {
     loggedInUsername.value = getUsernameFromLocalStorage();
 });
 
-// ========================================
+
 // Chatbot Event Handlers - DELEGATING TO TASKLIST
-// ========================================
+
 
 // Handle 'add-task' event from Chatbot
 async function handleAddTask(taskDescription: string) {
@@ -57,19 +52,6 @@ async function handleRemoveTaskByName(taskName: string) {
   }
 }
 
-// Handle 'clear-all-tasks' event from Chatbot
-async function handleClearAllTasks() {
-  if (!loggedInUsername.value) {
-      alert('Please log in to clear tasks.');
-      return;
-  }
-  if (taskListRef.value) {
-    // Call the clearAllTasks method exposed by TaskList.vue
-    await taskListRef.value.clearAllTasks();
-  } else {
-    console.error("TaskList component ref is null. Cannot clear all tasks.");
-  }
-}
 </script>
 
 <template>
@@ -88,7 +70,7 @@ async function handleClearAllTasks() {
         <ChatbotWithSpeech
           @add-task="handleAddTask"
           @remove-task="handleRemoveTaskByName"
-          @clear-all-tasks="handleClearAllTasks"
+          
         />
       </div>
 
