@@ -146,18 +146,21 @@ export async function loginUser(page: Page, username: string = 'testuser', passw
 
 export async function clearAuthState(page: Page) {
   try {
+    await page.context().clearCookies();
+  } catch (error) {
+    console.log('clearing');
+  }
+  
+  try {
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+    
     await page.evaluate(() => {
       localStorage.clear();
       sessionStorage.clear();
     });
   } catch (error) {
-    console.log('no cleared');
-  }
-  
-  try {
-    await page.context().clearCookies();
-  } catch (error) {
-    console.log('no clear cookies');
+    console.log('continuing:', error);
   }
 }
 
