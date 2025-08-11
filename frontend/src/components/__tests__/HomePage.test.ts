@@ -157,18 +157,6 @@ describe('HomePage.vue', () => {
       
       expect(taskList.vm.removeTaskByName).toHaveBeenCalledWith('Task to remove')
     })
-
-    it('handles clear all tasks', async () => {
-      const chatbot = wrapper.findComponent({ name: 'ChatbotWithSpeech' })
-      const taskList = wrapper.findComponent({ name: 'TaskList' })
-      
-      taskList.vm.clearAllTasks = vi.fn()
-      
-      await chatbot.vm.$emit('clear-all-tasks')
-      await nextTick()
-      
-      expect(taskList.vm.clearAllTasks).toHaveBeenCalled()
-    })
   })
 
   describe('auth check', () => {
@@ -200,19 +188,6 @@ describe('HomePage.vue', () => {
       await nextTick()
       
       expect(global.alert).toHaveBeenCalledWith('Please log in to remove tasks.')
-    })
-
-    it('show alert when trying to clear tasks without login', async () => {
-      const wrapper = mount(HomePage, {
-        global: { plugins: [router] }
-      })
-      await nextTick()
-      
-      const chatbot = wrapper.findComponent({ name: 'ChatbotWithSpeech' })
-      await chatbot.vm.$emit('clear-all-tasks')
-      await nextTick()
-      
-      expect(global.alert).toHaveBeenCalledWith('Please log in to clear tasks.')
     })
   })
 

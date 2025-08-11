@@ -8,6 +8,38 @@ config.global.stubs = {
   RouterView: true
 }
 
+
+config.global.mocks = {
+  $router: {
+    push: () => {},
+    replace: () => {},
+    go: () => {},
+    back: () => {},
+    forward: () => {}
+  },
+  $route: {
+    path: '/',
+    params: {},
+    query: {},
+    hash: '',
+    fullPath: '/',
+    matched: [],
+    name: undefined,
+    redirectedFrom: undefined
+  }
+}
+
+config.global.provide = {
+  router: {
+    push: () => {},
+    replace: () => {},
+    go: () => {},
+    back: () => {},
+    forward: () => {},
+    currentRoute: { value: { path: '/' } }
+  }
+}
+
 // Mock window.matchMedia for responsive tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
