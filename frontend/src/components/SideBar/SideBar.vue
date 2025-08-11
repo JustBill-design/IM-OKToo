@@ -31,16 +31,24 @@
                         </div>
                     </div>
 
+                    <!-- Settings -->
+                    <div class="nav-item" :class="{ active: activeItem === 'settings' }">
+                        <div class="nav-link" @click="setActiveItem('settings')">
+                            <i class="icon">👤</i>
+                            <span v-if="!isCollapsed">Settings</span>
+                        </div>
+                    </div>
+
                     <!-- Profile with Submenu -->
-                    <div class="nav-item" :class="{ active: activeItem === 'profile' }">
+                    <!-- <div class="nav-item" :class="{ active: activeItem === 'profile' }">
                         <div class="nav-link" @click="toggleSubmenu('profile')">
                             <i class="icon">👤</i>
                             <span v-if="!isCollapsed">Profile</span>
                             <i v-if="!isCollapsed" class="arrow" :class="{ 'arrow-open': openSubmenus.profile }">▼</i>
-                        </div>
+                        </div> -->
 
                         <!-- Submenu -->
-                        <div v-if="!isCollapsed" class="submenu" :class="{ 'submenu-open': openSubmenus.profile }">
+                        <!-- <div v-if="!isCollapsed" class="submenu" :class="{ 'submenu-open': openSubmenus.profile }">
                             <div class="submenu-item" @click="setActiveItem('passwords')">
                                 <span>Passwords</span>
                             </div>
@@ -51,7 +59,7 @@
                                 <span>Accounts</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Messages -->
                     <div class="nav-item" :class="{ active: activeItem === 'messages' }">
@@ -187,7 +195,7 @@ export default {
             if (this.isCollapsed) {
                 // Close all submenus when collapsing
                 this.openSubmenus = {
-                    profile: false,
+                    // profile: false,
                     notifications: false
                 };
             }
@@ -211,7 +219,9 @@ export default {
                 this.$router.push('/forum');
             } else if (item == "calendar") {
                 this.$router.push('/calendar');
-            }
+            } else if (item == "settings") {
+                this.$router.push('/settings');
+            } 
 
             this.activeItem = item;
             // Close mobile menu when item is selected

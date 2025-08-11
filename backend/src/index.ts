@@ -7,6 +7,7 @@ import claudeRoute from '../routes/claude'
 import tasksRouter from '../routes/tasks'
 import calendarRoute from '../routes/calendar'
 import scraperRoute from '../routes/scraper'
+import settingsRoute from '../routes/settings'
 import mysql from 'mysql2/promise';
 import db from './db'
 // import path from 'path'
@@ -36,6 +37,7 @@ app.use('/claude', claudeRoute)
 app.use('/api/tasks', tasksRouter)
 app.use('/calendar', calendarRoute)
 app.use('/api/scrape-titles', scraperRoute)
+app.use('/settings', settingsRoute)
 app.use('/', loginRoute)
 
 let pool: mysql.Pool | null = null;
