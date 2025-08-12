@@ -18,7 +18,7 @@
     "test:backend": "vitest run --config vitest.backend.config.ts",
     "test:backend:watch": "vitest --config vitest.backend.config.ts",
     "test:backend:unit": "vitest run --config vitest.backend.config.ts backend/src/tests/vitest-comprehensive.test.ts",
-    "test:backend:integration": "vitest run --config vitest.backend.config.ts", 
+    "test:backend:integration": "vitest run --config vitest.backend.config.ts",
     "test:backend:live": "vitest run --config vitest.backend.config.ts",
     "test:backend:jest-broken": "echo 'Jest crypto issue pls use test:backend instead'",
     "test:e2e": "playwright test",
