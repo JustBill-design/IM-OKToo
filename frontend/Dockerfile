@@ -1,18 +1,24 @@
-FROM node:20-alpine
-
+# Build stage
+FROM node:20-alpine AS build
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
-RUN npm i
-
-# Copy source code
+RUN npm install
 COPY . .
+RUN npm run build
 
-# Expose port
-EXPOSE 5173
+# Production stage
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 8080
 
-# Start Vite dev server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Simple nginx config
+RUN echo 'server { \
+  listen 8080; \
+  location / { \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    try_files $uri $uri/ /index.html; \
+  } \
+}' > /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]

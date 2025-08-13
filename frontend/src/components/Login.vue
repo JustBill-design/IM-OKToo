@@ -131,7 +131,7 @@ export default {
                 // use the new API that i just created
                 console.log("validating the user")
 
-                const response = await fetch('http://localhost:3001/validate', {
+                const response = await fetch('https://api-gateway-366297756669.us-central1.run.app/validate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -211,7 +211,7 @@ export default {
                 // Decode the JWT token to get user info
                 const user_id = decodeJWT(response.credential)
 
-                const checkResponse = await fetch("http://localhost:3001/check-google-user", {
+                const checkResponse = await fetch("https://api-gateway-366297756669.us-central1.run.app/check-google-user", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -228,7 +228,7 @@ export default {
                     localStorage.setItem('email', user_id.email)
                     localStorage.setItem('googleAuth', 'true')
 
-                    await fetch('http://localhost:3001/update-last-login', {
+                    await fetch('https://api-gateway-366297756669.us-central1.run.app/update-last-login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username: checkData.username })

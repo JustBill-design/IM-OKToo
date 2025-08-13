@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   server: {
     proxy: {
-      '/api': 'http://localhost:3001', 
+      '/api': 'https://api-gateway-366297756669.us-central1.run.app' || 'http://localhost:3001', 
     }
   },
   resolve: {
@@ -18,7 +18,7 @@ export default defineConfig({
     }
   },
   test: {
-    environment: 'happy-dom',
+    environment: 'happy-dom', 
     globals: true,
     setupFiles: './frontend/src/test/setup.ts'
   }

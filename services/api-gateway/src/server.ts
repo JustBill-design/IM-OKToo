@@ -8,11 +8,24 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Enhanced CORS configuration
+// app.use(cors({
+//   origin: [
+//     'https://api-gateway-366297756669.us-central1.run.app',
+//     'https://frontend-366297756669.us-central1.run.app',  // Your frontend URL
+//     'http://localhost:5173',  // For local development
+//     'http://localhost:3000'   // For local development
+//   ],
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'X-Requested-With'],
+//   optionsSuccessStatus: 200
+// }));
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: true,  // Allow all origins for now
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -22,16 +35,21 @@ app.use(express.json());
 // ===========================================
 
 // Detect environment - Docker vs Local
-const isDocker = process.env.NODE_ENV === 'docker' || process.env.DOCKER === 'true';
-
-// Service URL configuration based on environment
+const isDocker = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'docker' || process.env.DOCKER === 'true';
+// /// https://login-service-366297756669.us-central1.run.app
+// https://tasks-service-366297756669.us-central1.run.app
+// https://scraper-service-366297756669.us-central1.run.app
+// https://claude-service-366297756669.us-central1.run.app
+// https://forum-service-366297756669.us-central1.run.app
+// https://calendar-service-366297756669.us-central1.run.app
+// https://frontend-366297756669.us-central1.run.app
 const SERVICES = {
-  login: isDocker ? 'http://login-service:3004' : 'http://localhost:3004',
-  tasks: isDocker ? 'http://tasks-service:3006' : 'http://localhost:3006',
-  forum: isDocker ? 'http://forum-service:3003' : 'http://localhost:3003',
-  calendar: isDocker ? 'http://calendar-service:3005' : 'http://localhost:3005',
-  claude: isDocker ? 'http://claude-service:3002' : 'http://localhost:3002',
-  scraper: isDocker ? 'http://scraper-service:3007' : 'http://localhost:3007'
+  login: 'https://login-service-366297756669.us-central1.run.app',
+  tasks: 'https://tasks-service-366297756669.us-central1.run.app',
+  forum:  'https://forum-service-366297756669.us-central1.run.app',
+  calendar: 'https://calendar-service-366297756669.us-central1.run.app' ,
+  claude:'https://claude-service-366297756669.us-central1.run.app',
+  scraper:'https://scraper-service-366297756669.us-central1.run.app'
 };
 
 console.log(`🌍 Environment: ${isDocker ? 'Docker' : 'Local Development'}`);
@@ -56,7 +74,7 @@ console.log('Setting up API Gateway routes...');
 app.post('/validate', async (req, res) => {
   try {
     console.log('Routing /validate to login-service');
-    const response = await fetch(`${SERVICES.login}/login/validate`, {
+    const response = await fetch(`${SERVICES.login}/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
@@ -72,12 +90,33 @@ app.post('/validate', async (req, res) => {
 app.post('/register', async (req, res) => {
   try {
     console.log('Routing /register to login-service');
+    console.log('Target URL:', `${SERVICES.login}/login/register`);
+    
     const response = await fetch(`${SERVICES.login}/login/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
     });
-    const data = await response.json();
+    
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers));
+    
+    // Get raw response first
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+    
+    // Try to parse as JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return res.status(500).json({ 
+        error: 'Invalid response from login service',
+        details: responseText.substring(0, 200) 
+      });
+    }
+    
     res.status(response.status).json(data);
   } catch (error) {
     console.error('Error routing to login service:', error);
@@ -88,7 +127,7 @@ app.post('/register', async (req, res) => {
 app.post('/check-google-user', async (req, res) => {
   try {
     console.log('Routing /check-google-user to login-service');
-    const response = await fetch(`${SERVICES.login}/login/check-google-user`, {
+    const response = await fetch(`${SERVICES.login}/check-google-user`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
@@ -104,7 +143,7 @@ app.post('/check-google-user', async (req, res) => {
 app.post('/update-last-login', async (req, res) => {
   try {
     console.log('Routing /update-last-login to login-service');
-    const response = await fetch(`${SERVICES.login}/login/update-last-login`, {
+    const response = await fetch(`${SERVICES.login}/update-last-login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)

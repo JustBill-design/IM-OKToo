@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use your login routes
-app.use('/login', loginRouter);
+app.use('/', loginRouter);
 
 app.listen(PORT, () => {
   console.log(`Login service running on port ${PORT}`);

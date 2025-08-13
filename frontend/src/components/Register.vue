@@ -201,7 +201,7 @@ export default {
             isLoading.value = true
 
             try {
-                const response = await fetch('http://localhost:3001/register', {
+                const response = await fetch('https://api-gateway-366297756669.us-central1.run.app/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
