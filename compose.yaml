@@ -26,6 +26,7 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=development
+      - DOCKER=true
     depends_on:
       - claude-service
       - forum-service

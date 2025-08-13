@@ -27,7 +27,7 @@ async function fetchTasks() {
         return;
     }
   try {
-    const res = await fetch(`/api/tasks?username=${currentUser}`)
+    const res = await fetch(`http://localhost:3001/api/tasks?username=${currentUser}`)
     if (!res.ok) throw new Error('Network response not ok')
     const data = await res.json()
     tasks.value = data.map((task: any) => ({
@@ -59,7 +59,7 @@ async function addTask(descriptionFromParent?: string) {
   }
 
   try {
-    const res = await fetch('/api/tasks', {
+    const res = await fetch('http://localhost:3001/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -88,7 +88,7 @@ async function removeTask(idx: number) {
     }
   const task = tasks.value[idx]
   try {
-    const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' })
+    const res = await fetch(`http://localhost:3001/api/tasks/${task.id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error('Failed to remove task')
     tasks.value.splice(idx, 1)
     emit('remove-task', idx)
@@ -119,7 +119,7 @@ async function removeTaskByName(taskName: string) {
     // Iterate and remove each matching task
     for (const task of tasksToRemove) {
         try {
-            const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
+            const res = await fetch(`http://localhost:3001/api/tasks/${task.id}`, { method: 'DELETE' });
             if (!res.ok) {
                 const errorText = await res.text();
                 throw new Error(`Failed to remove task '${task.text}': ${errorText}`);
@@ -251,4 +251,4 @@ input[type="checkbox"]:checked {
 .hover\:scale-102:hover {
   transform: scale(1.02);
 }
-</style> 
+</style>
