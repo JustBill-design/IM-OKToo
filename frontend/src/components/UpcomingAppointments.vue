@@ -24,7 +24,7 @@ export default {
     async function retrieveEvents() {
       const email = localStorage.getItem("email");
 
-      const response = await fetch(`http://localhost:3001/calendar/all?email=${email}`, {
+      const response = await fetch(`https://api-gateway-366297756669.us-central1.run.app/calendar/all?email=${email}`, {
         method: 'GET',
         headers: {
           'Content-type': 'application/json'

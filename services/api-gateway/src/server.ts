@@ -8,25 +8,25 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Enhanced CORS configuration
-// app.use(cors({
-//   origin: [
-//     'https://api-gateway-366297756669.us-central1.run.app',
-//     'https://frontend-366297756669.us-central1.run.app',  // Your frontend URL
-//     'http://localhost:5173',  // For local development
-//     'http://localhost:3000'   // For local development
-//   ],
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'X-Requested-With'],
-//   optionsSuccessStatus: 200
-// }));
-
 app.use(cors({
-  origin: true,  // Allow all origins for now
+  origin: [
+    'https://api-gateway-366297756669.us-central1.run.app',
+    'https://frontend-366297756669.us-central1.run.app',  // Your frontend URL
+    'http://localhost:5173',  // For local development
+    'http://localhost:3000'   // For local development
+  ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
+
+// app.use(cors({
+//   origin: true,  // Allow all origins for now
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 app.use(express.json());
 
@@ -90,9 +90,9 @@ app.post('/validate', async (req, res) => {
 app.post('/register', async (req, res) => {
   try {
     console.log('Routing /register to login-service');
-    console.log('Target URL:', `${SERVICES.login}/login/register`);
+    console.log('Target URL:', `${SERVICES.login}/register`);
     
-    const response = await fetch(`${SERVICES.login}/login/register`, {
+    const response = await fetch(`${SERVICES.login}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
@@ -126,19 +126,62 @@ app.post('/register', async (req, res) => {
 
 app.post('/check-google-user', async (req, res) => {
   try {
-    console.log('Routing /check-google-user to login-service');
-    const response = await fetch(`${SERVICES.login}/check-google-user`, {
+    console.log('🚀 [DEBUG] Routing /check-google-user to login-service');
+    console.log('[DEBUG] Request body:', JSON.stringify(req.body, null, 2));
+
+    const targetUrl = `${SERVICES.login}/check-google-user`;
+    console.log('[DEBUG] Target URL:', targetUrl);
+
+    // Send the request to login-service
+    const response = await fetch(targetUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
     });
-    const data = await response.json();
-    res.status(response.status).json(data);
+
+    // Log status & headers
+    console.log('[DEBUG] Response status:', response.status, response.statusText);
+    console.log('[DEBUG] Response headers:', Object.fromEntries(response.headers));
+
+    // Get raw response text
+    const rawResponse = await response.text();
+    console.log('[DEBUG] Raw response:', rawResponse.substring(0, 1000));
+
+    // If JSON, parse and return
+    if (response.headers.get('content-type')?.includes('application/json')) {
+      try {
+        const data = JSON.parse(rawResponse);
+        res.status(response.status).json(data);
+      } catch (err) {
+        console.error('[ERROR] JSON parse failed:', err);
+        res.status(500).json({
+          error: 'Invalid JSON from login service',
+          rawResponse: rawResponse.substring(0, 500),
+          contentType: response.headers.get('content-type')
+        });
+      }
+    } else {
+      // Non-JSON (likely HTML error page)
+      console.error('[ERROR] Login service returned non-JSON');
+      res.status(500).json({
+        error: 'Login service returned HTML or non-JSON',
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        rawResponse: rawResponse.substring(0, 1000)
+      });
+    }
+
   } catch (error) {
-    console.error('Error routing to login service:', error);
-    res.status(500).json({ error: 'Gateway routing error' });
+    console.error('[ERROR] Network or fetch error:', error.message);
+    res.status(500).json({
+      error: 'Gateway network error',
+      details: error.message,
+      targetUrl: `${SERVICES.login}/check-google-user`
+    });
   }
 });
+
 
 app.post('/update-last-login', async (req, res) => {
   try {
@@ -163,8 +206,10 @@ app.post('/update-last-login', async (req, res) => {
 app.get('/api/tasks', async (req, res) => {
   try {
     console.log('Routing /api/tasks to tasks-service');
+    
     const queryString = new URLSearchParams(req.query as any).toString();
     const url = `${SERVICES.tasks}/tasks${queryString ? '?' + queryString : ''}`;
+    console.log('Target URL:', url);
     
     const response = await fetch(url);
     const data = await response.json();

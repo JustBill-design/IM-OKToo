@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use your calendar routes
-app.use('/calendar', calendarRouter);
+app.use('/', calendarRouter);
 
 app.listen(PORT, () => {
   console.log(`Calendar service running on port ${PORT}`);

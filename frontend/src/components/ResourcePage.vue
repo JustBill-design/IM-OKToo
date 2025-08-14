@@ -66,7 +66,7 @@ const newsList = ref([
 
 async function extractTitlesUniversal(url: string): Promise<string[]> {
   try {
-    const api = `http://localhost:3001/api/scrape-titles?url=${encodeURIComponent(url)}`
+    const api = `https://api-gateway-366297756669.us-central1.run.app/api/scrape-titles?url=${encodeURIComponent(url)}`
     const res = await fetch(api)
     if (!res.ok) throw new Error(`Backend error: ${res.status}`)
     const { titles } = await res.json()

@@ -120,7 +120,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     ...values,
     email
   }
-  const response = await fetch("http://localhost:3001/calendar/add",
+  const response = await fetch("https://api-gateway-366297756669.us-central1.run.app/calendar/add",
   {
       method: 'POST',
       body: JSON.stringify(payload),

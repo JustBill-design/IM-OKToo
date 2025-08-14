@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use your scraper routes
-app.use('/scraper', scraperRouter);
+app.use('/', scraperRouter);
 
 app.listen(PORT, () => {
   console.log(`Scraper service running on port ${PORT}`);

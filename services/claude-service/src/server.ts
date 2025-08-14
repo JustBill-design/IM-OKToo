@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // claude route
-app.use('/claude', claudeRouter);
+app.use('/', claudeRouter);
 
 app.listen(PORT, () => {
   console.log(`Claude service running on port ${PORT}`);

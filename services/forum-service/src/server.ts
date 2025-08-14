@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use your posts/forum routes
-app.use('/posts', postsRouter);
+app.use('/', postsRouter);
 
 app.listen(PORT, () => {
   console.log(`Forum service running on port ${PORT}`);

@@ -78,7 +78,7 @@ async function deleteEvent() {
   isDeleting.value = true;
   const eventId = {id: popoverEvent.value?.id};
 
-  const response = await fetch("http://localhost:3001/calendar/delete",
+  const response = await fetch("https://api-gateway-366297756669.us-central1.run.app/calendar/delete",
   {
       method: 'POST',
       body: JSON.stringify(eventId),
@@ -110,7 +110,7 @@ async function retrieveEvents() {
   const events: CalendarEvent[] = [];
   const email = localStorage.getItem("email");
 
-  const response = await fetch(`http://localhost:3001/calendar/all?email=${email}`,
+  const response = await fetch(`https://api-gateway-366297756669.us-central1.run.app/calendar/all?email=${email}`,
   {
       method: 'GET',
       headers: {
@@ -284,7 +284,7 @@ onMounted(async () => {
 
         const eventData = {id: updatedEvent.id, start: format(newStart, 'yyyy-MM-dd HH:mm:ss'), end: format(newEnd, 'yyyy-MM-dd HH:mm:ss')};
 
-        const response = await fetch("http://localhost:3001/calendar/modify",
+        const response = await fetch("https://api-gateway-366297756669.us-central1.run.app/calendar/modify",
         {
             method: 'POST',
             body: JSON.stringify(eventData),

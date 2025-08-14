@@ -35,7 +35,7 @@ function scrollToBottom() {
 // call the backend claude endpoint
 async function getClaudeReply(userText: string): Promise<string> {
   try {
-    const response = await fetch('http://localhost:3001/claude', {
+    const response = await fetch('https://api-gateway-366297756669.us-central1.run.app/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userText })

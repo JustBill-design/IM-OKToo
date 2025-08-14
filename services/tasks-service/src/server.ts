@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use your tasks routes
-app.use('/tasks', tasksRouter);
+app.use('/', tasksRouter);
 
 app.listen(PORT, () => {
   console.log(`Tasks service running on port ${PORT}`);
