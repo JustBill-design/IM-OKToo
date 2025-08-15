@@ -349,6 +349,9 @@ export default {
     display: flex;
     min-height: 100vh;
     background-image: url(../lib/Imgs/hdb.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 /* Left side - Image section */
@@ -404,7 +407,6 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background-image: url(../lib/Imgs/hdb.jpg);
 }
 
 .form-wrapper {

@@ -343,7 +343,7 @@ export default {
 .sidebar-nav {
     flex: 1;
     padding: 1rem 0;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .nav-section {
