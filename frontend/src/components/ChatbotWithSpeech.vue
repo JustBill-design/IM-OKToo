@@ -100,7 +100,7 @@ function submitTask() {
 }
 
 function startSpeech() {
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+  if (!((window as any).webkitSpeechRecognition || (window as any).SpeechRecognition)) {
     alert('Speech recognition not supported in this browser. Please use Chrome or Edge.')
     return
   }
